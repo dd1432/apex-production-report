@@ -1,5 +1,318 @@
+```css
 /* =====================================================
-   SHIFT REPORT
+   APEX PRODUCTION REPORT
+   COMPLETE STYLE SHEET
+===================================================== */
+
+
+/* =====================================================
+   BASIC RESET
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    padding: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f4f6f8;
+
+    color: #222;
+
+}
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.container {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding: 20px;
+
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header {
+
+    text-align: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+.header h1 {
+
+    margin: 0;
+
+    font-size: 30px;
+
+}
+
+
+.header p {
+
+    margin-top: 6px;
+
+    color: #666;
+
+    font-size: 15px;
+
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+.card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
+}
+
+
+.card h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 18px;
+
+    font-size: 20px;
+
+}
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+
+/* =====================================================
+   FORM GROUP
+===================================================== */
+
+.form-group {
+
+    width: 100%;
+
+    margin-bottom: 15px;
+
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 600;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   INPUTS / SELECTS / TEXTAREA
+===================================================== */
+
+input,
+select,
+textarea {
+
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 7px;
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    outline: none;
+
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+    border-color: #555;
+
+}
+
+
+textarea {
+
+    min-height: 90px;
+
+    resize: vertical;
+
+}
+
+
+/* =====================================================
+   MACHINE ENTRY FORM
+===================================================== */
+
+.machine-entry-form {
+
+    margin-top: 18px;
+
+    padding: 16px;
+
+    border: 1px solid #e0e0e0;
+
+    border-radius: 10px;
+
+    background: #fafafa;
+
+}
+
+
+/* =====================================================
+   STATUS MESSAGE
+===================================================== */
+
+.status-message {
+
+    padding: 12px;
+
+    margin: 10px 0;
+
+    border-radius: 7px;
+
+    background: #f1f3f5;
+
+    color: #555;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+button {
+
+    font-family: inherit;
+
+}
+
+
+.primary-button {
+
+    width: 100%;
+
+    padding: 14px 18px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.secondary-button {
+
+    padding: 11px 18px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.delete-button {
+
+    border: none;
+
+    padding: 6px 10px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+}
+
+
+.delete-button:hover,
+.primary-button:hover,
+.secondary-button:hover {
+
+    opacity: 0.85;
+
+}
+
+
+/* =====================================================
+   CURRENT SHIFT ENTRY
 ===================================================== */
 
 .entry-card {
@@ -13,6 +326,7 @@
     margin-top: 12px;
 
     background: #fafafa;
+
 }
 
 
@@ -23,6 +337,8 @@
     justify-content: space-between;
 
     align-items: center;
+
+    gap: 10px;
 
     margin-bottom: 10px;
 
@@ -39,110 +355,98 @@
 
     font-size: 14px;
 
-}
-
-
-.delete-button {
-
-    border: none;
-
-    background: #dc2626;
-
-    color: white;
-
-    padding: 6px 10px;
-
-    border-radius: 6px;
-
-    cursor: pointer;
+    line-height: 1.5;
 
 }
 
 
-.delete-button:hover {
-
-    opacity: 0.85;
-
-}
-
-
-.machine-entry-form {
-
-    margin-top: 15px;
-
-}
-
-
-.primary-button {
-
-    width: 100%;
-
-    padding: 15px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    font-size: 17px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-
-.secondary-button {
-
-    margin-top: 15px;
-
-    padding: 12px 20px;
-
-    border: none;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-}
-
-
-.submit-area {
-
-    margin-top: 20px;
-
-}
-
+/* =====================================================
+   EMPTY MESSAGE
+===================================================== */
 
 .empty-message {
+
+    margin: 0;
+
+    padding: 12px 0;
 
     color: #777;
 
     font-size: 14px;
 
-    padding: 10px 0;
+}
+
+
+/* =====================================================
+   SUBMIT AREA
+===================================================== */
+
+.submit-area {
+
+    margin-top: 20px;
+
+    margin-bottom: 30px;
 
 }
 
-.status-message {
 
-    padding: 12px;
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
 
-    margin: 10px 0;
+@media (max-width: 650px) {
 
-    border-radius: 7px;
+    .container {
 
-    background: #f5f5f5;
+        padding: 12px;
 
-    font-size: 14px;
+    }
+
+
+    .header h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .card {
+
+        padding: 15px;
+
+    }
+
+
+    .grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 0;
+
+    }
+
+
+    .entry-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .delete-button {
+
+        width: 100%;
+
+    }
+
+
+    .primary-button {
+
+        font-size: 15px;
+
+    }
+
 }
-
-.textarea {
-
-    width: 100%;
-
-    box-sizing: border-box;
-
-    resize: vertical;
-
-}
+```
