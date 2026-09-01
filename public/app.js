@@ -109,18 +109,27 @@ const entriesList =
 
 
 /* =====================================================
-   SET TODAY'S DATE
+   SET DEFAULT PRODUCTION DATE
 ===================================================== */
 
-const today =
-    new Date();
+/*
+   Today's date is used only as a convenient default.
+
+   IMPORTANT:
+   The supervisor can change the Production Date
+   to any required date.
+
+   This is necessary because the 3rd Shift is entered
+   on the following calendar day but belongs to the
+   previous Production Date.
+*/
+
+const today = new Date();
 
 const todayString =
     today.toISOString().split("T")[0];
 
-reportDate.value =
-    todayString;
-
+reportDate.value = todayString;
 
 /* =====================================================
    UNIT CHANGE
