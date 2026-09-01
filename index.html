@@ -1,58 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Apex Production Report</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+          href="style.css">
+
 </head>
+
 
 <body>
 
-    <!-- HEADER -->
+<div class="container">
 
-    <header class="app-header">
+    <div class="header">
 
-        <div class="header-content">
+        <h1>Apex Production Report</h1>
 
-            <h1>Production Report</h1>
+        <p>Daily Production Shift Report</p>
 
-            <p>
-                Apex Packing Products Pvt. Ltd.
-            </p>
-
-        </div>
-
-    </header>
+    </div>
 
 
-    <!-- MAIN CONTENT -->
+    <!-- =================================================
+         SHIFT INFORMATION
+    ================================================== -->
 
-    <main class="container">
+    <div class="card">
+
+        <h2>Shift Information</h2>
 
 
-        <!-- SHIFT INFORMATION -->
-
-        <section class="card">
-
-            <h2>Shift Information</h2>
+        <div class="grid">
 
 
             <div class="form-group">
 
                 <label for="reportDate">
-                    Date
+                    Production Date
                 </label>
 
                 <input
                     type="date"
                     id="reportDate"
+                    required
                 >
 
             </div>
@@ -64,7 +62,7 @@
                     Shift
                 </label>
 
-                <select id="shift">
+                <select id="shift" required>
 
                     <option value="">
                         Select Shift
@@ -83,8 +81,6 @@
                     </option>
 
                 </select>
-                
-             <p id="shiftHelp" class="shift-help"></p>
 
             </div>
 
@@ -95,7 +91,7 @@
                     Unit
                 </label>
 
-                <select id="unit">
+                <select id="unit" required>
 
                     <option value="">
                         Select Unit
@@ -124,19 +120,28 @@
                     type="text"
                     id="supervisor"
                     placeholder="Enter supervisor name"
+                    required
                 >
 
             </div>
 
-        </section>
+
+        </div>
+
+    </div>
 
 
 
-        <!-- ADD MACHINE REPORT -->
+    <!-- =================================================
+         MACHINE REPORT
+    ================================================== -->
 
-        <section class="card">
+    <div class="card">
 
-            <h2>Add Machine Report</h2>
+        <h2>Machine Report</h2>
+
+
+        <div class="grid">
 
 
             <div class="form-group">
@@ -149,30 +154,6 @@
 
                     <option value="">
                         Select Process
-                    </option>
-
-                    <option value="Printing">
-                        Printing
-                    </option>
-
-                    <option value="Lamination">
-                        Lamination
-                    </option>
-
-                    <option value="Slitting">
-                        Slitting
-                    </option>
-
-                    <option value="Doctoring">
-                        Doctoring
-                    </option>
-
-                    <option value="Inspection">
-                        Inspection
-                    </option>
-
-                    <option value="Extrusion Lamination">
-                        Extrusion Lamination
                     </option>
 
                 </select>
@@ -189,7 +170,7 @@
                 <select id="machine">
 
                     <option value="">
-                        Select Process First
+                        Select Machine
                     </option>
 
                 </select>
@@ -197,37 +178,79 @@
             </div>
 
 
-            <!-- MACHINE FORM WILL APPEAR HERE -->
-
-            <div id="machineForm"></div>
-
-        </section>
+        </div>
 
 
+        <!-- MACHINE ENTRY AREA -->
 
-        <!-- ENTERED REPORTS -->
+        <div id="machineForm">
 
-        <section class="card">
+            <p class="empty-message">
+                Select a process and machine to enter production data.
+            </p>
 
-            <h2>Entered Reports</h2>
-
-            <div id="entriesList">
-
-                <p class="empty-message">
-                    No machine reports entered yet.
-                </p>
-
-            </div>
-
-        </section>
+        </div>
 
 
-    </main>
+        <button
+            type="button"
+            id="saveMachineReport"
+            class="secondary-button"
+        >
+            Add Machine
+        </button>
 
 
-    <!-- JAVASCRIPT -->
+    </div>
 
-    <script type="module" src="app.js"></script>
+
+
+    <!-- =================================================
+         CURRENT SHIFT ENTRIES
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>Current Shift Entries</h2>
+
+        <div id="entries">
+
+            <p class="empty-message">
+                No machines added yet.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         SUBMIT SHIFT
+    ================================================== -->
+
+    <div class="submit-area">
+
+        <button
+            type="button"
+            id="submitShiftReport"
+            class="primary-button"
+        >
+            SUBMIT SHIFT REPORT
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<script
+    type="module"
+    src="app.js">
+</script>
+
 
 </body>
+
 </html>
