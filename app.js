@@ -1,4 +1,10 @@
 /* =====================================================
+   APEX PRODUCTION REPORT
+   SHIFT REPORT SYSTEM
+===================================================== */
+
+
+/* =====================================================
    FIREBASE
 ===================================================== */
 
@@ -28,9 +34,6 @@ const firebaseConfig = {
   appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
 };
 
-/* =====================================================
-   INITIALIZE FIREBASE
-===================================================== */
 
 const firebaseApp =
     initializeApp(firebaseConfig);
@@ -38,17 +41,13 @@ const firebaseApp =
 const database =
     getDatabase(firebaseApp);
 
-/* =====================================================
-   APEX PRODUCTION REPORT
-   APP.JS
-===================================================== */
 
 
 /* =====================================================
    MACHINE STRUCTURE
 ===================================================== */
 
-const machines = {
+const machineData = {
 
     "Unit 1": {
 
@@ -82,6 +81,7 @@ const machines = {
         "Extrusion Lamination": [
             "Extrusion Lamination 1"
         ]
+
     },
 
 
@@ -114,13 +114,23 @@ const machines = {
         ],
 
         "Extrusion Lamination": []
+
     }
 
 };
 
 
+
 /* =====================================================
-   GET HTML ELEMENTS
+   VARIABLES
+===================================================== */
+
+let shiftEntries = [];
+
+
+
+/* =====================================================
+   DOM ELEMENTS
 ===================================================== */
 
 const reportDate =
@@ -138,63 +148,37 @@ const supervisor =
 const process =
     document.getElementById("process");
 
-const shiftHelp =
-    document.getElementById("shiftHelp");
-
 const machine =
     document.getElementById("machine");
 
 const machineForm =
     document.getElementById("machineForm");
 
-const entriesList =
-    document.getElementById("entriesList");
+const entries =
+    document.getElementById("entries");
+
+const saveMachineReport =
+    document.getElementById("saveMachineReport");
+
+const submitShiftReport =
+    document.getElementById("submitShiftReport");
+
 
 
 /* =====================================================
-   SET DEFAULT PRODUCTION DATE
+   DEFAULT DATE
 ===================================================== */
 
-/*
-   Today's date is used only as a convenient default.
-
-   IMPORTANT:
-   The supervisor can change the Production Date
-   to any required date.
-
-   This is necessary because the 3rd Shift is entered
-   on the following calendar day but belongs to the
-   previous Production Date.
-*/
-
-const today = new Date();
+const today =
+    new Date();
 
 const todayString =
     today.toISOString().split("T")[0];
 
-reportDate.value = todayString;
+reportDate.value =
+    todayString;
 
-/* =====================================================
-   SHIFT CHANGE
-===================================================== */
 
-shift.addEventListener(
-    "change",
-    function () {
-
-        if (shift.value === "3rd") {
-
-            shiftHelp.textContent =
-                "⚠️ 3rd Shift is from 00:00 to 08:00 of the next calendar day. Enter the correct Production Date.";
-
-        } else {
-
-            shiftHelp.textContent = "";
-
-        }
-
-    }
-);
 
 /* =====================================================
    UNIT CHANGE
@@ -204,26 +188,50 @@ unit.addEventListener(
     "change",
     function () {
 
-        /* Reset process */
+        process.innerHTML =
+            '<option value="">Select Process</option>';
 
-        process.value = "";
+        machine.innerHTML =
+            '<option value="">Select Machine</option>';
 
+        machineForm.innerHTML =
+            '<p class="empty-message">' +
+            'Select a process and machine to enter production data.' +
+            '</p>';
 
-        /* Reset machine */
+        if (!unit.value) {
+            return;
+        }
 
-        machine.innerHTML = `
-            <option value="">
-                Select Process First
-            </option>
-        `;
+        const processes =
+            machineData[unit.value];
 
+        Object.keys(processes).forEach(
+            function (processName) {
 
-        /* Remove machine form */
+                if (
+                    processes[processName].length > 0
+                ) {
 
-        machineForm.innerHTML = "";
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        processName;
+
+                    option.textContent =
+                        processName;
+
+                    process.appendChild(option);
+
+                }
+
+            }
+        );
 
     }
 );
+
 
 
 /* =====================================================
@@ -234,80 +242,29 @@ process.addEventListener(
     "change",
     function () {
 
-        /* Clear machine list */
+        machine.innerHTML =
+            '<option value="">Select Machine</option>';
 
-        machine.innerHTML = `
-            <option value="">
-                Select Machine
-            </option>
-        `;
-
-
-        /* Clear previous form */
-
-        machineForm.innerHTML = "";
-
-
-        const selectedUnit =
-            unit.value;
-
-        const selectedProcess =
-            process.value;
-
-
-        /* Check selection */
+        machineForm.innerHTML =
+            '<p class="empty-message">' +
+            'Select a machine to enter production data.' +
+            '</p>';
 
         if (
-            !selectedUnit ||
-            !selectedProcess
+            !unit.value ||
+            !process.value
         ) {
-
-            machine.innerHTML = `
-                <option value="">
-                    Select Unit and Process
-                </option>
-            `;
-
             return;
         }
 
+        const machines =
+            machineData[unit.value][process.value];
 
-        /* Get machines */
-
-        const availableMachines =
-            machines[
-                selectedUnit
-            ][
-                selectedProcess
-            ];
-
-
-        /* No machines */
-
-        if (
-            !availableMachines ||
-            availableMachines.length === 0
-        ) {
-
-            machine.innerHTML = `
-                <option value="">
-                    No machine available
-                </option>
-            `;
-
-            return;
-        }
-
-
-        /* Add machines */
-
-        availableMachines.forEach(
+        machines.forEach(
             function (machineName) {
 
                 const option =
-                    document.createElement(
-                        "option"
-                    );
+                    document.createElement("option");
 
                 option.value =
                     machineName;
@@ -315,15 +272,14 @@ process.addEventListener(
                 option.textContent =
                     machineName;
 
-                machine.appendChild(
-                    option
-                );
+                machine.appendChild(option);
 
             }
         );
 
     }
 );
+
 
 
 /* =====================================================
@@ -334,58 +290,45 @@ machine.addEventListener(
     "change",
     function () {
 
-        const selectedProcess =
-            process.value;
-
-        const selectedMachine =
-            machine.value;
-
-
-        if (!selectedMachine) {
-
-            machineForm.innerHTML = "";
-
-            return;
-        }
-
-
-        createMachineForm(
-            selectedProcess,
-            selectedMachine
-        );
+        createMachineForm();
 
     }
 );
+
 
 
 /* =====================================================
    CREATE MACHINE FORM
 ===================================================== */
 
-function createMachineForm(
-    selectedProcess,
-    selectedMachine
-) {
+function createMachineForm() {
 
-    let form = `
+    machineForm.innerHTML = "";
 
-        <h3>
-            ${selectedMachine}
-        </h3>
+    if (!machine.value) {
 
-    `;
+        machineForm.innerHTML =
+            '<p class="empty-message">' +
+            'Select a machine to enter production data.' +
+            '</p>';
+
+        return;
+
+    }
 
 
-    /* =================================================
-       PRINTING
-    ================================================= */
+    const wrapper =
+        document.createElement("div");
 
-    if (
-        selectedProcess ===
-        "Printing"
-    ) {
+    wrapper.className =
+        "machine-entry-form";
 
-        form += `
+
+    /* STATUS */
+
+    wrapper.innerHTML = `
+
+        <div class="grid">
 
             <div class="form-group">
 
@@ -403,10 +346,6 @@ function createMachineForm(
                         Idle
                     </option>
 
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
                     <option value="Maintenance">
                         Maintenance
                     </option>
@@ -419,13 +358,14 @@ function createMachineForm(
             <div class="form-group">
 
                 <label>
-                    Total Printed Length (metres)
+                    Length (mtrs)
                 </label>
 
                 <input
                     type="number"
                     id="length"
-                    placeholder="Example: 12000"
+                    placeholder="Enter length"
+                    min="0"
                 >
 
             </div>
@@ -440,7 +380,9 @@ function createMachineForm(
                 <input
                     type="number"
                     id="weight"
-                    placeholder="Example: 717"
+                    placeholder="Enter weight"
+                    min="0"
+                    step="0.01"
                 >
 
             </div>
@@ -449,942 +391,496 @@ function createMachineForm(
             <div class="form-group">
 
                 <label>
-                    Speed (m/min)
+                    Speed
                 </label>
 
                 <input
                     type="number"
                     id="speed"
-                    placeholder="Optional"
+                    placeholder="Enter speed"
+                    min="0"
                 >
 
             </div>
 
 
-            <div class="form-group">
+        </div>
 
-                <label>
-                    Product
-                </label>
 
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Example: Parle G 800 gm"
-                >
+        <div class="form-group">
 
-            </div>
+            <label>
+                Product
+            </label>
 
+            <input
+                type="text"
+                id="product"
+                placeholder="Enter product"
+            >
 
-            <div class="form-group">
+        </div>
 
-                <label>
-                    Remarks
-                </label>
 
-                <textarea
-                    id="remarks"
-                    placeholder="Blocking problem, speed reduced, etc."
-                ></textarea>
+        <div class="form-group">
 
-            </div>
+            <label>
+                Remarks
+            </label>
 
-        `;
+            <textarea
+                id="remarks"
+                placeholder="Enter remarks / problems / observations"
+                rows="4"
+            ></textarea>
 
-    }
-
-
-    /* =================================================
-       LAMINATION
-    ================================================= */
-
-    else if (
-        selectedProcess ===
-        "Lamination"
-    ) {
-
-        form += `
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Laminated Length (metres)
-                </label>
-
-                <input
-                    type="number"
-                    id="length"
-                    placeholder="Example: 56389"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Weight (kg)
-                </label>
-
-                <input
-                    type="number"
-                    id="weight"
-                    placeholder="Optional"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Product name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Remarks
-                </label>
-
-                <textarea
-                    id="remarks"
-                    placeholder="Problems / remarks"
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       SLITTING
-    ================================================= */
-
-    else if (
-        selectedProcess ===
-        "Slitting"
-    ) {
-
-        form += `
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Slitted Length (metres)
-                </label>
-
-                <input
-                    type="number"
-                    id="length"
-                    placeholder="Optional"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Weight (kg)
-                </label>
-
-                <input
-                    type="number"
-                    id="weight"
-                    placeholder="Example: 2452"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Product name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Remarks
-                </label>
-
-                <textarea
-                    id="remarks"
-                    placeholder="Improper winding, adhesive problem, etc."
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       DOCTORING
-    ================================================= */
-
-    else if (
-        selectedProcess ===
-        "Doctoring"
-    ) {
-
-        form += `
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Coils
-                </label>
-
-                <input
-                    type="number"
-                    id="totalCoils"
-                    placeholder="Example: 13"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Product / Coil Details
-                </label>
-
-                <textarea
-                    id="coilDetails"
-                    placeholder="Example:
-Munch 38.5 gm - 5 C
-Munch 8.7 gm - 8 C"
-                ></textarea>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Remarks
-                </label>
-
-                <textarea
-                    id="remarks"
-                    placeholder="Problems / remarks"
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       INSPECTION
-    ================================================= */
-
-    else if (
-        selectedProcess ===
-        "Inspection"
-    ) {
-
-        form += `
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Quantity
-                </label>
-
-                <input
-                    type="number"
-                    id="quantity"
-                    placeholder="Enter quantity"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Quantity Unit
-                </label>
-
-                <select id="quantityUnit">
-
-                    <option value="metres">
-                        Metres
-                    </option>
-
-                    <option value="kg">
-                        Kg
-                    </option>
-
-                    <option value="coils">
-                        Coils
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Remarks
-                </label>
-
-                <textarea
-                    id="remarks"
-                    placeholder="Inspection remarks"
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       EXTRUSION LAMINATION
-    ================================================= */
-
-    else if (
-        selectedProcess ===
-        "Extrusion Lamination"
-    ) {
-
-        form += `
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Breakdown">
-                        Breakdown
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Total Production Length (metres)
-                </label>
-
-                <input
-                    type="number"
-                    id="length"
-                    placeholder="Optional"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Weight (kg)
-                </label>
-
-                <input
-                    type="number"
-                    id="weight"
-                    placeholder="Optional"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Product name"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Remarks
-                </label>
-
-                <textarea
-                    id="remarks"
-                    placeholder="Problems / remarks"
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       SAVE BUTTON
-    ================================================= */
-
-    form += `
-
-        <button
-            type="button"
-            class="save-button"
-            id="saveButton"
-        >
-
-            SAVE MACHINE REPORT
-
-        </button>
+        </div>
 
     `;
 
 
-    machineForm.innerHTML =
-        form;
-
-
-    /* Attach save button */
-
-    document
-        .getElementById("saveButton")
-        .addEventListener(
-            "click",
-            saveMachineReport
-        );
+    machineForm.appendChild(
+        wrapper
+    );
 
 }
 
 
+
 /* =====================================================
-   SAVE MACHINE REPORT
+   ADD MACHINE
 ===================================================== */
 
-function saveMachineReport() {
+saveMachineReport.addEventListener(
+    "click",
+    function () {
 
-    const dateValue =
-        reportDate.value;
+        if (!unit.value) {
 
-    const shiftValue =
-        shift.value;
+            alert(
+                "Please select Unit."
+            );
 
-    const unitValue =
-        unit.value;
+            return;
 
-    const supervisorValue =
-        supervisor.value.trim();
+        }
 
-    const processValue =
-        process.value;
+        if (!process.value) {
 
-    const machineValue =
-        machine.value;
+            alert(
+                "Please select Process."
+            );
+
+            return;
+
+        }
+
+        if (!machine.value) {
+
+            alert(
+                "Please select Machine."
+            );
+
+            return;
+
+        }
 
 
-    /* Check basic information */
+        const status =
+            document.getElementById(
+                "machineStatus"
+            ).value;
+
+
+        const length =
+            document.getElementById(
+                "length"
+            ).value;
+
+
+        const weight =
+            document.getElementById(
+                "weight"
+            ).value;
+
+
+        const speed =
+            document.getElementById(
+                "speed"
+            ).value;
+
+
+        const product =
+            document.getElementById(
+                "product"
+            ).value;
+
+
+        const remarks =
+            document.getElementById(
+                "remarks"
+            ).value;
+
+
+        const machineEntry = {
+
+            unit:
+                unit.value,
+
+            process:
+                process.value,
+
+            machine:
+                machine.value,
+
+            status:
+                status,
+
+            length:
+                length,
+
+            weight:
+                weight,
+
+            speed:
+                speed,
+
+            product:
+                product,
+
+            remarks:
+                remarks
+
+        };
+
+
+        shiftEntries.push(
+            machineEntry
+        );
+
+
+        displayEntries();
+
+
+        /* Reset machine selection */
+
+        machine.value = "";
+
+        machineForm.innerHTML =
+            '<p class="empty-message">' +
+            'Machine added. Select another machine if required.' +
+            '</p>';
+
+    }
+);
+
+
+
+/* =====================================================
+   DISPLAY ENTRIES
+===================================================== */
+
+function displayEntries() {
+
+    entries.innerHTML = "";
+
 
     if (
-        !dateValue ||
-        !shiftValue ||
-        !unitValue ||
-        !supervisorValue ||
-        !processValue ||
-        !machineValue
+        shiftEntries.length === 0
     ) {
 
-        alert(
-            "Please complete Date, Shift, Unit, Supervisor, Process and Machine."
-        );
+        entries.innerHTML =
+            '<p class="empty-message">' +
+            'No machines added yet.' +
+            '</p>';
 
         return;
+
     }
 
 
-    /* Collect machine information */
+    shiftEntries.forEach(
+        function (item, index) {
 
-    const report = {
+            const card =
+                document.createElement("div");
 
-        date:
-            dateValue,
-
-        shift:
-            shiftValue,
-
-        unit:
-            unitValue,
-
-        supervisor:
-            supervisorValue,
-
-        process:
-            processValue,
-
-        machine:
-            machineValue,
-
-        status:
-            document
-                .getElementById("machineStatus")
-                ?.value || "",
-
-        length:
-            document
-                .getElementById("length")
-                ?.value || "",
-
-        weight:
-            document
-                .getElementById("weight")
-                ?.value || "",
-
-        speed:
-            document
-                .getElementById("speed")
-                ?.value || "",
-
-        product:
-            document
-                .getElementById("product")
-                ?.value || "",
-
-        totalCoils:
-            document
-                .getElementById("totalCoils")
-                ?.value || "",
-
-        coilDetails:
-            document
-                .getElementById("coilDetails")
-                ?.value || "",
-
-        quantity:
-            document
-                .getElementById("quantity")
-                ?.value || "",
-
-        quantityUnit:
-            document
-                .getElementById("quantityUnit")
-                ?.value || "",
-
-        remarks:
-            document
-                .getElementById("remarks")
-                ?.value || "",
-
-        createdAt:
-            new Date().toISOString()
-
-    };
+            card.className =
+                "entry-card";
 
 
-   /* =================================================
-   SAVE TO FIREBASE
-================================================= */
+            card.innerHTML = `
 
-const reportsRef =
-    ref(database, "productionReports");
+                <div class="entry-header">
+
+                    <strong>
+                        ${item.machine}
+                    </strong>
+
+                    <button
+                        type="button"
+                        class="delete-button"
+                        data-index="${index}"
+                    >
+                        Remove
+                    </button>
+
+                </div>
 
 
-push(
-    reportsRef,
-    {
-        ...report,
+                <div class="entry-details">
 
-        entryTimestamp:
-            serverTimestamp()
-    }
-)
-.then(function () {
+                    <span>
+                        Process:
+                        ${item.process}
+                    </span>
 
-    /* Show on screen */
+                    <span>
+                        Status:
+                        ${item.status}
+                    </span>
 
-    addEntryToScreen(
-        report
+                    ${
+                        item.length
+                        ?
+                        `<span>
+                            Length:
+                            ${item.length} m
+                         </span>`
+                        :
+                        ""
+                    }
+
+                    ${
+                        item.weight
+                        ?
+                        `<span>
+                            Weight:
+                            ${item.weight} kg
+                         </span>`
+                        :
+                        ""
+                    }
+
+                    ${
+                        item.speed
+                        ?
+                        `<span>
+                            Speed:
+                            ${item.speed}
+                         </span>`
+                        :
+                        ""
+                    }
+
+                    ${
+                        item.product
+                        ?
+                        `<span>
+                            Product:
+                            ${item.product}
+                         </span>`
+                        :
+                        ""
+                    }
+
+                    ${
+                        item.remarks
+                        ?
+                        `<span>
+                            Remarks:
+                            ${item.remarks}
+                         </span>`
+                        :
+                        ""
+                    }
+
+                </div>
+
+            `;
+
+
+            entries.appendChild(
+                card
+            );
+
+        }
     );
 
 
-    /* Clear machine form */
+    /* Delete buttons */
 
-    machineForm.innerHTML = "";
+    document
+        .querySelectorAll(".delete-button")
+        .forEach(
+            function (button) {
 
+                button.addEventListener(
+                    "click",
+                    function () {
 
-    /* Reset machine */
+                        const index =
+                            Number(
+                                button.dataset.index
+                            );
 
-    machine.value = "";
+                        shiftEntries.splice(
+                            index,
+                            1
+                        );
 
+                        displayEntries();
 
-    alert(
-        machineValue +
-        " report saved successfully."
-    );
+                    }
+                );
 
-})
-.catch(function (error) {
-
-    console.error(
-        "Firebase save error:",
-        error
-    );
-
-    alert(
-        "Could not save the report. Please try again."
-    );
-
-});
+            }
+        );
 
 }
 
 
+
 /* =====================================================
-   DISPLAY ENTRY
+   SUBMIT COMPLETE SHIFT REPORT
 ===================================================== */
 
-function addEntryToScreen(
-    report
-) {
+submitShiftReport.addEventListener(
+    "click",
+    async function () {
+
+        if (!reportDate.value) {
+
+            alert(
+                "Please select Production Date."
+            );
+
+            return;
+
+        }
 
 
-    /* Remove empty message */
+        if (!shift.value) {
 
-    const emptyMessage =
-        entriesList
-            .querySelector(
-                ".empty-message"
+            alert(
+                "Please select Shift."
+            );
+
+            return;
+
+        }
+
+
+        if (!unit.value) {
+
+            alert(
+                "Please select Unit."
+            );
+
+            return;
+
+        }
+
+
+        if (!supervisor.value.trim()) {
+
+            alert(
+                "Please enter Supervisor Name."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            shiftEntries.length === 0
+        ) {
+
+            alert(
+                "Please add at least one machine report."
+            );
+
+            return;
+
+        }
+
+
+        const completeReport = {
+
+            productionDate:
+                reportDate.value,
+
+            shift:
+                shift.value,
+
+            unit:
+                unit.value,
+
+            supervisor:
+                supervisor.value.trim(),
+
+            machines:
+                shiftEntries,
+
+            entryTimestamp:
+                serverTimestamp()
+
+        };
+
+
+        try {
+
+            const reportsRef =
+                ref(
+                    database,
+                    "productionReports"
+                );
+
+
+            await push(
+                reportsRef,
+                completeReport
             );
 
 
-    if (emptyMessage) {
-
-        emptyMessage.remove();
-
-    }
+            alert(
+                "Shift report submitted successfully!"
+            );
 
 
-    /* Create entry */
+            /* Reset */
 
-    const entry =
-        document.createElement(
-            "div"
-        );
+            shiftEntries = [];
 
-
-    entry.className =
-        "entry";
+            displayEntries();
 
 
-    /* Build information */
-
-    let details = `
-
-        <strong>Process:</strong>
-        ${report.process}
-        <br>
-
-        <strong>Status:</strong>
-        ${report.status || "Not entered"}
-        <br>
-
-    `;
+            machineForm.innerHTML =
+                '<p class="empty-message">' +
+                'Shift report submitted. You can start a new report.' +
+                '</p>';
 
 
-    if (report.length) {
+            machine.innerHTML =
+                '<option value="">Select Machine</option>';
 
-        details += `
 
-            <strong>Length:</strong>
-            ${report.length} m
-            <br>
+        }
 
-        `;
+        catch (error) {
+
+            console.error(
+                "Firebase error:",
+                error
+            );
+
+
+            alert(
+                "Could not submit report. Please check your internet connection."
+            );
+
+        }
 
     }
-
-
-    if (report.weight) {
-
-        details += `
-
-            <strong>Weight:</strong>
-            ${report.weight} kg
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.speed) {
-
-        details += `
-
-            <strong>Speed:</strong>
-            ${report.speed} m/min
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.totalCoils) {
-
-        details += `
-
-            <strong>Total Coils:</strong>
-            ${report.totalCoils}
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.coilDetails) {
-
-        details += `
-
-            <strong>Coil Details:</strong>
-            <br>
-
-            ${report.coilDetails
-                .replace(/\n/g, "<br>")}
-
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.quantity) {
-
-        details += `
-
-            <strong>Quantity:</strong>
-            ${report.quantity}
-            ${report.quantityUnit}
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.product) {
-
-        details += `
-
-            <strong>Product:</strong>
-            ${report.product}
-            <br>
-
-        `;
-
-    }
-
-
-    if (report.remarks) {
-
-        details += `
-
-            <strong>Remarks:</strong>
-            ${report.remarks
-                .replace(/\n/g, "<br>")}
-
-        `;
-
-    }
-
-
-    entry.innerHTML = `
-
-        <div class="entry-title">
-
-            ${report.machine}
-
-        </div>
-
-        <div class="entry-details">
-
-            ${details}
-
-        </div>
-
-    `;
-
-
-    entriesList.appendChild(
-        entry
-    );
-
-}
+);
