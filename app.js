@@ -25,13 +25,23 @@ import {
 ===================================================== */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
-  authDomain: "apex-production-report-90e12.firebaseapp.com",
-  databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "apex-production-report-90e12",
-  storageBucket: "apex-production-report-90e12.firebasestorage.app",
-  messagingSenderId: "857344599590",
-  appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
+
+    apiKey: "YOUR_REAL_API_KEY",
+
+    authDomain: "YOUR_REAL_AUTH_DOMAIN",
+
+    databaseURL:
+        "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app/",
+
+    projectId: "YOUR_REAL_PROJECT_ID",
+
+    storageBucket: "YOUR_REAL_STORAGE_BUCKET",
+
+    messagingSenderId:
+        "YOUR_REAL_MESSAGING_SENDER_ID",
+
+    appId: "YOUR_REAL_APP_ID"
+
 };
 
 
@@ -78,8 +88,8 @@ const machineData = {
             "Inspection 1"
         ],
 
-        "Extrusion Lamination": [
-            "Extrusion Lamination 1"
+        "Extrusion Coating": [
+            "Extrusion Coating 1"
         ]
 
     },
@@ -113,19 +123,11 @@ const machineData = {
             "Inspection 2"
         ],
 
-        "Extrusion Lamination": []
+        "Extrusion Coating": []
 
     }
 
 };
-
-
-
-/* =====================================================
-   VARIABLES
-===================================================== */
-
-let shiftEntries = [];
 
 
 
@@ -162,6 +164,14 @@ const saveMachineReport =
 
 const submitShiftReport =
     document.getElementById("submitShiftReport");
+
+
+
+/* =====================================================
+   CURRENT SHIFT ENTRIES
+===================================================== */
+
+let shiftEntries = [];
 
 
 
@@ -203,15 +213,19 @@ unit.addEventListener(
             return;
         }
 
+
         const processes =
             machineData[unit.value];
+
 
         Object.keys(processes).forEach(
             function (processName) {
 
-                if (
-                    processes[processName].length > 0
-                ) {
+                const machines =
+                    processes[processName];
+
+
+                if (machines.length > 0) {
 
                     const option =
                         document.createElement("option");
@@ -222,7 +236,9 @@ unit.addEventListener(
                     option.textContent =
                         processName;
 
-                    process.appendChild(option);
+                    process.appendChild(
+                        option
+                    );
 
                 }
 
@@ -257,8 +273,14 @@ process.addEventListener(
             return;
         }
 
+
         const machines =
-            machineData[unit.value][process.value];
+            machineData[
+                unit.value
+            ][
+                process.value
+            ];
+
 
         machines.forEach(
             function (machineName) {
@@ -272,7 +294,9 @@ process.addEventListener(
                 option.textContent =
                     machineName;
 
-                machine.appendChild(option);
+                machine.appendChild(
+                    option
+                );
 
             }
         );
@@ -305,6 +329,7 @@ function createMachineForm() {
 
     machineForm.innerHTML = "";
 
+
     if (!machine.value) {
 
         machineForm.innerHTML =
@@ -324,136 +349,612 @@ function createMachineForm() {
         "machine-entry-form";
 
 
-    /* STATUS */
+    /* =================================================
+       STATUS
+    ================================================= */
 
-    wrapper.innerHTML = `
+    const statusGroup =
+        document.createElement("div");
 
-        <div class="grid">
-
-            <div class="form-group">
-
-                <label>
-                    Machine Status
-                </label>
-
-                <select id="machineStatus">
-
-                    <option value="Production">
-                        Production
-                    </option>
-
-                    <option value="Idle">
-                        Idle
-                    </option>
-
-                    <option value="Maintenance">
-                        Maintenance
-                    </option>
-
-                </select>
-
-            </div>
+    statusGroup.className =
+        "form-group";
 
 
-            <div class="form-group">
+    statusGroup.innerHTML = `
 
-                <label>
-                    Length (mtrs)
-                </label>
+        <label>
+            Machine Status
+        </label>
 
-                <input
-                    type="number"
-                    id="length"
-                    placeholder="Enter length"
-                    min="0"
-                >
+        <select id="machineStatus">
 
-            </div>
+            <option value="Production">
+                Production
+            </option>
 
+            <option value="Idle">
+                Idle
+            </option>
 
-            <div class="form-group">
+            <option value="Maintenance">
+                Maintenance
+            </option>
 
-                <label>
-                    Weight (kg)
-                </label>
-
-                <input
-                    type="number"
-                    id="weight"
-                    placeholder="Enter weight"
-                    min="0"
-                    step="0.01"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Speed
-                </label>
-
-                <input
-                    type="number"
-                    id="speed"
-                    placeholder="Enter speed"
-                    min="0"
-                >
-
-            </div>
-
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Product
-            </label>
-
-            <input
-                type="text"
-                id="product"
-                placeholder="Enter product"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Remarks
-            </label>
-
-            <textarea
-                id="remarks"
-                placeholder="Enter remarks / problems / observations"
-                rows="4"
-            ></textarea>
-
-        </div>
+        </select>
 
     `;
+
+
+    wrapper.appendChild(
+        statusGroup
+    );
+
+
+    /* =================================================
+       PROCESS-SPECIFIC FIELDS
+    ================================================= */
+
+    const fieldsContainer =
+        document.createElement("div");
+
+    fieldsContainer.id =
+        "processFields";
+
+
+    wrapper.appendChild(
+        fieldsContainer
+    );
+
+
+    /* =================================================
+       REMARKS
+    ================================================= */
+
+    const remarksGroup =
+        document.createElement("div");
+
+    remarksGroup.className =
+        "form-group";
+
+
+    remarksGroup.innerHTML = `
+
+        <label>
+            Remarks
+        </label>
+
+        <textarea
+            id="remarks"
+            rows="4"
+            placeholder="Problems / observations / remarks"
+        ></textarea>
+
+    `;
+
+
+    wrapper.appendChild(
+        remarksGroup
+    );
 
 
     machineForm.appendChild(
         wrapper
     );
 
+
+    /* =================================================
+       LOAD CORRECT FIELDS
+    ================================================= */
+
+    renderProcessFields();
+
+
+    /* =================================================
+       STATUS CHANGE
+    ================================================= */
+
+    document
+        .getElementById("machineStatus")
+        .addEventListener(
+            "change",
+            function () {
+
+                renderProcessFields();
+
+            }
+        );
+
 }
 
 
 
 /* =====================================================
-   ADD MACHINE
+   RENDER PROCESS FIELDS
+===================================================== */
+
+function renderProcessFields() {
+
+    const container =
+        document.getElementById(
+            "processFields"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    const status =
+        document.getElementById(
+            "machineStatus"
+        ).value;
+
+
+    /*
+       For Idle / Maintenance,
+       production measurement fields
+       are not necessary.
+    */
+
+    if (
+        status === "Idle" ||
+        status === "Maintenance"
+    ) {
+
+        container.innerHTML = `
+
+            <p class="status-message">
+                ${status} — no production
+                measurement required.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* =================================================
+       PRINTING
+    ================================================= */
+
+    if (
+        process.value === "Printing"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Total Printed Length (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="length"
+                        min="0"
+                        placeholder="Enter length"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Speed
+                    </label>
+
+                    <input
+                        type="number"
+                        id="speed"
+                        min="0"
+                        placeholder="Enter speed"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="product"
+                    placeholder="Enter product"
+                >
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
+       LAMINATION
+    ================================================= */
+
+    else if (
+        process.value === "Lamination"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Total Laminated Length (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="length"
+                        min="0"
+                        placeholder="Enter length"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Speed
+                    </label>
+
+                    <input
+                        type="number"
+                        id="speed"
+                        min="0"
+                        placeholder="Enter speed"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="product"
+                    placeholder="Enter product"
+                >
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
+       EXTRUSION COATING
+    ================================================= */
+
+    else if (
+        process.value === "Extrusion Coating"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Total Coated Length (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="length"
+                        min="0"
+                        placeholder="Enter length"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Speed
+                    </label>
+
+                    <input
+                        type="number"
+                        id="speed"
+                        min="0"
+                        placeholder="Enter speed"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="product"
+                    placeholder="Enter product"
+                >
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
+       SLITTING
+    ================================================= */
+
+    else if (
+        process.value === "Slitting"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Total Slitted Length (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="length"
+                        min="0"
+                        placeholder="Enter length"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Speed
+                    </label>
+
+                    <input
+                        type="number"
+                        id="speed"
+                        min="0"
+                        placeholder="Enter speed"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="product"
+                    placeholder="Enter product"
+                >
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
+       DOCTORING
+    ================================================= */
+
+    else if (
+        process.value === "Doctoring"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="form-group">
+
+                <label>
+                    Total Coils
+                </label>
+
+                <input
+                    type="number"
+                    id="totalCoils"
+                    min="0"
+                    placeholder="Example: 13"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Coil Details
+                </label>
+
+                <textarea
+                    id="coilDetails"
+                    rows="6"
+                    placeholder="Example:
+Munch 38.5 gm - 5 C
+Munch 8.7 gm - 8 C"
+                ></textarea>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
+       INSPECTION
+    ================================================= */
+
+    else if (
+        process.value === "Inspection"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Job Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="jobName"
+                        placeholder="Enter job name"
+                    >
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   ADD MACHINE TO CURRENT SHIFT
 ===================================================== */
 
 saveMachineReport.addEventListener(
     "click",
     function () {
+
 
         if (!unit.value) {
 
@@ -465,6 +966,7 @@ saveMachineReport.addEventListener(
 
         }
 
+
         if (!process.value) {
 
             alert(
@@ -474,6 +976,7 @@ saveMachineReport.addEventListener(
             return;
 
         }
+
 
         if (!machine.value) {
 
@@ -492,37 +995,7 @@ saveMachineReport.addEventListener(
             ).value;
 
 
-        const length =
-            document.getElementById(
-                "length"
-            ).value;
-
-
-        const weight =
-            document.getElementById(
-                "weight"
-            ).value;
-
-
-        const speed =
-            document.getElementById(
-                "speed"
-            ).value;
-
-
-        const product =
-            document.getElementById(
-                "product"
-            ).value;
-
-
-        const remarks =
-            document.getElementById(
-                "remarks"
-            ).value;
-
-
-        const machineEntry = {
+        const entry = {
 
             unit:
                 unit.value,
@@ -534,35 +1007,81 @@ saveMachineReport.addEventListener(
                 machine.value,
 
             status:
-                status,
-
-            length:
-                length,
-
-            weight:
-                weight,
-
-            speed:
-                speed,
-
-            product:
-                product,
-
-            remarks:
-                remarks
+                status
 
         };
 
 
+        /* =================================================
+           PROCESS-SPECIFIC DATA
+        ================================================= */
+
+
+        if (
+            process.value === "Printing" ||
+            process.value === "Lamination" ||
+            process.value === "Slitting" ||
+            process.value === "Extrusion Coating"
+        ) {
+
+            entry.length =
+                getValue("length");
+
+            entry.weight =
+                getValue("weight");
+
+            entry.speed =
+                getValue("speed");
+
+            entry.product =
+                getValue("product");
+
+        }
+
+
+        if (
+            process.value === "Doctoring"
+        ) {
+
+            entry.totalCoils =
+                getValue("totalCoils");
+
+            entry.coilDetails =
+                getValue("coilDetails");
+
+        }
+
+
+        if (
+            process.value === "Inspection"
+        ) {
+
+            entry.weight =
+                getValue("weight");
+
+            entry.jobName =
+                getValue("jobName");
+
+        }
+
+
+        entry.remarks =
+            getValue("remarks");
+
+
+        /* =================================================
+           ADD ENTRY
+        ================================================= */
+
         shiftEntries.push(
-            machineEntry
+            entry
         );
 
 
         displayEntries();
 
 
-        /* Reset machine selection */
+        /* Reset selection */
 
         machine.value = "";
 
@@ -577,7 +1096,28 @@ saveMachineReport.addEventListener(
 
 
 /* =====================================================
-   DISPLAY ENTRIES
+   GET INPUT VALUE
+===================================================== */
+
+function getValue(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
+        return "";
+    }
+
+
+    return element.value.trim();
+
+}
+
+
+
+/* =====================================================
+   DISPLAY CURRENT ENTRIES
 ===================================================== */
 
 function displayEntries() {
@@ -602,11 +1142,97 @@ function displayEntries() {
     shiftEntries.forEach(
         function (item, index) {
 
+
             const card =
                 document.createElement("div");
 
+
             card.className =
                 "entry-card";
+
+
+            let details = "";
+
+
+            if (item.length) {
+
+                details +=
+                    `<span>
+                        Length: ${item.length} m
+                    </span>`;
+
+            }
+
+
+            if (item.weight) {
+
+                details +=
+                    `<span>
+                        Weight: ${item.weight} kg
+                    </span>`;
+
+            }
+
+
+            if (item.speed) {
+
+                details +=
+                    `<span>
+                        Speed: ${item.speed}
+                    </span>`;
+
+            }
+
+
+            if (item.product) {
+
+                details +=
+                    `<span>
+                        Product: ${item.product}
+                    </span>`;
+
+            }
+
+
+            if (item.totalCoils) {
+
+                details +=
+                    `<span>
+                        Total Coils: ${item.totalCoils} C
+                    </span>`;
+
+            }
+
+
+            if (item.coilDetails) {
+
+                details +=
+                    `<span>
+                        Coil Details:<br>
+                        ${formatText(item.coilDetails)}
+                    </span>`;
+
+            }
+
+
+            if (item.jobName) {
+
+                details +=
+                    `<span>
+                        Job Name: ${formatText(item.jobName)}
+                    </span>`;
+
+            }
+
+
+            if (item.remarks) {
+
+                details +=
+                    `<span>
+                        Remarks: ${formatText(item.remarks)}
+                    </span>`;
+
+            }
 
 
             card.innerHTML = `
@@ -640,60 +1266,7 @@ function displayEntries() {
                         ${item.status}
                     </span>
 
-                    ${
-                        item.length
-                        ?
-                        `<span>
-                            Length:
-                            ${item.length} m
-                         </span>`
-                        :
-                        ""
-                    }
-
-                    ${
-                        item.weight
-                        ?
-                        `<span>
-                            Weight:
-                            ${item.weight} kg
-                         </span>`
-                        :
-                        ""
-                    }
-
-                    ${
-                        item.speed
-                        ?
-                        `<span>
-                            Speed:
-                            ${item.speed}
-                         </span>`
-                        :
-                        ""
-                    }
-
-                    ${
-                        item.product
-                        ?
-                        `<span>
-                            Product:
-                            ${item.product}
-                         </span>`
-                        :
-                        ""
-                    }
-
-                    ${
-                        item.remarks
-                        ?
-                        `<span>
-                            Remarks:
-                            ${item.remarks}
-                         </span>`
-                        :
-                        ""
-                    }
+                    ${details}
 
                 </div>
 
@@ -707,8 +1280,6 @@ function displayEntries() {
         }
     );
 
-
-    /* Delete buttons */
 
     document
         .querySelectorAll(".delete-button")
@@ -724,10 +1295,12 @@ function displayEntries() {
                                 button.dataset.index
                             );
 
+
                         shiftEntries.splice(
                             index,
                             1
                         );
+
 
                         displayEntries();
 
@@ -742,12 +1315,29 @@ function displayEntries() {
 
 
 /* =====================================================
+   FORMAT TEXT
+===================================================== */
+
+function formatText(text) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>");
+
+}
+
+
+
+/* =====================================================
    SUBMIT COMPLETE SHIFT REPORT
 ===================================================== */
 
 submitShiftReport.addEventListener(
     "click",
     async function () {
+
 
         if (!reportDate.value) {
 
@@ -831,6 +1421,7 @@ submitShiftReport.addEventListener(
 
         try {
 
+
             const reportsRef =
                 ref(
                     database,
@@ -870,8 +1461,9 @@ submitShiftReport.addEventListener(
 
         catch (error) {
 
+
             console.error(
-                "Firebase error:",
+                "Firebase save error:",
                 error
             );
 
