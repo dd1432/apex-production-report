@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Apex Production Report</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="app-header">
+
+        <div class="header-content">
+
+            <h1>Production Report</h1>
+
+            <p>
+                Apex Packing Products Pvt. Ltd.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="container">
+
+
+        <!-- SHIFT INFORMATION -->
+
+        <section class="card">
+
+            <h2>Shift Information</h2>
+
+
+            <div class="form-group">
+
+                <label for="reportDate">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="reportDate"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="shift">
+                    Shift
+                </label>
+
+                <select id="shift">
+
+                    <option value="">
+                        Select Shift
+                    </option>
+
+                    <option value="1st">
+                        1st Shift
+                    </option>
+
+                    <option value="2nd">
+                        2nd Shift
+                    </option>
+
+                    <option value="3rd">
+                        3rd Shift
+                    </option>
+
+                </select>
+                
+             <p id="shiftHelp" class="shift-help"></p>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="unit">
+                    Unit
+                </label>
+
+                <select id="unit">
+
+                    <option value="">
+                        Select Unit
+                    </option>
+
+                    <option value="Unit 1">
+                        Unit 1
+                    </option>
+
+                    <option value="Unit 2">
+                        Unit 2
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="supervisor">
+                    Supervisor Name
+                </label>
+
+                <input
+                    type="text"
+                    id="supervisor"
+                    placeholder="Enter supervisor name"
+                >
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ADD MACHINE REPORT -->
+
+        <section class="card">
+
+            <h2>Add Machine Report</h2>
+
+
+            <div class="form-group">
+
+                <label for="process">
+                    Process
+                </label>
+
+                <select id="process">
+
+                    <option value="">
+                        Select Process
+                    </option>
+
+                    <option value="Printing">
+                        Printing
+                    </option>
+
+                    <option value="Lamination">
+                        Lamination
+                    </option>
+
+                    <option value="Slitting">
+                        Slitting
+                    </option>
+
+                    <option value="Doctoring">
+                        Doctoring
+                    </option>
+
+                    <option value="Inspection">
+                        Inspection
+                    </option>
+
+                    <option value="Extrusion Lamination">
+                        Extrusion Lamination
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="machine">
+                    Machine
+                </label>
+
+                <select id="machine">
+
+                    <option value="">
+                        Select Process First
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- MACHINE FORM WILL APPEAR HERE -->
+
+            <div id="machineForm"></div>
+
+        </section>
+
+
+
+        <!-- ENTERED REPORTS -->
+
+        <section class="card">
+
+            <h2>Entered Reports</h2>
+
+            <div id="entriesList">
+
+                <p class="empty-message">
+                    No machine reports entered yet.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
