@@ -1,0 +1,409 @@
+/* =====================================================
+   GENERAL
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f3f5f7;
+
+    color: #222;
+
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.app-header {
+
+    background: #1f4e78;
+
+    color: white;
+
+    padding: 22px 15px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+.header-content {
+
+    max-width: 900px;
+
+    margin: auto;
+}
+
+
+.app-header h1 {
+
+    margin: 0;
+
+    font-size: 26px;
+
+    font-weight: 700;
+}
+
+
+.app-header p {
+
+    margin: 5px 0 0;
+
+    font-size: 14px;
+
+    opacity: 0.9;
+}
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.container {
+
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 18px 15px 40px;
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.card {
+
+    background: white;
+
+    padding: 20px;
+
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.card h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 20px;
+
+    font-size: 20px;
+
+    color: #1f4e78;
+}
+
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.form-group {
+
+    margin-bottom: 17px;
+}
+
+
+label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+}
+
+
+input,
+select,
+textarea {
+
+    width: 100%;
+
+    padding: 12px 13px;
+
+    border: 1px solid #cfd4da;
+
+    border-radius: 8px;
+
+    background: white;
+
+    font-size: 16px;
+
+    font-family: inherit;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+    border-color: #1f4e78;
+
+    box-shadow:
+        0 0 0 3px rgba(31, 78, 120, 0.12);
+}
+
+
+textarea {
+
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+/* =====================================================
+   MACHINE FORM
+===================================================== */
+
+#machineForm {
+
+    margin-top: 20px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #e5e5e5;
+}
+
+
+#machineForm h3 {
+
+    margin-top: 0;
+
+    margin-bottom: 18px;
+
+    font-size: 19px;
+
+    color: #333;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+button {
+
+    width: 100%;
+
+    padding: 13px 16px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.1s,
+        opacity 0.2s;
+}
+
+
+button:hover {
+
+    opacity: 0.9;
+}
+
+
+button:active {
+
+    transform: scale(0.98);
+}
+
+
+.save-button {
+
+    background: #198754;
+
+    color: white;
+
+    margin-top: 5px;
+}
+
+
+/* =====================================================
+   ENTERED REPORT
+===================================================== */
+
+.entry {
+
+    border: 1px solid #dfe3e7;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    margin-bottom: 12px;
+
+    background: #fafafa;
+}
+
+
+.entry-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+
+    color: #1f4e78;
+}
+
+
+.entry-details {
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+
+.empty-message {
+
+    text-align: center;
+
+    color: #777;
+
+    padding: 20px 10px;
+}
+
+
+/* =====================================================
+   STATUS COLORS
+===================================================== */
+
+.status-production {
+
+    color: #198754;
+
+    font-weight: bold;
+}
+
+
+.status-idle {
+
+    color: #b8860b;
+
+    font-weight: bold;
+}
+
+
+.status-breakdown {
+
+    color: #dc3545;
+
+    font-weight: bold;
+}
+
+
+.status-maintenance {
+
+    color: #6f42c1;
+
+    font-weight: bold;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .app-header {
+
+        padding: 18px 14px;
+    }
+
+
+    .app-header h1 {
+
+        font-size: 23px;
+    }
+
+
+    .container {
+
+        padding:
+            12px
+            10px
+            30px;
+    }
+
+
+    .card {
+
+        padding: 16px;
+
+        border-radius: 10px;
+    }
+
+
+    .card h2 {
+
+        font-size: 19px;
+    }
+
+
+    input,
+    select,
+    textarea {
+
+        font-size: 16px;
+
+        padding: 12px;
+    }
+
+}
+/* =====================================================
+   SHIFT HELP MESSAGE
+===================================================== */
+
+.shift-help {
+
+    margin: 7px 0 0;
+
+    font-size: 13px;
+
+    color: #b45309;
+
+    line-height: 1.5;
+}
