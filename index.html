@@ -8,38 +8,57 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
+    <meta name="theme-color"
+          content="#1f2937">
+
     <title>Apex Production Report</title>
 
+    <!-- CSS -->
     <link rel="stylesheet"
-          href="style.css">
+          href="./style.css?v=3">
 
 </head>
 
 
 <body>
 
+
 <div class="container">
 
-    <div class="header">
 
-        <h1>Apex Production Report</h1>
+    <!-- =================================================
+         HEADER
+    ================================================== -->
 
-        <p>Daily Production Shift Report</p>
+    <header class="header">
 
-    </div>
+        <h1>
+            Apex Production Report
+        </h1>
+
+        <p>
+            Daily Production Shift Report
+        </p>
+
+    </header>
+
 
 
     <!-- =================================================
          SHIFT INFORMATION
     ================================================== -->
 
-    <div class="card">
+    <section class="card">
 
-        <h2>Shift Information</h2>
+        <h2>
+            Shift Information
+        </h2>
 
 
         <div class="grid">
 
+
+            <!-- DATE -->
 
             <div class="form-group">
 
@@ -56,13 +75,19 @@
             </div>
 
 
+
+            <!-- SHIFT -->
+
             <div class="form-group">
 
                 <label for="shift">
                     Shift
                 </label>
 
-                <select id="shift" required>
+                <select
+                    id="shift"
+                    required
+                >
 
                     <option value="">
                         Select Shift
@@ -85,13 +110,19 @@
             </div>
 
 
+
+            <!-- UNIT -->
+
             <div class="form-group">
 
                 <label for="unit">
                     Unit
                 </label>
 
-                <select id="unit" required>
+                <select
+                    id="unit"
+                    required
+                >
 
                     <option value="">
                         Select Unit
@@ -110,6 +141,9 @@
             </div>
 
 
+
+            <!-- SUPERVISOR -->
+
             <div class="form-group">
 
                 <label for="supervisor">
@@ -120,6 +154,7 @@
                     type="text"
                     id="supervisor"
                     placeholder="Enter supervisor name"
+                    autocomplete="name"
                     required
                 >
 
@@ -128,7 +163,7 @@
 
         </div>
 
-    </div>
+    </section>
 
 
 
@@ -136,13 +171,17 @@
          MACHINE REPORT
     ================================================== -->
 
-    <div class="card">
+    <section class="card">
 
-        <h2>Machine Report</h2>
+        <h2>
+            Machine Report
+        </h2>
 
 
         <div class="grid">
 
+
+            <!-- PROCESS -->
 
             <div class="form-group">
 
@@ -160,6 +199,9 @@
 
             </div>
 
+
+
+            <!-- MACHINE -->
 
             <div class="form-group">
 
@@ -181,7 +223,10 @@
         </div>
 
 
-        <!-- MACHINE ENTRY AREA -->
+
+        <!-- =================================================
+             DYNAMIC MACHINE FORM
+        ================================================== -->
 
         <div id="machineForm">
 
@@ -192,16 +237,21 @@
         </div>
 
 
+
+        <!-- =================================================
+             ADD MACHINE
+        ================================================== -->
+
         <button
             type="button"
             id="saveMachineReport"
             class="secondary-button"
         >
-            Add Machine
+            + Add Machine
         </button>
 
 
-    </div>
+    </section>
 
 
 
@@ -209,9 +259,12 @@
          CURRENT SHIFT ENTRIES
     ================================================== -->
 
-    <div class="card">
+    <section class="card">
 
-        <h2>Current Shift Entries</h2>
+        <h2>
+            Current Shift Entries
+        </h2>
+
 
         <div id="entries">
 
@@ -221,12 +274,13 @@
 
         </div>
 
-    </div>
+
+    </section>
 
 
 
     <!-- =================================================
-         SUBMIT SHIFT
+         SUBMIT
     ================================================== -->
 
     <div class="submit-area">
@@ -245,9 +299,14 @@
 </div>
 
 
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
 <script
     type="module"
-    src="app.js">
+    src="./app.js?v=3">
 </script>
 
 
