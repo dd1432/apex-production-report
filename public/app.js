@@ -98,6 +98,9 @@ const supervisor =
 const process =
     document.getElementById("process");
 
+const shiftHelp =
+    document.getElementById("shiftHelp");
+
 const machine =
     document.getElementById("machine");
 
@@ -130,6 +133,28 @@ const todayString =
     today.toISOString().split("T")[0];
 
 reportDate.value = todayString;
+
+/* =====================================================
+   SHIFT CHANGE
+===================================================== */
+
+shift.addEventListener(
+    "change",
+    function () {
+
+        if (shift.value === "3rd") {
+
+            shiftHelp.textContent =
+                "⚠️ 3rd Shift is from 00:00 to 08:00 of the next calendar day. Enter the correct Production Date.";
+
+        } else {
+
+            shiftHelp.textContent = "";
+
+        }
+
+    }
+);
 
 /* =====================================================
    UNIT CHANGE
