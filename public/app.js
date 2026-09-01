@@ -1,4 +1,44 @@
 /* =====================================================
+   FIREBASE
+===================================================== */
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    push,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+
+/* =====================================================
+   FIREBASE CONFIGURATION
+===================================================== */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
+  authDomain: "apex-production-report-90e12.firebaseapp.com",
+  databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "apex-production-report-90e12",
+  storageBucket: "apex-production-report-90e12.firebasestorage.app",
+  messagingSenderId: "857344599590",
+  appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
+};
+
+/* =====================================================
+   INITIALIZE FIREBASE
+===================================================== */
+
+const firebaseApp =
+    initializeApp(firebaseConfig);
+
+const database =
+    getDatabase(firebaseApp);
+
+/* =====================================================
    APEX PRODUCTION REPORT
    APP.JS
 ===================================================== */
@@ -1107,6 +1147,25 @@ function saveMachineReport() {
     };
 
 
+   /* =================================================
+   SAVE TO FIREBASE
+================================================= */
+
+const reportsRef =
+    ref(database, "productionReports");
+
+
+push(
+    reportsRef,
+    {
+        ...report,
+
+        entryTimestamp:
+            serverTimestamp()
+    }
+)
+.then(function () {
+
     /* Show on screen */
 
     addEntryToScreen(
@@ -1126,8 +1185,22 @@ function saveMachineReport() {
 
     alert(
         machineValue +
-        " report added successfully."
+        " report saved successfully."
     );
+
+})
+.catch(function (error) {
+
+    console.error(
+        "Firebase save error:",
+        error
+    );
+
+    alert(
+        "Could not save the report. Please try again."
+    );
+
+});
 
 }
 
