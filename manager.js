@@ -12,18 +12,24 @@ import {
 // =====================================================
 // FIREBASE CONFIGURATION
 // =====================================================
-//
-// IMPORTANT:
-// Copy the SAME firebaseConfig from your existing app.js
-// and paste it here.
-//
-// DO NOT change your existing app.js.
-// =====================================================
 
 const firebaseConfig = {
-    // PASTE YOUR EXISTING FIREBASE CONFIG HERE
-};
 
+    apiKey: "YOUR_REAL_API_KEY",
+
+    authDomain: "YOUR_REAL_AUTH_DOMAIN",
+
+    databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app/",
+
+    projectId: "YOUR_REAL_PROJECT_ID",
+
+    storageBucket: "YOUR_REAL_STORAGE_BUCKET",
+
+    messagingSenderId: "YOUR_REAL_MESSAGING_SENDER_ID",
+
+    appId: "YOUR_REAL_APP_ID"
+
+};
 
 // =====================================================
 // FIREBASE INITIALIZATION
