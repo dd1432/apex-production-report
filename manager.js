@@ -747,14 +747,14 @@ function generateReportText(report) {
     let text = "";
 
     text += "🏭 APEX PRODUCTION REPORT\n";
-    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "━━━━━━━━━━━━━━━━━\n";
 
     text += `📅 Date: ${formatDate(report.productionDate)}\n`;
     text += `🔄 Shift: ${report.shift || "-"}\n`;
     text += `🏢 Unit: ${report.unit || "-"}\n`;
     text += `👤 Supervisor: ${report.supervisor || "-"}\n`;
 
-    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "━━━━━━━━━━━━━━━━━\n";
 
 
     // GROUP BY PROCESS
@@ -810,7 +810,7 @@ function generateReportText(report) {
 
         text += `\n🔹 ${process.toUpperCase()}\n`;
 
-        text += "────────────────────\n";
+        text += "─────────────────\n";
 
 
         processGroups[process].forEach(machine => {
@@ -874,7 +874,7 @@ function generateReportText(report) {
     });
 
 
-    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "━━━━━━━━━━━━━━━━━\n";
     text += "Generated from Apex Production Report System";
 
 
