@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Apex Manager Dashboard</title>
+
+    <link rel="stylesheet" href="./manager.css?v=1">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <h1>Apex Manager Dashboard</h1>
+        <p>Production Reports</p>
+    </header>
+
+    <!-- FILTER SECTION -->
+    <section class="card">
+
+        <h2>Report Filters</h2>
+
+        <div class="filter-grid">
+
+            <div class="form-group">
+                <label for="reportDate">Production Date</label>
+
+                <input
+                    type="date"
+                    id="reportDate"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="shiftFilter">Shift</label>
+
+                <select id="shiftFilter">
+                    <option value="">All Shifts</option>
+                    <option value="1st">1st Shift</option>
+                    <option value="2nd">2nd Shift</option>
+                    <option value="3rd">3rd Shift</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="unitFilter">Unit</label>
+
+                <select id="unitFilter">
+                    <option value="">All Units</option>
+                    <option value="Unit 1">Unit 1</option>
+                    <option value="Unit 2">Unit 2</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="filter-buttons">
+
+            <button
+                type="button"
+                id="showAllReports"
+                class="secondary-button">
+                Show All Reports
+            </button>
+
+            <button
+                type="button"
+                id="clearFilters"
+                class="secondary-button">
+                Clear Filters
+            </button>
+
+            <button
+                type="button"
+                id="refreshReports"
+                class="secondary-button">
+                Refresh
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- SUMMARY -->
+    <section class="summary-grid">
+
+        <div class="summary-card">
+            <span class="summary-number" id="reportCount">0</span>
+            <span class="summary-label">Reports</span>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-number" id="machineCount">0</span>
+            <span class="summary-label">Machines Reported</span>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-number" id="productionCount">0</span>
+            <span class="summary-label">Production Entries</span>
+        </div>
+
+        <div class="summary-card">
+            <span class="summary-number" id="idleCount">0</span>
+            <span class="summary-label">Idle / Maintenance</span>
+        </div>
+
+    </section>
+
+
+    <!-- REPORTS -->
+    <section class="card">
+
+        <div class="reports-header">
+            <h2>Production Reports</h2>
+
+            <span id="loadingMessage">
+                Loading...
+            </span>
+        </div>
+
+        <div id="reportsContainer">
+
+            <p class="empty-message">
+                Loading reports...
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script
+    type="module"
+    src="./manager.js?v=1">
+</script>
+
+</body>
+</html>
