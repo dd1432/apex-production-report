@@ -355,3 +355,59 @@ select:focus {
         font-size: 12px;
     }
 }
+/* =====================================================
+   REPORT ACTION BUTTONS
+===================================================== */
+
+.report-action-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 12px 15px 5px 15px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.report-action-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 9px 15px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.report-action-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.copy-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.print-btn {
+    background: #555;
+    color: white;
+}
+
+.whatsapp-btn {
+    background: #25D366;
+    color: white;
+}
+
+
+/* MOBILE ACTION BUTTONS */
+
+@media (max-width: 600px) {
+
+    .report-action-bar {
+        flex-direction: column;
+    }
+
+    .report-action-btn {
+        width: 100%;
+    }
+}
