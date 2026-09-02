@@ -240,6 +240,10 @@ function renderReports(reports) {
 // CREATE REPORT CARD
 // =====================================================
 
+// =====================================================
+// CREATE REPORT CARD
+// =====================================================
+
 function createReportCard(report) {
 
     const card = document.createElement("div");
@@ -291,7 +295,103 @@ function createReportCard(report) {
     card.appendChild(reportHeader);
 
 
+    // =================================================
+    // REPORT ACTION BUTTONS
+    // =================================================
+
+    const actionBar = document.createElement("div");
+
+    actionBar.className = "report-action-bar";
+
+
+    const copyButton = document.createElement("button");
+
+    copyButton.className = "report-action-btn copy-btn";
+
+    copyButton.innerHTML = "📋 Copy Report";
+
+
+    copyButton.addEventListener("click", async () => {
+
+        const text = generateReportText(report);
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            copyButton.innerHTML = "✅ Copied";
+
+            setTimeout(() => {
+                copyButton.innerHTML = "📋 Copy Report";
+            }, 2000);
+
+        } catch (error) {
+
+            console.error("Copy failed:", error);
+
+            // Fallback for older browsers
+            const textarea = document.createElement("textarea");
+
+            textarea.value = text;
+
+            document.body.appendChild(textarea);
+
+            textarea.select();
+
+            document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            copyButton.innerHTML = "✅ Copied";
+
+            setTimeout(() => {
+                copyButton.innerHTML = "📋 Copy Report";
+            }, 2000);
+        }
+    });
+
+
+    const printButton = document.createElement("button");
+
+    printButton.className = "report-action-btn print-btn";
+
+    printButton.innerHTML = "🖨️ Print Report";
+
+
+    printButton.addEventListener("click", () => {
+
+        printReport(report);
+    });
+
+
+    const whatsappButton = document.createElement("button");
+
+    whatsappButton.className =
+        "report-action-btn whatsapp-btn";
+
+    whatsappButton.innerHTML =
+        "🟢 WhatsApp Report";
+
+
+    whatsappButton.addEventListener("click", () => {
+
+        sendWhatsAppReport(report);
+    });
+
+
+    actionBar.appendChild(copyButton);
+
+    actionBar.appendChild(printButton);
+
+    actionBar.appendChild(whatsappButton);
+
+
+    card.appendChild(actionBar);
+
+
+    // =================================================
     // GROUP MACHINES BY PROCESS
+    // =================================================
 
     const processGroups = {};
 
@@ -309,7 +409,9 @@ function createReportCard(report) {
     });
 
 
+    // =================================================
     // PROCESS ORDER
+    // =================================================
 
     const processOrder = [
         "Printing",
@@ -352,7 +454,6 @@ function createReportCard(report) {
 
     return card;
 }
-
 
 // =====================================================
 // CREATE PROCESS SECTION
@@ -632,7 +733,456 @@ function createProcessSection(process, machines) {
     return section;
 }
 
+// =====================================================
+// GENERATE REPORT TEXT
+// =====================================================
 
+function generateReportText(report) {
+
+    const machines = Array.isArray(report.machines)
+        ? report.machines
+        : Object.values(report.machines || {});
+
+
+    let text = "";
+
+    text += "🏭 APEX PRODUCTION REPORT\n";
+    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+
+    text += `📅 Date: ${formatDate(report.productionDate)}\n`;
+    text += `🔄 Shift: ${report.shift || "-"}\n`;
+    text += `🏢 Unit: ${report.unit || "-"}\n`;
+    text += `👤 Supervisor: ${report.supervisor || "-"}\n`;
+
+    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+
+
+    // GROUP BY PROCESS
+
+    const processGroups = {};
+
+
+    machines.forEach(machine => {
+
+        const process =
+            machine.process || "Other";
+
+        if (!processGroups[process]) {
+            processGroups[process] = [];
+        }
+
+        processGroups[process].push(machine);
+    });
+
+
+    const processOrder = [
+        "Printing",
+        "Lamination",
+        "Slitting",
+        "Doctoring",
+        "Inspection",
+        "Extrusion Coating"
+    ];
+
+
+    const sortedProcesses =
+        Object.keys(processGroups).sort(
+            (a, b) => {
+
+                const indexA =
+                    processOrder.indexOf(a);
+
+                const indexB =
+                    processOrder.indexOf(b);
+
+                const orderA =
+                    indexA === -1 ? 999 : indexA;
+
+                const orderB =
+                    indexB === -1 ? 999 : indexB;
+
+                return orderA - orderB;
+            }
+        );
+
+
+    sortedProcesses.forEach(process => {
+
+        text += `\n🔹 ${process.toUpperCase()}\n`;
+
+        text += "────────────────────\n";
+
+
+        processGroups[process].forEach(machine => {
+
+            text += `Machine: ${machine.machine || "-"}\n`;
+
+            text += `Status: ${machine.status || "-"}\n`;
+
+
+            if (process === "Doctoring") {
+
+                text += `Total Coils: ${machine.totalCoils ?? "-"}\n`;
+
+                text += `Coil Details: ${machine.coilDetails || "-"}\n`;
+
+            }
+
+            else if (process === "Inspection") {
+
+                text += `Weight: ${machine.weight ?? "-"} kg\n`;
+
+                text += `Job Name: ${machine.jobName || "-"}\n`;
+
+            }
+
+            else {
+
+                let lengthLabel = "Length";
+
+                if (process === "Printing") {
+                    lengthLabel = "Printed Length";
+                }
+
+                if (process === "Lamination") {
+                    lengthLabel = "Laminated Length";
+                }
+
+                if (process === "Slitting") {
+                    lengthLabel = "Slitted Length";
+                }
+
+                if (process === "Extrusion Coating") {
+                    lengthLabel = "Coated Length";
+                }
+
+
+                text += `${lengthLabel}: ${machine.length ?? "-"} m\n`;
+
+                text += `Weight: ${machine.weight ?? "-"} kg\n`;
+
+                text += `Speed: ${machine.speed ?? "-"}\n`;
+
+                text += `Product: ${machine.product || "-"}\n`;
+            }
+
+
+            text += `Remarks: ${machine.remarks || "-"}\n`;
+
+            text += "\n";
+        });
+    });
+
+
+    text += "━━━━━━━━━━━━━━━━━━━━━━\n";
+    text += "Generated from Apex Production Report System";
+
+
+    return text;
+}
+
+
+// =====================================================
+// WHATSAPP REPORT
+// =====================================================
+
+function sendWhatsAppReport(report) {
+
+    const text =
+        generateReportText(report);
+
+
+    const whatsappURL =
+        `https://wa.me/?text=${encodeURIComponent(text)}`;
+
+
+    window.open(
+        whatsappURL,
+        "_blank"
+    );
+}
+
+
+// =====================================================
+// PRINT REPORT
+// =====================================================
+
+function printReport(report) {
+
+    const machines = Array.isArray(report.machines)
+        ? report.machines
+        : Object.values(report.machines || {});
+
+
+    // Create temporary report card
+    const printCard = document.createElement("div");
+
+    printCard.className = "report-card";
+
+
+    const reportHeader =
+        document.createElement("div");
+
+    reportHeader.className =
+        "report-header";
+
+
+    reportHeader.innerHTML = `
+        <div class="report-title">
+            APEX PRODUCTION REPORT
+        </div>
+
+        <div class="report-info">
+
+            <span>
+                <strong>Date:</strong>
+                ${formatDate(report.productionDate)}
+            </span>
+
+            <span>
+                <strong>Shift:</strong>
+                ${escapeHTML(report.shift || "-")}
+            </span>
+
+            <span>
+                <strong>Unit:</strong>
+                ${escapeHTML(report.unit || "-")}
+            </span>
+
+            <span>
+                <strong>Supervisor:</strong>
+                ${escapeHTML(report.supervisor || "-")}
+            </span>
+
+        </div>
+    `;
+
+
+    printCard.appendChild(reportHeader);
+
+
+    // GROUP MACHINES
+
+    const processGroups = {};
+
+
+    machines.forEach(machine => {
+
+        const process =
+            machine.process || "Other";
+
+        if (!processGroups[process]) {
+            processGroups[process] = [];
+        }
+
+        processGroups[process].push(machine);
+    });
+
+
+    const processOrder = [
+        "Printing",
+        "Lamination",
+        "Slitting",
+        "Doctoring",
+        "Inspection",
+        "Extrusion Coating"
+    ];
+
+
+    const sortedProcesses =
+        Object.keys(processGroups).sort(
+            (a, b) => {
+
+                const indexA =
+                    processOrder.indexOf(a);
+
+                const indexB =
+                    processOrder.indexOf(b);
+
+                const orderA =
+                    indexA === -1 ? 999 : indexA;
+
+                const orderB =
+                    indexB === -1 ? 999 : indexB;
+
+                return orderA - orderB;
+            }
+        );
+
+
+    sortedProcesses.forEach(process => {
+
+        printCard.appendChild(
+            createProcessSection(
+                process,
+                processGroups[process]
+            )
+        );
+    });
+
+
+    // Open print window
+
+    const printWindow =
+        window.open(
+            "",
+            "_blank",
+            "width=1200,height=800"
+        );
+
+
+    if (!printWindow) {
+
+        alert(
+            "Please allow pop-ups to print the report."
+        );
+
+        return;
+    }
+
+
+    printWindow.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <title>
+                Apex Production Report -
+                ${formatDate(report.productionDate)}
+            </title>
+
+            <style>
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    color: #000;
+                }
+
+                .report-card {
+                    width: 100%;
+                }
+
+                .report-title {
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+
+                .report-info {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    padding: 12px;
+                    border: 1px solid #000;
+                    margin-bottom: 15px;
+                }
+
+                .process-section {
+                    margin-bottom: 20px;
+                }
+
+                .process-title {
+                    font-size: 17px;
+                    font-weight: bold;
+                    background: #eaeaea;
+                    padding: 8px;
+                    border: 1px solid #000;
+                }
+
+                .machine-table-wrapper {
+                    width: 100%;
+                }
+
+                .machine-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+
+                .machine-table th,
+                .machine-table td {
+                    border: 1px solid #000;
+                    padding: 7px;
+                    font-size: 12px;
+                    text-align: left;
+                    vertical-align: top;
+                }
+
+                .machine-table th {
+                    background: #f2f2f2;
+                    font-weight: bold;
+                }
+
+                .status-badge {
+                    font-weight: bold;
+                }
+
+                .status-production {
+                    color: #000;
+                }
+
+                .status-idle {
+                    color: #000;
+                }
+
+                .status-maintenance {
+                    color: #000;
+                }
+
+                .remarks {
+                    white-space: pre-wrap;
+                }
+
+                @page {
+                    size: A4 landscape;
+                    margin: 10mm;
+                }
+
+                @media print {
+
+                    body {
+                        margin: 0;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            ${printCard.outerHTML}
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.focus();
+
+
+    setTimeout(() => {
+
+        printWindow.print();
+
+        printWindow.close();
+
+    }, 500);
+}
 // =====================================================
 // STATUS BADGE
 // =====================================================
