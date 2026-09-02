@@ -147,26 +147,14 @@ function applyFilters() {
     }
 
     // SORT REPORTS
-    filteredReports.sort((a, b) => {
+ filteredReports.sort((a, b) => {
 
-        const dateA = a.productionDate || "";
-        const dateB = b.productionDate || "";
+    // Newest submitted report first
+    const timeA = Number(a.entryTimestamp || 0);
+    const timeB = Number(b.entryTimestamp || 0);
 
-        if (dateA !== dateB) {
-            return dateB.localeCompare(dateA);
-        }
-
-        const shiftOrder = {
-            "1st": 1,
-            "2nd": 2,
-            "3rd": 3
-        };
-
-        return (
-            (shiftOrder[a.shift] || 99) -
-            (shiftOrder[b.shift] || 99)
-        );
-    });
+    return timeB - timeA;
+});
 
     renderReports(filteredReports);
 }
