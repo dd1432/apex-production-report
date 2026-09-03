@@ -459,14 +459,19 @@ function getFilteredReports() {
             }
 
 
-            if (
-                shiftValue &&
-                report.shift !== shiftValue
-            ) {
+          if (
+    shiftValue &&
+    String(report.shift || "")
+        .toLowerCase()
+        .trim() !==
+    String(shiftValue)
+        .toLowerCase()
+        .trim()
+) {
 
-                return false;
+    return false;
 
-            }
+}
 
 
             if (
@@ -2188,7 +2193,7 @@ filterDate.addEventListener(
 
 
 filterShift.addEventListener(
-    "change",
+    "input",
     renderReports
 );
 
