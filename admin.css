@@ -1,0 +1,1420 @@
+/* =====================================================
+   APEX PRODUCTION REPORT
+   ADMIN PAGE
+===================================================== */
+
+
+/* =====================================================
+   BASIC
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f3f4f6;
+
+    color: #1f2937;
+
+}
+
+
+body.modal-open {
+
+    overflow: hidden;
+
+}
+
+
+
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.admin-header {
+
+    background: #111827;
+
+    color: white;
+
+    padding: 20px 30px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+
+.admin-header h1 {
+
+    margin: 0 0 5px 0;
+
+    font-size: 25px;
+
+}
+
+
+.admin-header p {
+
+    margin: 0;
+
+    color: #d1d5db;
+
+    font-size: 14px;
+
+}
+
+
+.header-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.header-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-decoration: none;
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 10px 15px;
+
+    background: #374151;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.header-button:hover {
+
+    background: #4b5563;
+
+}
+
+
+.refresh-button {
+
+    background: #2563eb;
+
+}
+
+
+.refresh-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
+
+.admin-container {
+
+    width: 100%;
+
+    max-width: 1500px;
+
+    margin: auto;
+
+    padding: 25px;
+
+}
+
+
+
+
+
+/* =====================================================
+   FILTER SECTION
+===================================================== */
+
+.filter-section {
+
+    background: white;
+
+    border-radius: 10px;
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
+}
+
+
+.filter-section h2 {
+
+    margin:
+        0 0 18px 0;
+
+    font-size: 20px;
+
+}
+
+
+.filter-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+}
+
+
+.form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+
+.form-group label {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #374151;
+
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+
+    width: 100%;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 6px;
+
+    padding: 10px 11px;
+
+    font-size: 14px;
+
+    background: white;
+
+    color: #111827;
+
+    outline: none;
+
+}
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 2px rgba(37, 99, 235, 0.12);
+
+}
+
+
+.form-group textarea {
+
+    resize: vertical;
+
+}
+
+
+.filter-buttons {
+
+    margin-top: 15px;
+
+}
+
+
+.secondary-button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 16px;
+
+    background: #e5e7eb;
+
+    color: #374151;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+}
+
+
+.secondary-button:hover {
+
+    background: #d1d5db;
+
+}
+
+
+
+
+
+/* =====================================================
+   STATUS / COUNT
+===================================================== */
+
+.message-box {
+
+    background: white;
+
+    border-radius: 8px;
+
+    padding: 15px;
+
+    margin-bottom: 15px;
+
+    text-align: center;
+
+    color: #4b5563;
+
+}
+
+
+.report-count {
+
+    margin:
+
+        15px 0;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #4b5563;
+
+}
+
+
+
+
+
+/* =====================================================
+   REPORT CARD
+===================================================== */
+
+.report-card {
+
+    background: white;
+
+    border-radius: 10px;
+
+    margin-bottom: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
+}
+
+
+.report-card-header {
+
+    padding: 18px 20px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+}
+
+
+.report-card-header h3 {
+
+    margin: 0 0 8px 0;
+
+    font-size: 19px;
+
+}
+
+
+.report-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+}
+
+
+.report-meta span {
+
+    background: #f3f4f6;
+
+    border-radius: 5px;
+
+    padding: 5px 9px;
+
+    font-size: 12px;
+
+    color: #4b5563;
+
+}
+
+
+.edit-report-button {
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 10px 16px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+}
+
+
+.edit-report-button:hover {
+
+    background: #1d4ed8;
+
+}
+
+
+
+
+
+/* =====================================================
+   REPORT SUMMARY
+===================================================== */
+
+.report-summary {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    padding: 12px 20px;
+
+    background: #f9fafb;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+}
+
+
+.report-summary span {
+
+    border-radius: 5px;
+
+    padding: 5px 9px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+
+.summary-total {
+
+    background: #e5e7eb;
+
+}
+
+
+.summary-production {
+
+    background: #dcfce7;
+
+    color: #166534;
+
+}
+
+
+.summary-idle {
+
+    background: #fef3c7;
+
+    color: #92400e;
+
+}
+
+
+.summary-maintenance {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+
+
+
+
+/* =====================================================
+   MACHINE PREVIEW
+===================================================== */
+
+.machine-preview {
+
+    padding: 5px 20px 15px;
+
+}
+
+
+.machine-preview-row {
+
+    display: grid;
+
+    grid-template-columns:
+        180px
+        130px
+        1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 12px 0;
+
+    border-bottom:
+        1px solid #f0f0f0;
+
+}
+
+
+.machine-preview-row:last-child {
+
+    border-bottom: none;
+
+}
+
+
+.machine-preview-main {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+
+.machine-preview-main strong {
+
+    font-size: 14px;
+
+}
+
+
+.machine-preview-main span {
+
+    font-size: 12px;
+
+    color: #6b7280;
+
+}
+
+
+.machine-preview-details {
+
+    font-size: 13px;
+
+    color: #4b5563;
+
+}
+
+
+.status-badge {
+
+    display: inline-block;
+
+    width: fit-content;
+
+    border-radius: 5px;
+
+    padding: 5px 9px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+.status-production {
+
+    background: #dcfce7;
+
+    color: #166534;
+
+}
+
+
+.status-idle {
+
+    background: #fef3c7;
+
+    color: #92400e;
+
+}
+
+
+.status-maintenance {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+
+.no-machines {
+
+    padding: 20px 0;
+
+    text-align: center;
+
+    color: #6b7280;
+
+}
+
+
+
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state {
+
+    background: white;
+
+    border-radius: 10px;
+
+    padding: 50px 20px;
+
+    text-align: center;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
+}
+
+
+.empty-icon {
+
+    font-size: 45px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.empty-state h3 {
+
+    margin: 5px 0;
+
+}
+
+
+.empty-state p {
+
+    margin: 5px 0;
+
+    color: #6b7280;
+
+}
+
+
+
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0, 0, 0, 0.65);
+
+    z-index: 1000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.modal.hidden {
+
+    display: none;
+
+}
+
+
+.modal-content {
+
+    background: white;
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    max-height: 94vh;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 15px 50px rgba(0, 0, 0, 0.3);
+
+}
+
+
+
+
+
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+
+.modal-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px 22px;
+
+    background: #111827;
+
+    color: white;
+
+}
+
+
+.modal-header h2 {
+
+    margin: 0 0 5px 0;
+
+    font-size: 20px;
+
+}
+
+
+.modal-header p {
+
+    margin: 0;
+
+    font-size: 11px;
+
+    color: #9ca3af;
+
+    word-break: break-all;
+
+}
+
+
+.close-button {
+
+    width: 38px;
+
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #374151;
+
+    color: white;
+
+    font-size: 27px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+}
+
+
+.close-button:hover {
+
+    background: #4b5563;
+
+}
+
+
+
+
+
+/* =====================================================
+   EDIT SECTION
+===================================================== */
+
+.edit-section {
+
+    padding: 20px 22px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    overflow-y: auto;
+
+}
+
+
+.edit-section h3 {
+
+    margin:
+        0 0 15px 0;
+
+    font-size: 17px;
+
+}
+
+
+.edit-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+}
+
+
+
+
+
+/* =====================================================
+   MACHINE EDITOR HEADER
+===================================================== */
+
+.machine-section-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.machine-section-header h3 {
+
+    margin: 0;
+
+}
+
+
+.add-button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 9px 14px;
+
+    background: #16a34a;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.add-button:hover {
+
+    background: #15803d;
+
+}
+
+
+
+
+
+/* =====================================================
+   MACHINE EDITOR CARD
+===================================================== */
+
+.machine-editor-card {
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    margin-bottom: 15px;
+
+    overflow: hidden;
+
+    background: #f9fafb;
+
+}
+
+
+.machine-editor-header {
+
+    padding: 12px 15px;
+
+    background: #f3f4f6;
+
+    border-bottom:
+        1px solid #d1d5db;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.machine-editor-header h4 {
+
+    margin: 0;
+
+    font-size: 14px;
+
+}
+
+
+.remove-machine-button {
+
+    border: none;
+
+    border-radius: 5px;
+
+    padding: 7px 10px;
+
+    background: #dc2626;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.remove-machine-button:hover {
+
+    background: #b91c1c;
+
+}
+
+
+
+
+
+/* =====================================================
+   MACHINE EDITOR GRID
+===================================================== */
+
+.machine-editor-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    padding: 15px;
+
+    background: white;
+
+}
+
+
+.production-fields {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    padding:
+        0 15px 15px;
+
+    background: white;
+
+}
+
+
+.full-width {
+
+    grid-column:
+        1 / -1;
+
+}
+
+
+
+
+
+/* =====================================================
+   EMPTY MACHINE EDITOR
+===================================================== */
+
+.empty-machine-editor {
+
+    border:
+        1px dashed #9ca3af;
+
+    border-radius: 7px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    background: #f9fafb;
+
+}
+
+
+
+
+
+/* =====================================================
+   MODAL FOOTER
+===================================================== */
+
+.modal-footer {
+
+    padding: 15px 22px;
+
+    border-top:
+        1px solid #e5e7eb;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    background: #f9fafb;
+
+}
+
+
+.cancel-button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 16px;
+
+    background: #6b7280;
+
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.cancel-button:hover {
+
+    background: #4b5563;
+
+}
+
+
+.delete-report-button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 16px;
+
+    background: #dc2626;
+
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.delete-report-button:hover {
+
+    background: #b91c1c;
+
+}
+
+
+.save-button {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding: 10px 18px;
+
+    background: #16a34a;
+
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.save-button:hover {
+
+    background: #15803d;
+
+}
+
+
+.save-button:disabled,
+.delete-report-button:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+}
+
+
+
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .filter-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .edit-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .machine-editor-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .production-fields {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+
+    .machine-preview-row {
+
+        grid-template-columns:
+            150px
+            120px
+            1fr;
+
+    }
+
+}
+
+
+
+
+
+@media (max-width: 650px) {
+
+    .admin-header {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 18px;
+
+    }
+
+
+    .header-actions {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+    }
+
+
+    .admin-container {
+
+        padding: 12px;
+
+    }
+
+
+    .filter-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .report-card-header {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .edit-report-button {
+
+        width: 100%;
+
+    }
+
+
+    .machine-preview-row {
+
+        grid-template-columns:
+            1fr;
+
+        gap: 6px;
+
+    }
+
+
+    .edit-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .machine-editor-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .production-fields {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .machine-editor-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .remove-machine-button {
+
+        width: 100%;
+
+    }
+
+
+    .modal {
+
+        padding: 5px;
+
+    }
+
+
+    .modal-content {
+
+        max-height: 98vh;
+
+        border-radius: 8px;
+
+    }
+
+
+    .modal-header {
+
+        padding: 15px;
+
+    }
+
+
+    .edit-section {
+
+        padding: 15px;
+
+    }
+
+
+    .modal-footer {
+
+        padding: 12px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .modal-footer button {
+
+        width: 100%;
+
+    }
+
+}
