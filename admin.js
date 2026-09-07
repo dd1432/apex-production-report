@@ -93,8 +93,7 @@ const machineData = {
 
         "Doctoring": [
             "Doctoring 1",
-            "Doctoring 2",
-            "Doctoring 3"
+            "Doctoring 2"
         ],
 
         "Inspection": [
@@ -128,6 +127,7 @@ const machineData = {
         ],
 
         "Doctoring": [
+            "Doctoring 3",
             "Doctoring 4",
             "Doctoring 5"
         ],
