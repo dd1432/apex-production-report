@@ -32,17 +32,13 @@ function machinesOf(report) {
         : Object.values(report.machines || {});
 }
 
-function value(value) {
-    const number = Number(value);
+function value(input) {
+    const number = Number(input);
     return Number.isFinite(number) ? number : 0;
 }
 
 function format(number) {
     return number.toLocaleString(undefined, { maximumFractionDigits: 2 });
-}
-
-function cell(total) {
-    return `<span class="daily-value">${format(total.length)} m</span><span class="daily-weight">${format(total.weight)} kg</span>`;
 }
 
 function createTotals() {
@@ -111,20 +107,26 @@ function renderDailyTable() {
 
         return `<tr>
             <td>${process} Total</td>
-            ${shifts.map(shift => `<td>${cell(shiftTotals[shift])}</td>`).join("")}
-            <td class="total-column">${cell(processTotal)}</td>
+            ${shifts.map(shift => `<td>${format(shiftTotals[shift].length)} m</td><td>${format(shiftTotals[shift].weight)} kg</td>`).join("")}
+            <td class="total-column">${format(processTotal.length)} m</td><td class="total-column">${format(processTotal.weight)} kg</td>
         </tr>`;
     }).join("");
+
+    const shiftHeadings = shifts.map(shift => `<th class="shift-heading" colspan="2">${shift} Shift</th>`).join("");
+    const unitHeadings = shifts.map(() => `<th class="unit-heading">Mtr</th><th class="unit-heading">Kg</th>`).join("");
 
     container.innerHTML = `<div class="daily-table-wrapper">
         <table class="daily-table">
             <thead>
                 <tr>
-                    <th>Production</th>
-                    <th>1st Shift</th>
-                    <th>2nd Shift</th>
-                    <th>3rd Shift</th>
-                    <th class="total-column">All Shift Total</th>
+                    <th rowspan="2">Production</th>
+                    ${shiftHeadings}
+                    <th class="total-column" colspan="2">All Shift Total</th>
+                </tr>
+                <tr>
+                    ${unitHeadings}
+                    <th class="unit-heading total-column">Mtr</th>
+                    <th class="unit-heading total-column">Kg</th>
                 </tr>
             </thead>
             <tbody>${rows}</tbody>
