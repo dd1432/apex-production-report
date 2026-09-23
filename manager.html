@@ -8,6 +8,7 @@
     <title>Apex Manager Dashboard</title>
 
     <link rel="stylesheet" href="./manager.css?v=1">
+    <link rel="stylesheet" href="./daily-summary.css?v=1">
 </head>
 
 <body>
@@ -114,11 +115,11 @@
     <section class="card daily-production-card">
         <div class="daily-header">
             <h2>Daily Production Simple Summary</h2>
-            <span id="dailyProductionInfo" class="daily-info">All units</span>
+            <span id="dailyProductionInfo" class="daily-info">Select date and unit</span>
         </div>
 
         <div id="dailyProductionContainer">
-            <p class="empty-message">Loading daily production...</p>
+            <p class="empty-message">Select a date and unit to view the table.</p>
         </div>
     </section>
 
@@ -132,6 +133,7 @@
             <span id="loadingMessage">
                 Loading...
             </span>
+
         </div>
 
         <div id="reportsContainer">
@@ -151,6 +153,7 @@
     type="module"
     src="./manager.js?v=1">
 </script>
+<script type="module" src="./daily-summary.js?v=1"></script>
 
 </body>
 </html>
