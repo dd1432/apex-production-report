@@ -1,0 +1,87 @@
+.daily-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.daily-header h2 {
+    margin: 0;
+}
+
+.daily-info {
+    color: #666;
+    font-size: 13px;
+}
+
+.daily-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.daily-table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+    border: 1px solid #999;
+    font-size: 14px;
+    background: #fff;
+}
+
+.daily-table th,
+.daily-table td {
+    border: 1px solid #999;
+    padding: 10px 8px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.daily-table thead th {
+    background: #f1f3f5;
+    color: #222;
+    font-weight: 700;
+}
+
+.daily-table thead .shift-heading {
+    background: #e9ecef;
+    border-bottom: 1px solid #999;
+}
+
+.daily-table thead .unit-heading {
+    background: #fafafa;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.daily-table th:first-child,
+.daily-table td:first-child {
+    min-width: 150px;
+    text-align: left;
+    font-weight: 700;
+}
+
+.daily-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.daily-table tbody td {
+    height: 42px;
+}
+
+.daily-table .total-column {
+    background: #eef8ee;
+    font-weight: 700;
+}
+
+.daily-table thead .total-column {
+    background: #dcefdc;
+}
+
+@media (max-width: 600px) {
+    .daily-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
