@@ -1,14 +1,3 @@
-/* =====================================================
-   APEX PRODUCTION REPORT
-   SHIFT REPORT SYSTEM
-   WITH PERSISTENT AUTO-SAVE DRAFT
-===================================================== */
-
-
-/* =====================================================
-   FIREBASE
-===================================================== */
-
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -94,6 +83,10 @@ const machineData = {
             "Lamination 3",
             "Lamination 4",
             "Lamination 5"
+        ],
+
+        "ColdSeal": [
+            "ColdSeal"
         ],
 
         "Slitting": [
@@ -1084,6 +1077,88 @@ function renderProcessFields() {
 
 
     /* =================================================
+       COLDSEAL
+    ================================================= */
+
+    else if (
+        process.value === "ColdSeal"
+    ) {
+
+        container.innerHTML = `
+
+            <div class="grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Total ColdSeal Length (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="length"
+                        min="0"
+                        placeholder="Enter length"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Weight (kg)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="weight"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter weight"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Speed
+                    </label>
+
+                    <input
+                        type="number"
+                        id="speed"
+                        min="0"
+                        placeholder="Enter speed"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    id="product"
+                    placeholder="Enter product"
+                >
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =================================================
        EXTRUSION COATING
     ================================================= */
 
@@ -1710,6 +1785,7 @@ saveMachineReport.addEventListener(
         if (
             process.value === "Printing" ||
             process.value === "Lamination" ||
+            process.value === "ColdSeal" ||
             process.value === "Slitting" ||
             process.value === "Extrusion Coating"
         ) {
