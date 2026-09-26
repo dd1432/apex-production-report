@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Apex Manager Dashboard</title>
-
     <link rel="stylesheet" href="./manager.css?v=1">
     <link rel="stylesheet" href="./daily-summary.css?v=1">
 </head>
-
 <body>
-
 <div class="container">
-
     <header class="header">
         <h1>Apex Manager Dashboard</h1>
         <p>Production Reports</p>
     </header>
 
-    <!-- FILTER SECTION -->
     <section class="card">
-
         <h2>Report Filters</h2>
-
         <div class="filter-grid">
-
             <div class="form-group">
-                <label for="reportDate">Production Date</label>
-
-                <input
-                    type="date"
-                    id="reportDate"
-                >
+                <label for="reportFromDate">From Date</label>
+                <input type="date" id="reportFromDate">
             </div>
-
+            <div class="form-group">
+                <label for="reportToDate">To Date</label>
+                <input type="date" id="reportToDate">
+            </div>
             <div class="form-group">
                 <label for="shiftFilter">Shift</label>
-
                 <select id="shiftFilter">
                     <option value="">All Shifts</option>
                     <option value="1st">1st Shift</option>
@@ -46,114 +34,43 @@
                     <option value="3rd">3rd Shift</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="unitFilter">Unit</label>
-
                 <select id="unitFilter">
                     <option value="">All Units</option>
                     <option value="Unit 1">Unit 1</option>
                     <option value="Unit 2">Unit 2</option>
                 </select>
             </div>
-
         </div>
-
         <div class="filter-buttons">
-
-            <button
-                type="button"
-                id="showAllReports"
-                class="secondary-button">
-                Show All Reports
-            </button>
-
-            <button
-                type="button"
-                id="clearFilters"
-                class="secondary-button">
-                Clear Filters
-            </button>
-
-            <button
-                type="button"
-                id="refreshReports"
-                class="secondary-button">
-                Refresh
-            </button>
-
+            <button type="button" id="showAllReports" class="secondary-button">Show All Reports</button>
+            <button type="button" id="clearFilters" class="secondary-button">Clear Filters</button>
+            <button type="button" id="refreshReports" class="secondary-button">Refresh</button>
         </div>
-
     </section>
 
-
-    <!-- SUMMARY -->
     <section class="summary-grid">
-
-        <div class="summary-card">
-            <span class="summary-number" id="reportCount">0</span>
-            <span class="summary-label">Reports</span>
-        </div>
-
-        <div class="summary-card">
-            <span class="summary-number" id="machineCount">0</span>
-            <span class="summary-label">Machines Reported</span>
-        </div>
-
-        <div class="summary-card">
-            <span class="summary-number" id="productionCount">0</span>
-            <span class="summary-label">Production Entries</span>
-        </div>
-
-        <div class="summary-card">
-            <span class="summary-number" id="idleCount">0</span>
-            <span class="summary-label">Idle / Maintenance</span>
-        </div>
-
+        <div class="summary-card"><span class="summary-number" id="reportCount">0</span><span class="summary-label">Reports</span></div>
+        <div class="summary-card"><span class="summary-number" id="machineCount">0</span><span class="summary-label">Machines Reported</span></div>
+        <div class="summary-card"><span class="summary-number" id="productionCount">0</span><span class="summary-label">Production Entries</span></div>
+        <div class="summary-card"><span class="summary-number" id="idleCount">0</span><span class="summary-label">Idle / Maintenance</span></div>
     </section>
 
     <section class="card daily-production-card">
         <div class="daily-header">
             <h2>Daily Production Simple Summary</h2>
-            <span id="dailyProductionInfo" class="daily-info">Select date and unit</span>
+            <span id="dailyProductionInfo" class="daily-info">Select date range and unit</span>
         </div>
-
-        <div id="dailyProductionContainer">
-            <p class="empty-message">Select a date and unit to view the table.</p>
-        </div>
+        <div id="dailyProductionContainer"><p class="empty-message">Select a date range and unit to view the table.</p></div>
     </section>
 
-
-    <!-- REPORTS -->
     <section class="card">
-
-        <div class="reports-header">
-            <h2>Production Reports</h2>
-
-            <span id="loadingMessage">
-                Loading...
-            </span>
-
-        </div>
-
-        <div id="reportsContainer">
-
-            <p class="empty-message">
-                Loading reports...
-            </p>
-
-        </div>
-
+        <div class="reports-header"><h2>Production Reports</h2><span id="loadingMessage">Loading...</span></div>
+        <div id="reportsContainer"><p class="empty-message">Loading reports...</p></div>
     </section>
-
 </div>
-
-
-<script
-    type="module"
-    src="./manager.js?v=1">
-</script>
-<script type="module" src="./daily-summary.js?v=1"></script>
-
+<script type="module" src="./manager-range-loader.js?v=1"></script>
+<script type="module" src="./daily-summary-range-loader.js?v=1"></script>
 </body>
 </html>
