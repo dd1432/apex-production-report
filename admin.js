@@ -120,6 +120,10 @@ const machineData = {
             "Lamination 5"
         ],
 
+        "ColdSeal": [
+            "ColdSeal"
+        ],
+
         "Slitting": [
             "Slitting 5",
             "Slitting 6",
