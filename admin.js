@@ -24,13 +24,13 @@ FIREBASE CONFIGURATION
 ===================================================== */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
-    authDomain: "apex-production-report-90e12.firebaseapp.com",
-    databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "apex-production-report-90e12",
-    storageBucket: "apex-production-report-90e12.firebasestorage.app",
-    messagingSenderId: "857344599590",
-    appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
+  apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
+  authDomain: "apex-production-report-90e12.firebaseapp.com",
+  databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "apex-production-report-90e12",
+  storageBucket: "apex-production-report-90e12.firebasestorage.app",
+  messagingSenderId: "857344599590",
+  appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
 };
 
 const firebaseApp =
