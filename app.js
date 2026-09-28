@@ -1,7 +1,6 @@
-// Firebase initialization using existing project config
+// Existing Firebase Config Preserved
 const firebaseConfig = {
-    // Existing Firebase database parameters preserved
-    databaseURL: "https://apex-production-report-default-rtdb.firebaseio.com" // or existing DB URL
+    databaseURL: "https://apex-production-report-default-rtdb.firebaseio.com"
 };
 
 if (!firebase.apps.length) {
@@ -9,11 +8,11 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
 
-// Shift & Production Date Helper matching existing shift logic
+// Shift & Production Date Logic
 function getProductionDate(now = new Date()) {
     const hours = now.getHours();
     const dateCopy = new Date(now);
-    // If between 00:00 and 08:00 (3rd shift), it belongs to previous production date
+    // 3rd Shift runs 00:00 - 08:00, belongs to previous calendar day's production date
     if (hours < 8) {
         dateCopy.setDate(dateCopy.getDate() - 1);
     }
@@ -23,7 +22,20 @@ function getProductionDate(now = new Date()) {
     return `${year}-${month}-${day}`;
 }
 
-// Set default date on load
+// Machine & Process Mappings
+const UNIT_PROCESSES = {
+    'Unit 1': ['Printing', 'Lamination', 'Slitting', 'Extrusion Coating'],
+    'Unit 2': ['Printing', 'Lamination', 'ColdSeal', 'Slitting']
+};
+
+const MACHINES = {
+    'Printing': ['Flexo 1', 'Flexo 2', 'Rotogravure 1'],
+    'Lamination': ['Lam 1', 'Lam 2'],
+    'Slitting': ['Slitter 1', 'Slitter 2', 'Slitter 3'],
+    'Extrusion Coating': ['Extrusion 1'],
+    'ColdSeal': ['ColdSeal Machine 1']
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const defaultDate = getProductionDate();
     const prodDateInput = document.getElementById('prodDate');
@@ -33,14 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetProdDate) targetProdDate.value = defaultDate;
 
     initTargetModal();
-    initFormHandlers();
+    initProductionForm();
 });
-
-// Process Lists by Unit
-const UNIT_PROCESSES = {
-    'Unit 1': ['Printing', 'Lamination', 'Slitting', 'Extrusion Coating'],
-    'Unit 2': ['Printing', 'Lamination', 'ColdSeal', 'Slitting']
-};
 
 // Target Modal Functionality
 function initTargetModal() {
@@ -111,7 +117,7 @@ function handleSaveTarget(e) {
         targetData[procKey] = parseFloat(input.value) || 0;
     });
 
-    // Save/Overwrite to Firebase at dailyTargets/YYYY-MM-DD/unit1
+    // Save/Overwrite to Firebase: dailyTargets/YYYY-MM-DD/unit1
     db.ref(`dailyTargets/${date}/${unitKey}`).set(targetData)
         .then(() => {
             msgBanner.className = 'message-banner success';
@@ -128,21 +134,38 @@ function handleSaveTarget(e) {
         });
 }
 
-// Form Handlers (Preserving Existing Report Submissions)
-function initFormHandlers() {
+// Production Entry Form Functionality
+function initProductionForm() {
     const unitSelect = document.getElementById('unit');
     const processSelect = document.getElementById('process');
+    const machineSelect = document.getElementById('machine');
 
     if (unitSelect && processSelect) {
         unitSelect.addEventListener('change', (e) => {
             const unit = e.target.value;
             processSelect.innerHTML = '<option value="">Select Process</option>';
+            machineSelect.innerHTML = '<option value="">Select Machine</option>';
             if (UNIT_PROCESSES[unit]) {
                 UNIT_PROCESSES[unit].forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p;
                     opt.textContent = p;
                     processSelect.appendChild(opt);
+                });
+            }
+        });
+    }
+
+    if (processSelect && machineSelect) {
+        processSelect.addEventListener('change', (e) => {
+            const proc = e.target.value;
+            machineSelect.innerHTML = '<option value="">Select Machine</option>';
+            if (MACHINES[proc]) {
+                MACHINES[proc].forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    machineSelect.appendChild(opt);
                 });
             }
         });
