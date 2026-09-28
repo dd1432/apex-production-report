@@ -1,244 +1,282 @@
 /* =====================================================
-APEX PRODUCTION REPORT
-ADMIN EDITOR
+   APEX PRODUCTION REPORT
+   ADMIN EDITOR
 ===================================================== */
 
+
 /* =====================================================
-FIREBASE
+   FIREBASE
 ===================================================== */
 
 import {
-initializeApp
+    initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
 
+
 import {
-getDatabase,
-ref,
-onValue,
-update,
-remove
+    getDatabase,
+    ref,
+    onValue,
+    update,
+    remove
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
+
+
+
+
 /* =====================================================
-FIREBASE CONFIGURATION
+   FIREBASE CONFIGURATION
 ===================================================== */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
-  authDomain: "apex-production-report-90e12.firebaseapp.com",
-  databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "apex-production-report-90e12",
-  storageBucket: "apex-production-report-90e12.firebasestorage.app",
-  messagingSenderId: "857344599590",
-  appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
+
+    apiKey:
+        "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
+
+    authDomain:
+        "apex-production-report-90e12.firebaseapp.com",
+
+    databaseURL:
+        "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId:
+        "apex-production-report-90e12",
+
+    storageBucket:
+        "apex-production-report-90e12.firebasestorage.app",
+
+    messagingSenderId:
+        "857344599590",
+
+    appId:
+        "1:857344599590:web:d002e55d68d896afe0e8e7"
+
 };
 
+
 const firebaseApp =
-initializeApp(firebaseConfig);
+    initializeApp(firebaseConfig);
+
 
 const database =
-getDatabase(firebaseApp);
+    getDatabase(firebaseApp);
+
+
+
+
 
 /* =====================================================
-MACHINE STRUCTURE
+   MACHINE STRUCTURE
 ===================================================== */
 
 const machineData = {
 
-```
-"Unit 1": {
+    "Unit 1": {
 
-    "Printing": [
-        "Printing 1",
-        "Printing 2"
-    ],
+        "Printing": [
+            "Printing 1",
+            "Printing 2"
+        ],
 
-    "Lamination": [
-        "Lamination 1",
-        "Lamination 2"
-    ],
+        "Lamination": [
+            "Lamination 1",
+            "Lamination 2"
+        ],
 
-    "Slitting": [
-        "Slitting 1",
-        "Slitting 2",
-        "Slitting 3",
-        "Slitting 4"
-    ],
+        "Slitting": [
+            "Slitting 1",
+            "Slitting 2",
+            "Slitting 3",
+            "Slitting 4"
+        ],
 
-    "Doctoring": [
-        "Doctoring 1",
-        "Doctoring 2"
-    ],
+        "Doctoring": [
+            "Doctoring 1",
+            "Doctoring 2"
+        ],
 
-    "Inspection": [
-        "Inspection 1"
-    ],
+        "Inspection": [
+            "Inspection 1"
+        ],
 
-    "Extrusion Coating": [
-        "Extrusion Coating 1"
-    ]
+        "Extrusion Coating": [
+            "Extrusion Coating 1"
+        ]
 
-},
+    },
 
 
-"Unit 2": {
+    "Unit 2": {
 
-    "Printing": [
-        "Printing 3",
-        "Printing 4"
-    ],
+        "Printing": [
+            "Printing 3",
+            "Printing 4"
+        ],
 
-    "Lamination": [
-        "Lamination 3",
-        "Lamination 4",
-        "Lamination 5"
-    ],
+        "Lamination": [
+            "Lamination 3",
+            "Lamination 4",
+            "Lamination 5"
+        ],
 
-    "ColdSeal": [
-        "ColdSeal"
-    ],
+        "ColdSeal": [
+            "ColdSeal"
+        ],
 
-    "Slitting": [
-        "Slitting 5",
-        "Slitting 6",
-        "Slitting 7"
-    ],
+        "Slitting": [
+            "Slitting 5",
+            "Slitting 6",
+            "Slitting 7"
+        ],
 
-    "Doctoring": [
-        "Doctoring 3",
-        "Doctoring 4",
-        "Doctoring 5"
-    ],
+        "Doctoring": [
+            "Doctoring 3",
+            "Doctoring 4",
+            "Doctoring 5"
+        ],
 
-    "Inspection": [
-        "Inspection 2"
-    ],
+        "Inspection": [
+            "Inspection 2"
+        ],
 
-    "Extrusion Coating": []
+        "Extrusion Coating": []
 
-}
-```
+    }
 
 };
 
+
+
+
+
 /* =====================================================
-VARIABLES
+   VARIABLES
 ===================================================== */
 
 let allReports = [];
 
 let currentReport = null;
 
-/*
 
-* IMPORTANT:
-*
-* This flag tells the Firebase listener that the
-* administrator is currently editing a report.
-*
-* While this is true, Firebase updates are NOT allowed
-* to overwrite currentReport or rebuild the editor.
-  */
-  let isEditingReport = false;
 
-/*
 
-* Stores the Firebase data received while the user
-* is editing.
-*
-* It will be used after the modal is closed.
-  */
-  let pendingFirebaseReports = null;
 
 /* =====================================================
-DOM ELEMENTS
+   DOM ELEMENTS
 ===================================================== */
 
 const reportsContainer =
-document.getElementById("reportsContainer");
+    document.getElementById("reportsContainer");
+
 
 const loadingMessage =
-document.getElementById("loadingMessage");
+    document.getElementById("loadingMessage");
+
 
 const reportCount =
-document.getElementById("reportCount");
+    document.getElementById("reportCount");
+
 
 const filterDate =
-document.getElementById("filterDate");
+    document.getElementById("filterDate");
+
 
 const filterShift =
-document.getElementById("filterShift");
+    document.getElementById("filterShift");
+
 
 const filterUnit =
-document.getElementById("filterUnit");
+    document.getElementById("filterUnit");
+
 
 const searchText =
-document.getElementById("searchText");
+    document.getElementById("searchText");
+
 
 const clearFilters =
-document.getElementById("clearFilters");
+    document.getElementById("clearFilters");
+
 
 const refreshButton =
-document.getElementById("refreshButton");
+    document.getElementById("refreshButton");
+
 
 const editModal =
-document.getElementById("editModal");
+    document.getElementById("editModal");
+
 
 const closeModal =
-document.getElementById("closeModal");
+    document.getElementById("closeModal");
+
 
 const cancelEdit =
-document.getElementById("cancelEdit");
+    document.getElementById("cancelEdit");
+
 
 const saveChangesButton =
-document.getElementById("saveChangesButton");
+    document.getElementById("saveChangesButton");
+
 
 const deleteReportButton =
-document.getElementById("deleteReportButton");
+    document.getElementById("deleteReportButton");
+
 
 const addMachineButton =
-document.getElementById("addMachineButton");
+    document.getElementById("addMachineButton");
+
 
 const machinesEditor =
-document.getElementById("machinesEditor");
+    document.getElementById("machinesEditor");
+
+
+
+
 
 /* =====================================================
-LOAD REPORTS
+   LOAD REPORTS
 ===================================================== */
 
 function loadReports() {
 
-```
-loadingMessage.textContent =
-    "Loading reports...";
+    loadingMessage.textContent =
+        "Loading reports...";
 
-loadingMessage.style.display =
-    "block";
-
-
-const reportsRef =
-    ref(
-        database,
-        "productionReports"
-    );
+    loadingMessage.style.display =
+        "block";
 
 
-onValue(
-
-    reportsRef,
-
-    function (snapshot) {
-
-        const data =
-            snapshot.val();
+    const reportsRef =
+        ref(
+            database,
+            "productionReports"
+        );
 
 
-        let firebaseReports = [];
+    onValue(
+        reportsRef,
+
+        function (snapshot) {
+
+            const data =
+                snapshot.val();
 
 
-        if (data) {
+            if (!data) {
 
-            firebaseReports =
+                allReports = [];
+
+                renderReports();
+
+                loadingMessage.textContent =
+                    "No production reports found.";
+
+                return;
+
+            }
+
+
+            allReports =
                 Object.entries(data).map(
                     function ([id, report]) {
 
@@ -250,1330 +288,1297 @@ onValue(
                     }
                 );
 
-        }
 
+            sortReports();
 
-        /*
-         * IMPORTANT FIX:
-         *
-         * If the administrator is currently editing,
-         * DO NOT replace allReports and DO NOT rebuild
-         * the editor.
-         *
-         * Firebase may fire this callback because another
-         * user/report changed. The values currently typed
-         * by the administrator must remain untouched.
-         */
+            renderReports();
 
-        if (isEditingReport) {
-
-            pendingFirebaseReports =
-                firebaseReports;
 
             loadingMessage.style.display =
                 "none";
 
-            return;
+        },
 
-        }
+        function (error) {
 
+            console.error(
+                "Firebase loading error:",
+                error
+            );
 
-        allReports =
-            firebaseReports;
-
-
-        sortReports();
-
-
-        renderReports();
-
-
-        loadingMessage.style.display =
-            "none";
-
-
-        if (!data) {
 
             loadingMessage.textContent =
-                "No production reports found.";
+                "Unable to load reports. Please check Firebase connection.";
 
         }
-
-    },
-
-    function (error) {
-
-        console.error(
-            "Firebase loading error:",
-            error
-        );
-
-
-        loadingMessage.textContent =
-            "Unable to load reports. Please check Firebase connection.";
-
-    }
-
-);
-```
+    );
 
 }
 
+
+
+
+
 /* =====================================================
-SORT REPORTS
-NEWEST FIRST
+   SORT REPORTS
+   NEWEST FIRST
 ===================================================== */
 
 function sortReports() {
 
-```
-allReports.sort(
-    function (a, b) {
+    allReports.sort(
+        function (a, b) {
 
-        const timeA =
-            Number(
-                a.entryTimestamp || 0
+            const timeA =
+                Number(
+                    a.entryTimestamp || 0
+                );
+
+
+            const timeB =
+                Number(
+                    b.entryTimestamp || 0
+                );
+
+
+            if (timeA !== timeB) {
+
+                return timeB - timeA;
+
+            }
+
+
+            return String(
+                b.productionDate || ""
+            ).localeCompare(
+                String(
+                    a.productionDate || ""
+                )
             );
-
-
-        const timeB =
-            Number(
-                b.entryTimestamp || 0
-            );
-
-
-        if (timeA !== timeB) {
-
-            return timeB - timeA;
 
         }
-
-
-        return String(
-            b.productionDate || ""
-        ).localeCompare(
-            String(
-                a.productionDate || ""
-            )
-        );
-
-    }
-);
-```
+    );
 
 }
 
+
+
+
+
 /* =====================================================
-RENDER REPORTS
+   RENDER REPORTS
 ===================================================== */
 
 function renderReports() {
 
-```
-const filtered =
-    getFilteredReports();
+    const filtered =
+        getFilteredReports();
 
 
-reportCount.textContent =
-    `${filtered.length} report${filtered.length === 1 ? "" : "s"} found`;
+    reportCount.textContent =
+        `${filtered.length} report${filtered.length === 1 ? "" : "s"} found`;
 
 
-reportsContainer.innerHTML =
-    "";
+    reportsContainer.innerHTML = "";
 
 
-if (filtered.length === 0) {
+    if (filtered.length === 0) {
 
-    reportsContainer.innerHTML = `
+        reportsContainer.innerHTML = `
 
-        <div class="empty-state">
+            <div class="empty-state">
 
-            <div class="empty-icon">
-                📭
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <h3>
+                    No reports found
+                </h3>
+
+                <p>
+                    Try changing the filters or search text.
+                </p>
+
             </div>
 
-            <h3>
-                No reports found
-            </h3>
+        `;
 
-            <p>
-                Try changing the filters or search text.
-            </p>
-
-        </div>
-
-    `;
-
-    return;
-
-}
-
-
-filtered.forEach(
-    function (report) {
-
-        reportsContainer.appendChild(
-            createReportCard(report)
-        );
+        return;
 
     }
-);
-```
+
+
+    filtered.forEach(
+        function (report) {
+
+            reportsContainer.appendChild(
+                createReportCard(report)
+            );
+
+        }
+    );
 
 }
 
+
+
+
+
 /* =====================================================
-FILTER REPORTS
+   FILTER REPORTS
 ===================================================== */
 
 function getFilteredReports() {
 
-```
-const dateValue =
-    filterDate.value;
+    const dateValue =
+        filterDate.value;
 
 
-const shiftValue =
-    filterShift.value;
+    const shiftValue =
+        filterShift.value;
 
 
-const unitValue =
-    filterUnit.value;
+    const unitValue =
+        filterUnit.value;
 
 
-const searchValue =
-    searchText.value
-        .trim()
-        .toLowerCase();
+    const searchValue =
+        searchText.value
+            .trim()
+            .toLowerCase();
 
 
-return allReports.filter(
-    function (report) {
-
-
-        if (
-            dateValue &&
-            report.productionDate !== dateValue
-        ) {
-
-            return false;
-
-        }
-
-
-        if (
-            shiftValue &&
-            String(report.shift || "")
-                .toLowerCase()
-                .trim() !==
-            String(shiftValue)
-                .toLowerCase()
-                .trim()
-        ) {
-
-            return false;
-
-        }
-
-
-        if (
-            unitValue &&
-            report.unit !== unitValue
-        ) {
-
-            return false;
-
-        }
-
-
-        if (searchValue) {
-
-            const machines =
-                normalizeMachines(
-                    report.machines
-                );
-
-
-            const searchableText =
-                [
-
-                    report.productionDate,
-
-                    report.shift,
-
-                    report.unit,
-
-                    report.supervisor,
-
-                    ...machines.map(
-                        function (machine) {
-
-                            return [
-
-                                machine.unit,
-
-                                machine.process,
-
-                                machine.machine,
-
-                                machine.status,
-
-                                machine.product,
-
-                                machine.jobName,
-
-                                machine.remarks,
-
-                                machine.coilDetails
-
-                            ].join(" ");
-
-                        }
-                    )
-
-                ]
-                .join(" ")
-                .toLowerCase();
+    return allReports.filter(
+        function (report) {
 
 
             if (
-                !searchableText.includes(
-                    searchValue
-                )
+                dateValue &&
+                report.productionDate !== dateValue
             ) {
 
                 return false;
 
             }
 
-        }
 
+          if (
+    shiftValue &&
+    String(report.shift || "")
+        .toLowerCase()
+        .trim() !==
+    String(shiftValue)
+        .toLowerCase()
+        .trim()
+) {
 
-        return true;
-
-    }
-);
-```
+    return false;
 
 }
 
+
+            if (
+                unitValue &&
+                report.unit !== unitValue
+            ) {
+
+                return false;
+
+            }
+
+
+            if (searchValue) {
+
+                const machines =
+                    normalizeMachines(
+                        report.machines
+                    );
+
+
+                const searchableText =
+                    [
+
+                        report.productionDate,
+
+                        report.shift,
+
+                        report.unit,
+
+                        report.supervisor,
+
+                        ...machines.map(
+                            function (machine) {
+
+                                return [
+
+                                    machine.unit,
+
+                                    machine.process,
+
+                                    machine.machine,
+
+                                    machine.status,
+
+                                    machine.product,
+
+                                    machine.jobName,
+
+                                    machine.remarks,
+
+                                    machine.coilDetails
+
+                                ].join(" ");
+
+                            }
+                        )
+
+                    ]
+                    .join(" ")
+                    .toLowerCase();
+
+
+                if (
+                    !searchableText.includes(
+                        searchValue
+                    )
+                ) {
+
+                    return false;
+
+                }
+
+            }
+
+
+            return true;
+
+        }
+    );
+
+}
+
+
+
+
+
 /* =====================================================
-CREATE REPORT CARD
+   CREATE REPORT CARD
 ===================================================== */
 
 function createReportCard(report) {
 
-```
-const card =
-    document.createElement("div");
+    const card =
+        document.createElement("div");
 
 
-card.className =
-    "report-card";
+    card.className =
+        "report-card";
 
 
-const machines =
-    normalizeMachines(
-        report.machines
-    );
+    const machines =
+        normalizeMachines(
+            report.machines
+        );
 
 
-const productionMachines =
-    machines.filter(
-        function (item) {
+    const productionMachines =
+        machines.filter(
+            function (item) {
 
-            return item.status === "Production";
+                return item.status === "Production";
 
-        }
-    ).length;
+            }
+        ).length;
 
 
-const idleMachines =
-    machines.filter(
-        function (item) {
+    const idleMachines =
+        machines.filter(
+            function (item) {
 
-            return item.status === "Idle";
+                return item.status === "Idle";
 
-        }
-    ).length;
+            }
+        ).length;
 
 
-const maintenanceMachines =
-    machines.filter(
-        function (item) {
+    const maintenanceMachines =
+        machines.filter(
+            function (item) {
 
-            return item.status === "Maintenance";
+                return item.status === "Maintenance";
 
-        }
-    ).length;
+            }
+        ).length;
 
 
-card.innerHTML = `
+    card.innerHTML = `
 
-    <div class="report-card-header">
+        <div class="report-card-header">
 
-        <div>
+            <div>
 
-            <h3>
-                📅 ${escapeHTML(report.productionDate || "No Date")}
-            </h3>
+                <h3>
+                    📅 ${escapeHTML(report.productionDate || "No Date")}
+                </h3>
 
-            <div class="report-meta">
-
-                <span>
-                    Shift ${escapeHTML(report.shift || "-")}
-                </span>
-
-                <span>
-                    ${escapeHTML(report.unit || "-")}
-                </span>
-
-                <span>
-                    Supervisor:
-                    ${escapeHTML(report.supervisor || "-")}
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <button
-            type="button"
-            class="edit-report-button"
-        >
-            ✏️ Edit Report
-        </button>
-
-    </div>
-
-
-    <div class="report-summary">
-
-        <span class="summary-total">
-            ⚙️ ${machines.length} Machines
-        </span>
-
-        <span class="summary-production">
-            🟢 ${productionMachines} Production
-        </span>
-
-        <span class="summary-idle">
-            🟡 ${idleMachines} Idle
-        </span>
-
-        <span class="summary-maintenance">
-            🔴 ${maintenanceMachines} Maintenance
-        </span>
-
-    </div>
-
-
-    <div class="machine-preview">
-
-        ${createMachinePreview(machines)}
-
-    </div>
-
-`;
-
-
-card
-    .querySelector(".edit-report-button")
-    .addEventListener(
-        "click",
-        function () {
-
-            openEditModal(report);
-
-        }
-    );
-
-
-return card;
-```
-
-}
-
-/* =====================================================
-MACHINE PREVIEW
-===================================================== */
-
-function createMachinePreview(machines) {
-
-```
-if (
-    machines.length === 0
-) {
-
-    return `
-        <div class="no-machines">
-            No machine entries
-        </div>
-    `;
-
-}
-
-
-return machines.map(
-    function (item) {
-
-        let details = "";
-
-
-        if (item.length) {
-
-            details +=
-                `Length: ${escapeHTML(item.length)} m`;
-
-        }
-
-
-        if (item.weight) {
-
-            details +=
-                `${details ? " • " : ""}Weight: ${escapeHTML(item.weight)} kg`;
-
-        }
-
-
-        if (item.speed) {
-
-            details +=
-                `${details ? " • " : ""}Speed: ${escapeHTML(item.speed)}`;
-
-        }
-
-
-        if (item.product) {
-
-            details +=
-                `${details ? " • " : ""}${escapeHTML(item.product)}`;
-
-        }
-
-
-        if (item.totalCoils) {
-
-            details +=
-                `${details ? " • " : ""}Coils: ${escapeHTML(item.totalCoils)}`;
-
-        }
-
-
-        if (item.jobName) {
-
-            details +=
-                `${details ? " • " : ""}Job: ${escapeHTML(item.jobName)}`;
-
-        }
-
-
-        return `
-
-            <div class="machine-preview-row">
-
-                <div class="machine-preview-main">
-
-                    <strong>
-                        ${escapeHTML(item.machine || "Machine")}
-                    </strong>
+                <div class="report-meta">
 
                     <span>
-                        ${escapeHTML(item.process || "-")}
+                        Shift ${escapeHTML(report.shift || "-")}
+                    </span>
+
+                    <span>
+                        ${escapeHTML(report.unit || "-")}
+                    </span>
+
+                    <span>
+                        Supervisor:
+                        ${escapeHTML(report.supervisor || "-")}
                     </span>
 
                 </div>
 
-
-                <span class="status-badge ${getStatusClass(item.status)}">
-
-                    ${escapeHTML(item.status || "-")}
-
-                </span>
+            </div>
 
 
-                <div class="machine-preview-details">
+            <button
+                type="button"
+                class="edit-report-button"
+            >
+                ✏️ Edit Report
+            </button>
 
-                    ${details || "No production details"}
+        </div>
+
+
+        <div class="report-summary">
+
+            <span class="summary-total">
+                ⚙️ ${machines.length} Machines
+            </span>
+
+            <span class="summary-production">
+                🟢 ${productionMachines} Production
+            </span>
+
+            <span class="summary-idle">
+                🟡 ${idleMachines} Idle
+            </span>
+
+            <span class="summary-maintenance">
+                🔴 ${maintenanceMachines} Maintenance
+            </span>
+
+        </div>
+
+
+        <div class="machine-preview">
+
+            ${createMachinePreview(machines)}
+
+        </div>
+
+    `;
+
+
+    card
+        .querySelector(".edit-report-button")
+        .addEventListener(
+            "click",
+            function () {
+
+                openEditModal(report);
+
+            }
+        );
+
+
+    return card;
+
+}
+
+
+
+
+
+/* =====================================================
+   MACHINE PREVIEW
+===================================================== */
+
+function createMachinePreview(machines) {
+
+    if (
+        machines.length === 0
+    ) {
+
+        return `
+            <div class="no-machines">
+                No machine entries
+            </div>
+        `;
+
+    }
+
+
+    return machines.map(
+        function (item, index) {
+
+            let details = "";
+
+
+            if (item.length) {
+
+                details +=
+                    `Length: ${escapeHTML(item.length)} m`;
+
+            }
+
+
+            if (item.weight) {
+
+                details +=
+                    `${details ? " • " : ""}Weight: ${escapeHTML(item.weight)} kg`;
+
+            }
+
+
+            if (item.speed) {
+
+                details +=
+                    `${details ? " • " : ""}Speed: ${escapeHTML(item.speed)}`;
+
+            }
+
+
+            if (item.product) {
+
+                details +=
+                    `${details ? " • " : ""}${escapeHTML(item.product)}`;
+
+            }
+
+
+            if (item.totalCoils) {
+
+                details +=
+                    `${details ? " • " : ""}Coils: ${escapeHTML(item.totalCoils)}`;
+
+            }
+
+
+            if (item.jobName) {
+
+                details +=
+                    `${details ? " • " : ""}Job: ${escapeHTML(item.jobName)}`;
+
+            }
+
+
+            return `
+
+                <div class="machine-preview-row">
+
+                    <div class="machine-preview-main">
+
+                        <strong>
+                            ${escapeHTML(item.machine || "Machine")}
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(item.process || "-")}
+                        </span>
+
+                    </div>
+
+
+                    <span class="status-badge ${getStatusClass(item.status)}">
+
+                        ${escapeHTML(item.status || "-")}
+
+                    </span>
+
+
+                    <div class="machine-preview-details">
+
+                        ${details || "No production details"}
+
+                    </div>
 
                 </div>
+
+            `;
+
+        }
+    ).join("");
+
+}
+
+
+
+
+
+/* =====================================================
+   OPEN EDIT MODAL
+===================================================== */
+
+function openEditModal(report) {
+
+    currentReport =
+        JSON.parse(
+            JSON.stringify(report)
+        );
+
+
+    document.getElementById(
+        "editingReportId"
+    ).textContent =
+        `Report ID: ${report.id}`;
+
+
+    document.getElementById(
+        "editDate"
+    ).value =
+        report.productionDate || "";
+
+
+    document.getElementById(
+        "editShift"
+    ).value =
+        report.shift || "";
+
+
+    document.getElementById(
+        "editUnit"
+    ).value =
+        report.unit || "";
+
+
+    document.getElementById(
+        "editSupervisor"
+    ).value =
+        report.supervisor || "";
+
+
+    renderMachineEditors();
+
+
+    editModal.classList.remove(
+        "hidden"
+    );
+
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+}
+
+
+
+
+
+/* =====================================================
+   CLOSE EDIT MODAL
+===================================================== */
+
+function closeEditModal() {
+
+    currentReport =
+        null;
+
+
+    editModal.classList.add(
+        "hidden"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+
+
+
+/* =====================================================
+   NORMALIZE MACHINES
+===================================================== */
+
+function normalizeMachines(machines) {
+
+    if (
+        Array.isArray(machines)
+    ) {
+
+        return machines;
+
+    }
+
+
+    if (
+        machines &&
+        typeof machines === "object"
+    ) {
+
+        return Object.values(
+            machines
+        );
+
+    }
+
+
+    return [];
+
+}
+
+
+
+
+
+/* =====================================================
+   RENDER MACHINE EDITORS
+===================================================== */
+
+function renderMachineEditors() {
+
+    machinesEditor.innerHTML = "";
+
+
+    if (!currentReport) {
+
+        return;
+
+    }
+
+
+    const machines =
+        normalizeMachines(
+            currentReport.machines
+        );
+
+
+    if (machines.length === 0) {
+
+        machinesEditor.innerHTML = `
+
+            <div class="empty-machine-editor">
+
+                No machine entries.
+
+                <br><br>
+
+                Click
+                <strong>+ Add Machine</strong>
+                to add one.
 
             </div>
 
         `;
 
+        return;
+
     }
-).join("");
-```
-
-}
-
-/* =====================================================
-OPEN EDIT MODAL
-===================================================== */
-
-function openEditModal(report) {
-
-```
-/*
- * IMPORTANT FIX:
- *
- * Set editing mode BEFORE copying the report.
- *
- * From this point onward, Firebase listener will not
- * replace this draft while the administrator is typing.
- */
-
-isEditingReport =
-    true;
 
 
-pendingFirebaseReports =
-    null;
+    machines.forEach(
+        function (machineItem, index) {
+
+            const editor =
+                createMachineEditor(
+                    machineItem,
+                    index
+                );
 
 
-/*
- * Deep clone the report.
- *
- * This becomes the administrator's local draft.
- */
+            machinesEditor.appendChild(
+                editor
+            );
 
-currentReport =
-    JSON.parse(
-        JSON.stringify(report)
+        }
     );
 
-
-document.getElementById(
-    "editingReportId"
-).textContent =
-    `Report ID: ${report.id}`;
-
-
-document.getElementById(
-    "editDate"
-).value =
-    report.productionDate || "";
-
-
-document.getElementById(
-    "editShift"
-).value =
-    report.shift || "";
-
-
-document.getElementById(
-    "editUnit"
-).value =
-    report.unit || "";
-
-
-document.getElementById(
-    "editSupervisor"
-).value =
-    report.supervisor || "";
-
-
-renderMachineEditors();
-
-
-editModal.classList.remove(
-    "hidden"
-);
-
-
-document.body.classList.add(
-    "modal-open"
-);
-```
-
 }
+
+
+
+
 
 /* =====================================================
-CLOSE EDIT MODAL
+   CREATE MACHINE EDITOR
 ===================================================== */
 
-function closeEditModal() {
-
-```
-/*
- * First close editing mode.
- */
-
-isEditingReport =
-    false;
-
-
-currentReport =
-    null;
-
-
-editModal.classList.add(
-    "hidden"
-);
-
-
-document.body.classList.remove(
-    "modal-open"
-);
-
-
-/*
- * If Firebase sent updated data while the modal was
- * open, apply it now that the user has finished editing.
- */
-
-if (pendingFirebaseReports !== null) {
-
-    allReports =
-        pendingFirebaseReports;
-
-    pendingFirebaseReports =
-        null;
-
-    sortReports();
-
-    renderReports();
-
-}
-```
-
-}
-
-/* =====================================================
-NORMALIZE MACHINES
-===================================================== */
-
-function normalizeMachines(machines) {
-
-```
-if (
-    Array.isArray(machines)
+function createMachineEditor(
+    machineItem,
+    index
 ) {
 
-    return machines;
-
-}
-
-
-if (
-    machines &&
-    typeof machines === "object"
-) {
-
-    return Object.values(
-        machines
-    );
-
-}
+    const card =
+        document.createElement("div");
 
 
-return [];
-```
-
-}
-
-/* =====================================================
-RENDER MACHINE EDITORS
-===================================================== */
-
-function renderMachineEditors() {
-
-```
-/*
- * IMPORTANT:
- *
- * This function should only be called intentionally:
- *
- * - Opening a report
- * - Adding a machine
- * - Removing a machine
- *
- * It is NEVER called from the Firebase listener.
- *
- * Therefore typing into an input cannot be erased by
- * a Firebase realtime update.
- */
-
-machinesEditor.innerHTML =
-    "";
+    card.className =
+        "machine-editor-card";
 
 
-if (!currentReport) {
-
-    return;
-
-}
+    card.dataset.index =
+        index;
 
 
-const machines =
-    normalizeMachines(
-        currentReport.machines
-    );
+    card.innerHTML = `
+
+        <div class="machine-editor-header">
+
+            <h4>
+                Machine Entry #${index + 1}
+            </h4>
+
+            <button
+                type="button"
+                class="remove-machine-button"
+            >
+                🗑️ Remove Machine
+            </button>
+
+        </div>
 
 
-if (machines.length === 0) {
+        <div class="machine-editor-grid">
 
-    machinesEditor.innerHTML = `
 
-        <div class="empty-machine-editor">
+            <!-- UNIT -->
 
-            No machine entries.
+            <div class="form-group">
 
-            <br><br>
+                <label>
+                    Unit
+                </label>
 
-            Click
-            <strong>+ Add Machine</strong>
-            to add one.
+                <select class="machine-unit">
+
+                    <option value="Unit 1">
+                        Unit 1
+                    </option>
+
+                    <option value="Unit 2">
+                        Unit 2
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- PROCESS -->
+
+            <div class="form-group">
+
+                <label>
+                    Process
+                </label>
+
+                <select class="machine-process">
+
+                    <option value="">
+                        Select Process
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- MACHINE -->
+
+            <div class="form-group">
+
+                <label>
+                    Machine
+                </label>
+
+                <select class="machine-name">
+
+                    <option value="">
+                        Select Machine
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="form-group">
+
+                <label>
+                    Status
+                </label>
+
+                <select class="machine-status">
+
+                    <option value="Production">
+                        Production
+                    </option>
+
+                    <option value="Idle">
+                        Idle
+                    </option>
+
+                    <option value="Maintenance">
+                        Maintenance
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="production-fields">
+
+
+            <div class="form-group">
+
+                <label>
+                    Length (m)
+                </label>
+
+                <input
+                    type="text"
+                    class="field-length"
+                    placeholder="Length"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Weight (kg)
+                </label>
+
+                <input
+                    type="text"
+                    class="field-weight"
+                    placeholder="Weight"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Speed
+                </label>
+
+                <input
+                    type="text"
+                    class="field-speed"
+                    placeholder="Speed"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Product
+                </label>
+
+                <input
+                    type="text"
+                    class="field-product"
+                    placeholder="Product"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Total Coils
+                </label>
+
+                <input
+                    type="text"
+                    class="field-total-coils"
+                    placeholder="Total coils"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Job Name
+                </label>
+
+                <input
+                    type="text"
+                    class="field-job-name"
+                    placeholder="Job name"
+                >
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Coil Details
+                </label>
+
+                <textarea
+                    class="field-coil-details"
+                    rows="4"
+                    placeholder="Coil details"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group full-width">
+
+                <label>
+                    Remarks
+                </label>
+
+                <textarea
+                    class="field-remarks"
+                    rows="4"
+                    placeholder="Problems / observations / remarks"
+                ></textarea>
+
+            </div>
+
 
         </div>
 
     `;
 
-    return;
 
-}
-
-
-machines.forEach(
-    function (machineItem, index) {
-
-        const editor =
-            createMachineEditor(
-                machineItem,
-                index
-            );
-
-
-        machinesEditor.appendChild(
-            editor
-        );
-
-    }
-);
-```
-
-}
-
-/* =====================================================
-CREATE MACHINE EDITOR
-===================================================== */
-
-function createMachineEditor(
-machineItem,
-index
-) {
-
-```
-const card =
-    document.createElement("div");
-
-
-card.className =
-    "machine-editor-card";
-
-
-card.dataset.index =
-    index;
-
-
-card.innerHTML = `
-
-    <div class="machine-editor-header">
-
-        <h4>
-            Machine Entry #${index + 1}
-        </h4>
-
-        <button
-            type="button"
-            class="remove-machine-button"
-        >
-            🗑️ Remove Machine
-        </button>
-
-    </div>
-
-
-    <div class="machine-editor-grid">
-
-        <!-- UNIT -->
-
-        <div class="form-group">
-
-            <label>
-                Unit
-            </label>
-
-            <select class="machine-unit">
-
-                <option value="Unit 1">
-                    Unit 1
-                </option>
-
-                <option value="Unit 2">
-                    Unit 2
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- PROCESS -->
-
-        <div class="form-group">
-
-            <label>
-                Process
-            </label>
-
-            <select class="machine-process">
-
-                <option value="">
-                    Select Process
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- MACHINE -->
-
-        <div class="form-group">
-
-            <label>
-                Machine
-            </label>
-
-            <select class="machine-name">
-
-                <option value="">
-                    Select Machine
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- STATUS -->
-
-        <div class="form-group">
-
-            <label>
-                Status
-            </label>
-
-            <select class="machine-status">
-
-                <option value="Production">
-                    Production
-                </option>
-
-                <option value="Idle">
-                    Idle
-                </option>
-
-                <option value="Maintenance">
-                    Maintenance
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-
-    <div class="production-fields">
-
-        <div class="form-group">
-
-            <label>
-                Length (m)
-            </label>
-
-            <input
-                type="text"
-                class="field-length"
-                placeholder="Length"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Weight (kg)
-            </label>
-
-            <input
-                type="text"
-                class="field-weight"
-                placeholder="Weight"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Speed
-            </label>
-
-            <input
-                type="text"
-                class="field-speed"
-                placeholder="Speed"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Product
-            </label>
-
-            <input
-                type="text"
-                class="field-product"
-                placeholder="Product"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Total Coils
-            </label>
-
-            <input
-                type="text"
-                class="field-total-coils"
-                placeholder="Total coils"
-            >
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Job Name
-            </label>
-
-            <input
-                type="text"
-                class="field-job-name"
-                placeholder="Job name"
-            >
-
-        </div>
-
-
-        <div class="form-group full-width">
-
-            <label>
-                Coil Details
-            </label>
-
-            <textarea
-                class="field-coil-details"
-                rows="4"
-                placeholder="Coil details"
-            ></textarea>
-
-        </div>
-
-
-        <div class="form-group full-width">
-
-            <label>
-                Remarks
-            </label>
-
-            <textarea
-                class="field-remarks"
-                rows="4"
-                placeholder="Problems / observations / remarks"
-            ></textarea>
-
-        </div>
-
-    </div>
-
-`;
-
-
-const unitSelect =
-    card.querySelector(
-        ".machine-unit"
-    );
-
-
-const processSelect =
-    card.querySelector(
-        ".machine-process"
-    );
-
-
-const machineSelect =
-    card.querySelector(
-        ".machine-name"
-    );
-
-
-const statusSelect =
-    card.querySelector(
-        ".machine-status"
-    );
-
-
-unitSelect.value =
-    machineItem.unit ||
-    currentReport.unit ||
-    "Unit 1";
-
-
-populateProcesses(
-    processSelect,
-    unitSelect.value
-);
-
-
-processSelect.value =
-    machineItem.process || "";
-
-
-populateMachines(
-    machineSelect,
-    unitSelect.value,
-    processSelect.value
-);
-
-
-machineSelect.value =
-    machineItem.machine || "";
-
-
-statusSelect.value =
-    machineItem.status ||
-    "Production";
-
-
-card.querySelector(
-    ".field-length"
-).value =
-    machineItem.length || "";
-
-
-card.querySelector(
-    ".field-weight"
-).value =
-    machineItem.weight || "";
-
-
-card.querySelector(
-    ".field-speed"
-).value =
-    machineItem.speed || "";
-
-
-card.querySelector(
-    ".field-product"
-).value =
-    machineItem.product || "";
-
-
-card.querySelector(
-    ".field-total-coils"
-).value =
-    machineItem.totalCoils || "";
-
-
-card.querySelector(
-    ".field-job-name"
-).value =
-    machineItem.jobName || "";
-
-
-card.querySelector(
-    ".field-coil-details"
-).value =
-    machineItem.coilDetails || "";
-
-
-card.querySelector(
-    ".field-remarks"
-).value =
-    machineItem.remarks || "";
-
-
-/* =================================================
-   UNIT CHANGE
-================================================= */
-
-unitSelect.addEventListener(
-    "change",
-    function () {
-
-        populateProcesses(
-            processSelect,
-            unitSelect.value
+    const unitSelect =
+        card.querySelector(
+            ".machine-unit"
         );
 
 
-        processSelect.value =
-            "";
-
-
-        machineSelect.innerHTML =
-            `
-                <option value="">
-                    Select Machine
-                </option>
-            `;
-
-    }
-);
-
-
-/* =================================================
-   PROCESS CHANGE
-================================================= */
-
-processSelect.addEventListener(
-    "change",
-    function () {
-
-        populateMachines(
-            machineSelect,
-            unitSelect.value,
-            processSelect.value
+    const processSelect =
+        card.querySelector(
+            ".machine-process"
         );
 
-    }
-);
+
+    const machineSelect =
+        card.querySelector(
+            ".machine-name"
+        );
 
 
-/* =================================================
-   REMOVE MACHINE
-================================================= */
+    const statusSelect =
+        card.querySelector(
+            ".machine-status"
+        );
 
-card
-    .querySelector(
-        ".remove-machine-button"
-    )
-    .addEventListener(
-        "click",
+
+    unitSelect.value =
+        machineItem.unit ||
+        currentReport.unit ||
+        "Unit 1";
+
+
+    populateProcesses(
+        processSelect,
+        unitSelect.value
+    );
+
+
+    processSelect.value =
+        machineItem.process || "";
+
+
+    populateMachines(
+        machineSelect,
+        unitSelect.value,
+        processSelect.value
+    );
+
+
+    machineSelect.value =
+        machineItem.machine || "";
+
+
+    statusSelect.value =
+        machineItem.status ||
+        "Production";
+
+
+    card.querySelector(
+        ".field-length"
+    ).value =
+        machineItem.length || "";
+
+
+    card.querySelector(
+        ".field-weight"
+    ).value =
+        machineItem.weight || "";
+
+
+    card.querySelector(
+        ".field-speed"
+    ).value =
+        machineItem.speed || "";
+
+
+    card.querySelector(
+        ".field-product"
+    ).value =
+        machineItem.product || "";
+
+
+    card.querySelector(
+        ".field-total-coils"
+    ).value =
+        machineItem.totalCoils || "";
+
+
+    card.querySelector(
+        ".field-job-name"
+    ).value =
+        machineItem.jobName || "";
+
+
+    card.querySelector(
+        ".field-coil-details"
+    ).value =
+        machineItem.coilDetails || "";
+
+
+    card.querySelector(
+        ".field-remarks"
+    ).value =
+        machineItem.remarks || "";
+
+
+    /* UNIT CHANGE */
+
+    unitSelect.addEventListener(
+        "change",
         function () {
 
-            const confirmed =
-                confirm(
-                    "Remove this machine entry from the report?"
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            /*
-             * Before changing machine structure,
-             * collect the values currently typed in ALL
-             * machine cards.
-             *
-             * This prevents unsaved typing in another
-             * machine card from being lost.
-             */
-
-            const currentFormMachines =
-                collectMachineData();
-
-
-            currentReport.machines =
-                currentFormMachines;
-
-
-            const indexToRemove =
-                Number(
-                    card.dataset.index
-                );
-
-
-            currentReport.machines.splice(
-                indexToRemove,
-                1
+            populateProcesses(
+                processSelect,
+                unitSelect.value
             );
 
 
-            renderMachineEditors();
+            processSelect.value =
+                "";
+
+
+            machineSelect.innerHTML =
+                `<option value="">
+                    Select Machine
+                </option>`;
 
         }
     );
 
 
-return card;
-```
+    /* PROCESS CHANGE */
+
+    processSelect.addEventListener(
+        "change",
+        function () {
+
+            populateMachines(
+                machineSelect,
+                unitSelect.value,
+                processSelect.value
+            );
+
+        }
+    );
+
+
+    /* REMOVE */
+
+    card
+        .querySelector(
+            ".remove-machine-button"
+        )
+        .addEventListener(
+            "click",
+            function () {
+
+                const confirmed =
+                    confirm(
+                        "Remove this machine entry from the report?"
+                    );
+
+
+                if (!confirmed) {
+
+                    return;
+
+                }
+
+
+                const indexToRemove =
+                    Number(
+                        card.dataset.index
+                    );
+
+
+                currentReport.machines =
+                    normalizeMachines(
+                        currentReport.machines
+                    );
+
+
+                currentReport.machines.splice(
+                    indexToRemove,
+                    1
+                );
+
+
+                renderMachineEditors();
+
+            }
+        );
+
+
+    return card;
 
 }
 
+
+
+
+
 /* =====================================================
-POPULATE PROCESS DROPDOWN
+   POPULATE PROCESS DROPDOWN
 ===================================================== */
 
 function populateProcesses(
-select,
-selectedUnit
+    select,
+    selectedUnit
 ) {
 
-```
-select.innerHTML = `
+    select.innerHTML = `
 
-    <option value="">
-        Select Process
-    </option>
+        <option value="">
+            Select Process
+        </option>
 
-`;
+    `;
 
 
-if (
-    !machineData[selectedUnit]
-) {
+    if (
+        !machineData[selectedUnit]
+    ) {
 
-    return;
+        return;
+
+    }
+
+
+    Object.keys(
+        machineData[selectedUnit]
+    ).forEach(
+        function (processName) {
+
+            const machines =
+                machineData[
+                    selectedUnit
+                ][
+                    processName
+                ];
+
+
+            if (
+                machines.length > 0
+            ) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    processName;
+
+
+                option.textContent =
+                    processName;
+
+
+                select.appendChild(
+                    option
+                );
+
+            }
+
+        }
+    );
 
 }
 
 
-Object.keys(
-    machineData[selectedUnit]
-).forEach(
-    function (processName) {
-
-        const machines =
-            machineData[
-                selectedUnit
-            ][
-                processName
-            ];
 
 
-        if (
-            machines.length > 0
-        ) {
+
+/* =====================================================
+   POPULATE MACHINE DROPDOWN
+===================================================== */
+
+function populateMachines(
+    select,
+    selectedUnit,
+    selectedProcess
+) {
+
+    select.innerHTML = `
+
+        <option value="">
+            Select Machine
+        </option>
+
+    `;
+
+
+    if (
+        !selectedUnit ||
+        !selectedProcess
+    ) {
+
+        return;
+
+    }
+
+
+    const machines =
+        machineData[
+            selectedUnit
+        ][
+            selectedProcess
+        ] || [];
+
+
+    machines.forEach(
+        function (machineName) {
 
             const option =
                 document.createElement(
@@ -1582,11 +1587,11 @@ Object.keys(
 
 
             option.value =
-                processName;
+                machineName;
 
 
             option.textContent =
-                processName;
+                machineName;
 
 
             select.appendChild(
@@ -1594,423 +1599,289 @@ Object.keys(
             );
 
         }
-
-    }
-);
-```
+    );
 
 }
+
+
+
+
 
 /* =====================================================
-POPULATE MACHINE DROPDOWN
-===================================================== */
-
-function populateMachines(
-select,
-selectedUnit,
-selectedProcess
-) {
-
-```
-select.innerHTML = `
-
-    <option value="">
-        Select Machine
-    </option>
-
-`;
-
-
-if (
-    !selectedUnit ||
-    !selectedProcess
-) {
-
-    return;
-
-}
-
-
-const machines =
-    machineData[
-        selectedUnit
-    ][
-        selectedProcess
-    ] || [];
-
-
-machines.forEach(
-    function (machineName) {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            machineName;
-
-
-        option.textContent =
-            machineName;
-
-
-        select.appendChild(
-            option
-        );
-
-    }
-);
-```
-
-}
-
-/* =====================================================
-ADD MACHINE
+   ADD MACHINE
 ===================================================== */
 
 addMachineButton.addEventListener(
-"click",
-function () {
+    "click",
+    function () {
 
-```
-    if (!currentReport) {
+        if (!currentReport) {
 
-        return;
+            return;
+
+        }
+
+
+        currentReport.machines =
+            normalizeMachines(
+                currentReport.machines
+            );
+
+
+        currentReport.machines.push({
+
+            unit:
+                currentReport.unit ||
+                "Unit 1",
+
+            process:
+                "",
+
+            machine:
+                "",
+
+            status:
+                "Production",
+
+            length:
+                "",
+
+            weight:
+                "",
+
+            speed:
+                "",
+
+            product:
+                "",
+
+            totalCoils:
+                "",
+
+            coilDetails:
+                "",
+
+            jobName:
+                "",
+
+            remarks:
+                ""
+
+        });
+
+
+        renderMachineEditors();
 
     }
-
-
-    /*
-     * IMPORTANT FIX:
-     *
-     * Before rebuilding the editor, first collect all
-     * values currently typed into every existing machine.
-     *
-     * Otherwise adding a new machine could erase
-     * unsaved values.
-     */
-
-    currentReport.machines =
-        collectMachineData();
-
-
-    currentReport.machines.push({
-
-        unit:
-            currentReport.unit ||
-            "Unit 1",
-
-        process:
-            "",
-
-        machine:
-            "",
-
-        status:
-            "Production",
-
-        length:
-            "",
-
-        weight:
-            "",
-
-        speed:
-            "",
-
-        product:
-            "",
-
-        totalCoils:
-            "",
-
-        coilDetails:
-            "",
-
-        jobName:
-            "",
-
-        remarks:
-            ""
-
-    });
-
-
-    renderMachineEditors();
-
-}
-```
-
 );
 
+
+
+
+
 /* =====================================================
-COLLECT MACHINE DATA FROM FORM
+   COLLECT MACHINE DATA FROM FORM
 ===================================================== */
 
 function collectMachineData() {
 
-```
-const cards =
-    machinesEditor.querySelectorAll(
-        ".machine-editor-card"
+    const cards =
+        machinesEditor.querySelectorAll(
+            ".machine-editor-card"
+        );
+
+
+    const machines = [];
+
+
+    cards.forEach(
+        function (card) {
+
+            const item = {
+
+                unit:
+                    card.querySelector(
+                        ".machine-unit"
+                    ).value,
+
+                process:
+                    card.querySelector(
+                        ".machine-process"
+                    ).value,
+
+                machine:
+                    card.querySelector(
+                        ".machine-name"
+                    ).value,
+
+                status:
+                    card.querySelector(
+                        ".machine-status"
+                    ).value,
+
+                length:
+                    card.querySelector(
+                        ".field-length"
+                    ).value.trim(),
+
+                weight:
+                    card.querySelector(
+                        ".field-weight"
+                    ).value.trim(),
+
+                speed:
+                    card.querySelector(
+                        ".field-speed"
+                    ).value.trim(),
+
+                product:
+                    card.querySelector(
+                        ".field-product"
+                    ).value.trim(),
+
+                totalCoils:
+                    card.querySelector(
+                        ".field-total-coils"
+                    ).value.trim(),
+
+                coilDetails:
+                    card.querySelector(
+                        ".field-coil-details"
+                    ).value.trim(),
+
+                jobName:
+                    card.querySelector(
+                        ".field-job-name"
+                    ).value.trim(),
+
+                remarks:
+                    card.querySelector(
+                        ".field-remarks"
+                    ).value.trim()
+
+            };
+
+
+            /*
+             * Remove empty process-specific fields.
+             *
+             * This keeps Firebase cleaner and follows
+             * the same structure as your app.js.
+             */
+
+            if (!item.length) {
+
+                delete item.length;
+
+            }
+
+
+            if (!item.weight) {
+
+                delete item.weight;
+
+            }
+
+
+            if (!item.speed) {
+
+                delete item.speed;
+
+            }
+
+
+            if (!item.product) {
+
+                delete item.product;
+
+            }
+
+
+            if (!item.totalCoils) {
+
+                delete item.totalCoils;
+
+            }
+
+
+            if (!item.coilDetails) {
+
+                delete item.coilDetails;
+
+            }
+
+
+            if (!item.jobName) {
+
+                delete item.jobName;
+
+            }
+
+
+            if (!item.remarks) {
+
+                delete item.remarks;
+
+            }
+
+
+            machines.push(item);
+
+        }
     );
 
 
-const machines = [];
-
-
-cards.forEach(
-    function (card) {
-
-        const item = {
-
-            unit:
-                card.querySelector(
-                    ".machine-unit"
-                ).value,
-
-            process:
-                card.querySelector(
-                    ".machine-process"
-                ).value,
-
-            machine:
-                card.querySelector(
-                    ".machine-name"
-                ).value,
-
-            status:
-                card.querySelector(
-                    ".machine-status"
-                ).value,
-
-            length:
-                card.querySelector(
-                    ".field-length"
-                ).value.trim(),
-
-            weight:
-                card.querySelector(
-                    ".field-weight"
-                ).value.trim(),
-
-            speed:
-                card.querySelector(
-                    ".field-speed"
-                ).value.trim(),
-
-            product:
-                card.querySelector(
-                    ".field-product"
-                ).value.trim(),
-
-            totalCoils:
-                card.querySelector(
-                    ".field-total-coils"
-                ).value.trim(),
-
-            coilDetails:
-                card.querySelector(
-                    ".field-coil-details"
-                ).value.trim(),
-
-            jobName:
-                card.querySelector(
-                    ".field-job-name"
-                ).value.trim(),
-
-            remarks:
-                card.querySelector(
-                    ".field-remarks"
-                ).value.trim()
-
-        };
-
-
-        /*
-         * Remove empty process-specific fields.
-         *
-         * This keeps Firebase clean.
-         */
-
-        if (!item.length) {
-
-            delete item.length;
-
-        }
-
-
-        if (!item.weight) {
-
-            delete item.weight;
-
-        }
-
-
-        if (!item.speed) {
-
-            delete item.speed;
-
-        }
-
-
-        if (!item.product) {
-
-            delete item.product;
-
-        }
-
-
-        if (!item.totalCoils) {
-
-            delete item.totalCoils;
-
-        }
-
-
-        if (!item.coilDetails) {
-
-            delete item.coilDetails;
-
-        }
-
-
-        if (!item.jobName) {
-
-            delete item.jobName;
-
-        }
-
-
-        if (!item.remarks) {
-
-            delete item.remarks;
-
-        }
-
-
-        machines.push(item);
-
-    }
-);
-
-
-return machines;
-```
+    return machines;
 
 }
 
+
+
+
+
 /* =====================================================
-SAVE CHANGES
+   SAVE CHANGES
 ===================================================== */
 
 saveChangesButton.addEventListener(
-"click",
-async function () {
+    "click",
+    async function () {
 
-```
-    if (!currentReport) {
+        if (!currentReport) {
 
-        return;
+            return;
 
-    }
-
-
-    /*
-     * FIRST:
-     *
-     * Collect the CURRENT values directly from the
-     * visible form.
-     *
-     * This is important because currentReport is only
-     * the original/local draft. The input fields are
-     * the final source of truth at Save time.
-     */
-
-    const machines =
-        collectMachineData();
+        }
 
 
-    const date =
-        document.getElementById(
-            "editDate"
-        ).value;
+        const date =
+            document.getElementById(
+                "editDate"
+            ).value;
 
 
-    const selectedShift =
-        document.getElementById(
-            "editShift"
-        ).value;
+        const selectedShift =
+            document.getElementById(
+                "editShift"
+            ).value;
 
 
-    const selectedUnit =
-        document.getElementById(
-            "editUnit"
-        ).value;
+        const selectedUnit =
+            document.getElementById(
+                "editUnit"
+            ).value;
 
 
-    const selectedSupervisor =
-        document.getElementById(
-            "editSupervisor"
-        ).value.trim();
+        const selectedSupervisor =
+            document.getElementById(
+                "editSupervisor"
+            ).value.trim();
 
 
-    if (!date) {
-
-        alert(
-            "Please select Production Date."
-        );
-
-        return;
-
-    }
-
-
-    if (!selectedShift) {
-
-        alert(
-            "Please select Shift."
-        );
-
-        return;
-
-    }
-
-
-    if (!selectedUnit) {
-
-        alert(
-            "Please select Unit."
-        );
-
-        return;
-
-    }
-
-
-    if (!selectedSupervisor) {
-
-        alert(
-            "Please enter Supervisor Name."
-        );
-
-        return;
-
-    }
-
-
-    for (
-        let i = 0;
-        i < machines.length;
-        i++
-    ) {
-
-        if (!machines[i].unit) {
+        if (!date) {
 
             alert(
-                `Machine Entry #${i + 1}: Please select Unit.`
+                "Please select Production Date."
             );
 
             return;
@@ -2018,10 +1889,10 @@ async function () {
         }
 
 
-        if (!machines[i].process) {
+        if (!selectedShift) {
 
             alert(
-                `Machine Entry #${i + 1}: Please select Process.`
+                "Please select Shift."
             );
 
             return;
@@ -2029,524 +1900,530 @@ async function () {
         }
 
 
-        if (!machines[i].machine) {
+        if (!selectedUnit) {
 
             alert(
-                `Machine Entry #${i + 1}: Please select Machine.`
+                "Please select Unit."
             );
 
             return;
 
         }
 
-    }
 
+        if (!selectedSupervisor) {
 
-    const confirmed =
-        confirm(
-            "Save these changes to the existing report?"
-        );
-
-
-    if (!confirmed) {
-
-        return;
-
-    }
-
-
-    saveChangesButton.disabled =
-        true;
-
-
-    saveChangesButton.textContent =
-        "Saving...";
-
-
-    try {
-
-        /*
-         * Keep editing mode TRUE during Firebase update.
-         *
-         * Firebase will fire onValue() after this update,
-         * but the callback will NOT overwrite the editor.
-         */
-
-        isEditingReport =
-            true;
-
-
-        const reportRef =
-            ref(
-                database,
-                "productionReports/" +
-                currentReport.id
+            alert(
+                "Please enter Supervisor Name."
             );
 
+            return;
 
-        /*
-         * IMPORTANT:
-         *
-         * update() modifies the existing report.
-         * It does NOT create a new report.
-         */
+        }
 
-        await update(
-            reportRef,
-            {
 
-                productionDate:
-                    date,
+        const machines =
+            collectMachineData();
 
-                shift:
-                    selectedShift,
 
-                unit:
-                    selectedUnit,
+        for (
+            let i = 0;
+            i < machines.length;
+            i++
+        ) {
 
-                supervisor:
-                    selectedSupervisor,
+            if (!machines[i].unit) {
 
-                machines:
-                    machines
+                alert(
+                    `Machine Entry #${i + 1}: Please select Unit.`
+                );
+
+                return;
 
             }
-        );
 
 
-        /*
-         * Update local report object as well.
-         *
-         * This keeps the local state synchronized
-         * immediately after saving.
-         */
+            if (!machines[i].process) {
 
-        currentReport.productionDate =
-            date;
+                alert(
+                    `Machine Entry #${i + 1}: Please select Process.`
+                );
 
+                return;
 
-        currentReport.shift =
-            selectedShift;
+            }
 
 
-        currentReport.unit =
-            selectedUnit;
+            if (!machines[i].machine) {
+
+                alert(
+                    `Machine Entry #${i + 1}: Please select Machine.`
+                );
+
+                return;
+
+            }
+
+        }
 
 
-        currentReport.supervisor =
-            selectedSupervisor;
+        const confirmed =
+            confirm(
+                "Save these changes to the existing report?"
+            );
 
 
-        currentReport.machines =
-            machines;
+        if (!confirmed) {
 
+            return;
 
-        alert(
-            "✅ Report corrected successfully!"
-        );
+        }
 
-
-        closeEditModal();
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Firebase update error:",
-            error
-        );
-
-
-        alert(
-            "❌ Could not save changes. Please try again."
-        );
-
-    }
-
-    finally {
 
         saveChangesButton.disabled =
-            false;
+            true;
 
 
         saveChangesButton.textContent =
-            "💾 Save Changes";
-
-    }
-
-}
-```
-
-);
-
-/* =====================================================
-DELETE ENTIRE REPORT
-===================================================== */
-
-deleteReportButton.addEventListener(
-"click",
-async function () {
-
-```
-    if (!currentReport) {
-
-        return;
-
-    }
+            "Saving...";
 
 
-    const firstConfirmation =
-        confirm(
-            "⚠️ DELETE ENTIRE REPORT?\n\n" +
-            "Date: " +
-            (currentReport.productionDate || "-") +
-            "\nShift: " +
-            (currentReport.shift || "-") +
-            "\nUnit: " +
-            (currentReport.unit || "-") +
-            "\nSupervisor: " +
-            (currentReport.supervisor || "-") +
-            "\n\nThis cannot be undone."
-        );
+        try {
+
+            const reportRef =
+                ref(
+                    database,
+                    "productionReports/" +
+                    currentReport.id
+                );
 
 
-    if (!firstConfirmation) {
+            /*
+             * IMPORTANT:
+             *
+             * We use update() here.
+             *
+             * This modifies the existing report.
+             * It does NOT create a new report.
+             */
 
-        return;
+            await update(
+                reportRef,
+                {
 
-    }
+                    productionDate:
+                        date,
 
+                    shift:
+                        selectedShift,
 
-    const secondConfirmation =
-        confirm(
-            "Are you absolutely sure?\n\n" +
-            "The complete report and all its machine entries will be permanently deleted."
-        );
+                    unit:
+                        selectedUnit,
 
+                    supervisor:
+                        selectedSupervisor,
 
-    if (!secondConfirmation) {
+                    machines:
+                        machines
 
-        return;
-
-    }
-
-
-    deleteReportButton.disabled =
-        true;
-
-
-    deleteReportButton.textContent =
-        "Deleting...";
-
-
-    try {
-
-        /*
-         * Keep editing mode active until deletion
-         * is completely finished.
-         */
-
-        isEditingReport =
-            true;
-
-
-        const reportRef =
-            ref(
-                database,
-                "productionReports/" +
-                currentReport.id
+                }
             );
 
 
-        await remove(
-            reportRef
-        );
+            alert(
+                "✅ Report corrected successfully!"
+            );
 
 
-        alert(
-            "Report deleted successfully."
-        );
+            closeEditModal();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Firebase update error:",
+                error
+            );
 
 
-        closeEditModal();
+            alert(
+                "❌ Could not save changes. Please try again."
+            );
+
+        }
+
+        finally {
+
+            saveChangesButton.disabled =
+                false;
+
+
+            saveChangesButton.textContent =
+                "💾 Save Changes";
+
+        }
 
     }
-
-    catch (error) {
-
-        console.error(
-            "Firebase delete error:",
-            error
-        );
+);
 
 
-        alert(
-            "Could not delete report. Please try again."
-        );
 
-    }
 
-    finally {
+
+/* =====================================================
+   DELETE ENTIRE REPORT
+===================================================== */
+
+deleteReportButton.addEventListener(
+    "click",
+    async function () {
+
+        if (!currentReport) {
+
+            return;
+
+        }
+
+
+        const firstConfirmation =
+            confirm(
+                "⚠️ DELETE ENTIRE REPORT?\n\n" +
+                "Date: " +
+                (currentReport.productionDate || "-") +
+                "\nShift: " +
+                (currentReport.shift || "-") +
+                "\nUnit: " +
+                (currentReport.unit || "-") +
+                "\nSupervisor: " +
+                (currentReport.supervisor || "-") +
+                "\n\nThis cannot be undone."
+            );
+
+
+        if (!firstConfirmation) {
+
+            return;
+
+        }
+
+
+        const secondConfirmation =
+            confirm(
+                "Are you absolutely sure?\n\n" +
+                "The complete report and all its machine entries will be permanently deleted."
+            );
+
+
+        if (!secondConfirmation) {
+
+            return;
+
+        }
+
 
         deleteReportButton.disabled =
-            false;
+            true;
 
 
         deleteReportButton.textContent =
-            "🗑️ Delete Entire Report";
+            "Deleting...";
+
+
+        try {
+
+            const reportRef =
+                ref(
+                    database,
+                    "productionReports/" +
+                    currentReport.id
+                );
+
+
+            await remove(
+                reportRef
+            );
+
+
+            alert(
+                "Report deleted successfully."
+            );
+
+
+            closeEditModal();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Firebase delete error:",
+                error
+            );
+
+
+            alert(
+                "Could not delete report. Please try again."
+            );
+
+        }
+
+        finally {
+
+            deleteReportButton.disabled =
+                false;
+
+
+            deleteReportButton.textContent =
+                "🗑️ Delete Entire Report";
+
+        }
 
     }
-
-}
-```
-
 );
 
+
+
+
+
 /* =====================================================
-FILTER EVENTS
+   FILTER EVENTS
 ===================================================== */
 
 filterDate.addEventListener(
-"change",
-renderReports
+    "change",
+    renderReports
 );
+
 
 filterShift.addEventListener(
-"input",
-renderReports
+    "input",
+    renderReports
 );
+
 
 filterUnit.addEventListener(
-"change",
-renderReports
+    "change",
+    renderReports
 );
+
 
 searchText.addEventListener(
-"input",
-renderReports
+    "input",
+    renderReports
 );
 
+
+
+
+
 /* =====================================================
-CLEAR FILTERS
+   CLEAR FILTERS
 ===================================================== */
 
 clearFilters.addEventListener(
-"click",
-function () {
+    "click",
+    function () {
 
-```
-    filterDate.value =
-        "";
-
-
-    filterShift.value =
-        "";
+        filterDate.value =
+            "";
 
 
-    filterUnit.value =
-        "";
+        filterShift.value =
+            "";
 
 
-    searchText.value =
-        "";
+        filterUnit.value =
+            "";
 
 
-    renderReports();
+        searchText.value =
+            "";
 
-}
-```
 
+        renderReports();
+
+    }
 );
 
+
+
+
+
 /* =====================================================
-REFRESH
+   REFRESH
 ===================================================== */
 
 refreshButton.addEventListener(
-"click",
-function () {
+    "click",
+    function () {
 
-```
-    /*
-     * IMPORTANT:
-     *
-     * Never rebuild the report list while the edit
-     * modal is open.
-     *
-     * This prevents accidental interference with
-     * the current editing session.
-     */
+        sortReports();
 
-    if (isEditingReport) {
-
-        alert(
-            "Please finish or cancel the current edit before refreshing."
-        );
-
-        return;
+        renderReports();
 
     }
-
-
-    sortReports();
-
-    renderReports();
-
-}
-```
-
 );
 
+
+
+
+
 /* =====================================================
-MODAL BUTTONS
+   MODAL BUTTONS
 ===================================================== */
 
 closeModal.addEventListener(
-"click",
-closeEditModal
+    "click",
+    closeEditModal
 );
+
 
 cancelEdit.addEventListener(
-"click",
-closeEditModal
+    "click",
+    closeEditModal
 );
 
+
+
+
+
 /* =====================================================
-CLOSE MODAL BY CLICKING OUTSIDE
+   CLOSE MODAL BY CLICKING OUTSIDE
 ===================================================== */
 
 editModal.addEventListener(
-"click",
-function (event) {
+    "click",
+    function (event) {
 
-```
-    if (
-        event.target === editModal
-    ) {
+        if (
+            event.target === editModal
+        ) {
 
-        closeEditModal();
+            closeEditModal();
+
+        }
 
     }
-
-}
-```
-
 );
 
+
+
+
+
 /* =====================================================
-ESC KEY
+   ESC KEY
 ===================================================== */
 
 document.addEventListener(
-"keydown",
-function (event) {
+    "keydown",
+    function (event) {
 
-```
-    if (
-        event.key === "Escape" &&
-        !editModal.classList.contains(
-            "hidden"
-        )
-    ) {
+        if (
+            event.key === "Escape" &&
+            !editModal.classList.contains(
+                "hidden"
+            )
+        ) {
 
-        closeEditModal();
+            closeEditModal();
+
+        }
 
     }
-
-}
-```
-
 );
 
+
+
+
+
 /* =====================================================
-STATUS CLASS
+   STATUS CLASS
 ===================================================== */
 
 function getStatusClass(status) {
 
-```
-if (
-    status === "Production"
-) {
+    if (
+        status === "Production"
+    ) {
 
-    return "status-production";
+        return "status-production";
 
-}
-
-
-if (
-    status === "Idle"
-) {
-
-    return "status-idle";
-
-}
+    }
 
 
-if (
-    status === "Maintenance"
-) {
+    if (
+        status === "Idle"
+    ) {
 
-    return "status-maintenance";
+        return "status-idle";
 
-}
+    }
 
 
-return "";
-```
+    if (
+        status === "Maintenance"
+    ) {
 
-}
+        return "status-maintenance";
 
-/* =====================================================
-ESCAPE HTML
-===================================================== */
+    }
 
-function escapeHTML(value) {
-
-```
-if (
-    value === null ||
-    value === undefined
-) {
 
     return "";
 
 }
 
 
-return String(value)
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
 
-    .replace(
-        /"/g,
-        "&quot;"
-    )
+function escapeHTML(value) {
 
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-```
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
+
+
+
+
 /* =====================================================
-START
+   START
 ===================================================== */
 
 loadReports();
