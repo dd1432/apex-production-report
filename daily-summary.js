@@ -20,11 +20,19 @@ const info = document.getElementById("dailyProductionInfo");
 let reports = [];
 
 const processMachines = {
+    Printing: ["Printing 1", "Printing 2"],
+    Lamination: ["Lamination 1", "Lamination 2"],
+    Slitting: ["Slitting 1", "Slitting 2", "Slitting 3", "Slitting 4"],
+    Extrusion: ["Extrusion Coating 1"]
+};
+
+const unit2ProcessMachines = {
     Printing: ["Printing 3", "Printing 4"],
     Lamination: ["Lamination 3", "Lamination 4", "Lamination 5"],
     ColdSeal: ["ColdSeal"],
     Slitting: ["Slitting 5", "Slitting 6", "Slitting 7"]
 };
+
 const shifts = ["1st", "2nd", "3rd"];
 
 function machinesOf(report) {
@@ -39,20 +47,30 @@ function format(number) {
 }
 function createTotals() {
     const totals = {};
-    Object.values(processMachines).flat().forEach(machine => {
-        totals[machine] = {
-            "1st": { length: 0, weight: 0 },
-            "2nd": { length: 0, weight: 0 },
-            "3rd": { length: 0, weight: 0 },
-            all: { length: 0, weight: 0 }
-        };
-    });
+
+    Object.values(processMachines)
+        .flat()
+        .concat(Object.values(unit2ProcessMachines).flat())
+        .forEach(machine => {
+            totals[machine] = {
+                "1st": { length: 0, weight: 0 },
+                "2nd": { length: 0, weight: 0 },
+                "3rd": { length: 0, weight: 0 },
+                all: { length: 0, weight: 0 }
+            };
+        });
+
     return totals;
 }
+
 function renderDailyTable() {
     const selectedDate = dateInput.value;
     const selectedUnit = unitInput.value;
     const selectedShift = shiftInput.value;
+    const selectedProcessMachines =
+    selectedUnit === "Unit 1"
+        ? processMachines
+        : unit2ProcessMachines;
     if (!selectedDate || !selectedUnit) {
         info.textContent = "Select date and unit";
         container.innerHTML = '<p class="empty-message">Select a date and unit to view the table.</p>';
@@ -77,7 +95,7 @@ function renderDailyTable() {
         });
     });
     info.textContent = `${selectedDate} • ${selectedUnit}${selectedShift ? ` • ${selectedShift} Shift` : " • All Shifts"} • ${reportCount} report(s)`;
-    const rows = Object.entries(processMachines).map(([process, machines]) => {
+    const rows = Object.entries(selectedProcessMachines).map(([process, machines]) => {
         const processTotal = { length: 0, weight: 0 };
         const shiftTotals = Object.fromEntries(shifts.map(shift => [shift, { length: 0, weight: 0 }]));
         machines.forEach(machine => {
