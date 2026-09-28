@@ -1,170 +1,452 @@
+```css
+/* =====================================================
+   APEX PRODUCTION REPORT
+   COMPLETE STYLE SHEET
+===================================================== */
+
+
+/* =====================================================
+   BASIC RESET
+===================================================== */
+
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 
 body {
-    background-color: #f4f6f9;
-    color: #333;
-    padding: 20px;
+
+    margin: 0;
+
+    padding: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f4f6f8;
+
+    color: #222;
+
 }
+
+
+/* =====================================================
+   MAIN CONTAINER
+===================================================== */
 
 .container {
+
+    width: 100%;
+
     max-width: 900px;
+
     margin: 0 auto;
+
+    padding: 20px;
+
 }
 
-.main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header {
+
+    text-align: center;
+
     margin-bottom: 20px;
+
 }
 
-.logo-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+
+.header h1 {
+
+    margin: 0;
+
+    font-size: 30px;
+
 }
 
-.header-logo {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
+
+.header p {
+
+    margin-top: 6px;
+
+    color: #666;
+
+    font-size: 15px;
+
 }
+
+
+/* =====================================================
+   CARDS
+===================================================== */
 
 .card {
-    background: #ffffff;
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
     margin-bottom: 20px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-bottom: 16px;
+
+.card h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 18px;
+
+    font-size: 20px;
+
 }
+
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+
+/* =====================================================
+   FORM GROUP
+===================================================== */
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-}
 
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-label {
-    font-size: 0.88rem;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #444;
-}
-
-input, select, textarea {
-    padding: 10px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    outline: none;
-}
-
-input:focus, select:focus, textarea:focus {
-    border-color: #3498db;
-}
-
-.btn {
-    padding: 10px 18px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-primary {
-    background-color: #27ae60;
-    color: white;
     width: 100%;
-}
 
-.btn-primary:hover {
-    background-color: #219150;
-}
-
-.btn-secondary {
-    background-color: #2980b9;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #1f6391;
-}
-
-/* Modal Window */
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: #ffffff;
-    width: 90%;
-    max-width: 420px;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 15px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 8px;
+
 }
 
-.close-modal-btn {
-    background: none;
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 600;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   INPUTS / SELECTS / TEXTAREA
+===================================================== */
+
+input,
+select,
+textarea {
+
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 7px;
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    outline: none;
+
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+    border-color: #555;
+
+}
+
+
+textarea {
+
+    min-height: 90px;
+
+    resize: vertical;
+
+}
+
+
+/* =====================================================
+   MACHINE ENTRY FORM
+===================================================== */
+
+.machine-entry-form {
+
+    margin-top: 18px;
+
+    padding: 16px;
+
+    border: 1px solid #e0e0e0;
+
+    border-radius: 10px;
+
+    background: #fafafa;
+
+}
+
+
+/* =====================================================
+   STATUS MESSAGE
+===================================================== */
+
+.status-message {
+
+    padding: 12px;
+
+    margin: 10px 0;
+
+    border-radius: 7px;
+
+    background: #f1f3f5;
+
+    color: #555;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+button {
+
+    font-family: inherit;
+
+}
+
+
+.primary-button {
+
+    width: 100%;
+
+    padding: 14px 18px;
+
     border: none;
-    font-size: 24px;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
     cursor: pointer;
-    color: #666;
+
 }
 
-.target-field-group {
-    margin-bottom: 12px;
+
+.secondary-button {
+
+    padding: 11px 18px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
 }
 
-.message-banner {
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    text-align: center;
+
+.delete-button {
+
+    border: none;
+
+    padding: 6px 10px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
 }
 
-.message-banner.success {
-    background-color: #d4edda;
-    color: #155724;
+
+.delete-button:hover,
+.primary-button:hover,
+.secondary-button:hover {
+
+    opacity: 0.85;
+
 }
 
-.message-banner.error {
-    background-color: #f8d7da;
-    color: #721c24;
+
+/* =====================================================
+   CURRENT SHIFT ENTRY
+===================================================== */
+
+.entry-card {
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    margin-top: 12px;
+
+    background: #fafafa;
+
 }
+
+
+.entry-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.entry-details {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =====================================================
+   EMPTY MESSAGE
+===================================================== */
+
+.empty-message {
+
+    margin: 0;
+
+    padding: 12px 0;
+
+    color: #777;
+
+    font-size: 14px;
+
+}
+
+
+/* =====================================================
+   SUBMIT AREA
+===================================================== */
+
+.submit-area {
+
+    margin-top: 20px;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+@media (max-width: 650px) {
+
+    .container {
+
+        padding: 12px;
+
+    }
+
+
+    .header h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .card {
+
+        padding: 15px;
+
+    }
+
+
+    .grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 0;
+
+    }
+
+
+    .entry-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .delete-button {
+
+        width: 100%;
+
+    }
+
+
+    .primary-button {
+
+        font-size: 15px;
+
+    }
+
+}
+```
