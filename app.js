@@ -2357,6 +2357,11 @@ submitShiftReport.addEventListener(
         };
 
 
+        submitShiftReport.disabled = true;
+
+        submitShiftReport.textContent = "Submitting...";
+
+
         try {
 
             /*
@@ -2456,6 +2461,14 @@ submitShiftReport.addEventListener(
             alert(
                 "Could not submit report. Please check your internet connection. Your entered data has been saved and will remain available."
             );
+
+        }
+
+        finally {
+
+            submitShiftReport.disabled = false;
+
+            submitShiftReport.textContent = "Submit Shift Report";
 
         }
 
