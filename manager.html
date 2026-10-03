@@ -47,7 +47,46 @@
             <button type="button" id="showAllReports" class="secondary-button">Show All Reports</button>
             <button type="button" id="clearFilters" class="secondary-button">Clear Filters</button>
             <button type="button" id="refreshReports" class="secondary-button">Refresh</button>
+            <button type="button" id="addTargetBtn" class="secondary-button" style="margin-left: auto; background: #28a745; color: white;">+ Add Target</button>
         </div>
+    </section>
+
+    <!-- TARGET MODAL -->
+    <div id="targetModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Production Target</h2>
+                <button class="modal-close" id="closeTargetModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="targetDate">Date</label>
+                    <input type="date" id="targetDate">
+                </div>
+                <div class="form-group">
+                    <label for="targetUnit">Unit</label>
+                    <select id="targetUnit">
+                        <option value="">Select Unit</option>
+                        <option value="Unit 1">Unit 1</option>
+                        <option value="Unit 2">Unit 2</option>
+                    </select>
+                </div>
+                <div id="targetProcessContainer"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveTargetBtn" class="primary-button">Save Target</button>
+                <button type="button" id="cancelTargetBtn" class="secondary-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TARGET DISPLAY SECTION -->
+    <section class="card target-card hidden">
+        <div class="daily-header">
+            <h2>Production Targets</h2>
+            <span id="targetInfo" class="daily-info">Select date and unit</span>
+        </div>
+        <div id="targetContainer"><p class="empty-message">No targets set for this date and unit.</p></div>
     </section>
 
     <section class="summary-grid">
@@ -72,5 +111,6 @@
 </div>
 <script type="module" src="./manager-range-loader.js?v=1"></script>
 <script type="module" src="./daily-summary-range-loader.js?v=1"></script>
+<script type="module" src="./manager.js?v=2"></script>
 </body>
 </html>
