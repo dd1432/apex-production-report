@@ -22,8 +22,8 @@ let reports = [];
 const processMachines = {
     Printing: ["Printing 1", "Printing 2"],
     Lamination: ["Lamination 1", "Lamination 2"],
-    Slitting: ["Slitting 1", "Slitting 2", "Slitting 3", "Slitting 4"],
-    Extrusion: ["Extrusion Coating 1"]
+    Extrusion: ["Extrusion Coating 1"],
+    Slitting: ["Slitting 1", "Slitting 2", "Slitting 3", "Slitting 4"]
 };
 
 const unit2ProcessMachines = {
