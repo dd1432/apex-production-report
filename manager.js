@@ -129,7 +129,7 @@ function populateProcessInputs() {
         
         group.innerHTML = `
             <label>${process}</label>
-            <input type="number" data-process="${process}" placeholder="Enter target" min="0">
+            <input type="number" data-process="${process}" placeholder="Enter target (kg)" min="0">
         `;
         
         targetProcessContainer.appendChild(group);
@@ -206,7 +206,6 @@ function displayTargets(date, unit) {
         const targetData = snapshot.val();
         targetContainer.innerHTML = "";
         
-        // Get actual achievements from reports
         const filteredReports = allReports.filter(report => 
             report.productionDate === date && report.unit === unit
         );
@@ -215,7 +214,9 @@ function displayTargets(date, unit) {
         
         Object.entries(targetData.targets).forEach(([process, targetValue]) => {
             const achievement = achievements[process] || 0;
-            const percentage = Math.min((achievement / targetValue) * 100, 100);
+            const percentage = (achievement / targetValue) * 100;
+            const percentageLabel = Math.round(percentage);
+            const barWidth = Math.min(Math.max(percentage, 0), 100);
             
             const item = document.createElement("div");
             item.className = "target-item";
@@ -225,14 +226,14 @@ function displayTargets(date, unit) {
             item.innerHTML = `
                 <div class="target-process-name">${process}</div>
                 <div class="target-bar-container">
-                    <div class="target-bar-fill ${colorClass}" style="width: ${percentage}%">
-                        ${Math.round(percentage)}%
+                    <div class="target-bar-fill ${colorClass}" style="width: ${barWidth}%">
+                        ${percentageLabel}%
                     </div>
                 </div>
                 <div class="target-stats">
-                    <span>Achieved: ${achievement.toFixed(2)}</span>
-                    <span>Target: ${targetValue}</span>
-                    <span>Remaining: ${Math.max(0, (targetValue - achievement).toFixed(2))}</span>
+                    <span>Achieved: ${achievement.toFixed(2)} kg</span>
+                    <span>Target: ${targetValue} kg</span>
+                    <span>Remaining: ${Math.max(0, (targetValue - achievement).toFixed(2))} kg</span>
                 </div>
             `;
             
@@ -250,12 +251,10 @@ function displayTargets(date, unit) {
 function calculateAchievements(reports, targets) {
     const achievements = {};
     
-    // Initialize all processes
     Object.keys(targets).forEach(process => {
         achievements[process] = 0;
     });
     
-    // Sum up production from reports
     reports.forEach(report => {
         const machines = Array.isArray(report.machines)
             ? report.machines
@@ -265,8 +264,8 @@ function calculateAchievements(reports, targets) {
             const process = machine.process || "Other";
             
             if (achievements.hasOwnProperty(process)) {
-                const length = parseFloat(machine.length) || 0;
-                achievements[process] += length;
+                const weight = parseFloat(machine.weight) || 0;
+                achievements[process] += weight;
             }
         });
     });
@@ -380,7 +379,6 @@ function applyFilters() {
     // SORT REPORTS
  filteredReports.sort((a, b) => {
 
-    // Newest submitted report first
     const timeA = Number(a.entryTimestamp || 0);
     const timeB = Number(b.entryTimestamp || 0);
 
@@ -389,7 +387,6 @@ function applyFilters() {
 
     renderReports(filteredReports);
     
-    // Display targets if both date and unit are selected
     if (selectedDate && selectedUnit) {
         displayTargets(selectedDate, selectedUnit);
     } else {
@@ -478,10 +475,6 @@ function renderReports(reports) {
 // CREATE REPORT CARD
 // =====================================================
 
-// =====================================================
-// CREATE REPORT CARD
-// =====================================================
-
 function createReportCard(report) {
 
     const card = document.createElement("div");
@@ -532,163 +525,89 @@ function createReportCard(report) {
 
     card.appendChild(reportHeader);
 
-
-    // =================================================
-    // REPORT ACTION BUTTONS
-    // =================================================
-
     const actionBar = document.createElement("div");
-
     actionBar.className = "report-action-bar";
 
-
     const copyButton = document.createElement("button");
-
     copyButton.className = "report-action-btn copy-btn";
-
     copyButton.innerHTML = "📋 Copy Report";
 
-
     copyButton.addEventListener("click", async () => {
-
         const text = generateReportText(report);
 
         try {
-
             await navigator.clipboard.writeText(text);
-
             copyButton.innerHTML = "✅ Copied";
-
             setTimeout(() => {
                 copyButton.innerHTML = "📋 Copy Report";
             }, 2000);
-
         } catch (error) {
-
             console.error("Copy failed:", error);
-
-            // Fallback for older browsers
             const textarea = document.createElement("textarea");
-
             textarea.value = text;
-
             document.body.appendChild(textarea);
-
             textarea.select();
-
             document.execCommand("copy");
-
             document.body.removeChild(textarea);
-
             copyButton.innerHTML = "✅ Copied";
-
             setTimeout(() => {
                 copyButton.innerHTML = "📋 Copy Report";
             }, 2000);
         }
     });
 
-
     const printButton = document.createElement("button");
-
     printButton.className = "report-action-btn print-btn";
-
     printButton.innerHTML = "🖨️ Print Report";
-
-
     printButton.addEventListener("click", () => {
-
         printReport(report);
     });
 
-
     const whatsappButton = document.createElement("button");
-
-    whatsappButton.className =
-        "report-action-btn whatsapp-btn";
-
-    whatsappButton.innerHTML =
-        "🟢 WhatsApp Report";
-
-
+    whatsappButton.className = "report-action-btn whatsapp-btn";
+    whatsappButton.innerHTML = "🟢 WhatsApp Report";
     whatsappButton.addEventListener("click", () => {
-
         sendWhatsAppReport(report);
     });
 
-
     actionBar.appendChild(copyButton);
-
     actionBar.appendChild(printButton);
-
     actionBar.appendChild(whatsappButton);
-
-
     card.appendChild(actionBar);
-
-
-    // =================================================
-    // GROUP MACHINES BY PROCESS
-    // =================================================
 
     const processGroups = {};
 
-
     machines.forEach(machine => {
-
-        const process =
-            machine.process || "Other";
-
+        const process = machine.process || "Other";
         if (!processGroups[process]) {
             processGroups[process] = [];
         }
-
         processGroups[process].push(machine);
     });
-
-
-    // =================================================
-    // PROCESS ORDER
-    // =================================================
 
     const processOrder = [
         "Printing",
         "Lamination",
+        "ColdSeal",
+        "Extrusion",
         "Slitting",
         "Doctoring",
         "Inspection",
         "Extrusion Coating"
     ];
 
-
-    const sortedProcesses = Object.keys(processGroups).sort(
-        (a, b) => {
-
-            const indexA = processOrder.indexOf(a);
-            const indexB = processOrder.indexOf(b);
-
-            const orderA =
-                indexA === -1 ? 999 : indexA;
-
-            const orderB =
-                indexB === -1 ? 999 : indexB;
-
-            return orderA - orderB;
-        }
-    );
-
-
-    sortedProcesses.forEach(process => {
-
-        const section =
-            createProcessSection(
-                process,
-                processGroups[process]
-            );
-
-        card.appendChild(section);
+    const sortedProcesses = Object.keys(processGroups).sort((a, b) => {
+        const indexA = processOrder.indexOf(a);
+        const indexB = processOrder.indexOf(b);
+        const orderA = indexA === -1 ? 999 : indexA;
+        const orderB = indexB === -1 ? 999 : indexB;
+        return orderA - orderB;
     });
 
+    sortedProcesses.forEach(process => {
+        const section = createProcessSection(process, processGroups[process]);
+        card.appendChild(section);
+    });
 
     return card;
 }
@@ -699,41 +618,21 @@ function createReportCard(report) {
 
 function createProcessSection(process, machines) {
 
-    const section =
-        document.createElement("div");
-
+    const section = document.createElement("div");
     section.className = "process-section";
 
-
-    const title =
-        document.createElement("div");
-
+    const title = document.createElement("div");
     title.className = "process-title";
-
     title.textContent = process;
-
-
     section.appendChild(title);
 
+    const wrapper = document.createElement("div");
+    wrapper.className = "machine-table-wrapper";
 
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "machine-table-wrapper";
-
-
-    const table =
-        document.createElement("table");
-
-    table.className =
-        "machine-table";
-
-
-    // DOCTORING
+    const table = document.createElement("table");
+    table.className = "machine-table";
 
     if (process === "Doctoring") {
-
         table.innerHTML = `
             <thead>
                 <tr>
@@ -746,68 +645,27 @@ function createProcessSection(process, machines) {
             </thead>
         `;
 
-
-        const tbody =
-            document.createElement("tbody");
-
+        const tbody = document.createElement("tbody");
 
         machines.forEach(machine => {
-
-            const row =
-                document.createElement("tr");
-
-
+            const row = document.createElement("tr");
             row.innerHTML = `
-                <td>
-                    ${escapeHTML(machine.machine || "-")}
-                </td>
-
-                <td>
-                    ${statusBadge(machine.status)}
-                </td>
-
-                <td>
-                    ${escapeHTML(
-                        machine.totalCoils ?? "-"
-                    )}
-                </td>
-
-                <td>
-                    <div class="coil-details">
-                        ${escapeHTML(
-                            machine.coilDetails || "-"
-                        )}
-                    </div>
-                </td>
-
-                <td>
-                    <div class="remarks">
-                        ${escapeHTML(
-                            machine.remarks || "-"
-                        )}
-                    </div>
-                </td>
+                <td>${escapeHTML(machine.machine || "-")}</td>
+                <td>${statusBadge(machine.status)}</td>
+                <td>${escapeHTML(machine.totalCoils ?? "-")}</td>
+                <td><div class="coil-details">${escapeHTML(machine.coilDetails || "-")}</div></td>
+                <td><div class="remarks">${escapeHTML(machine.remarks || "-")}</div></td>
             `;
-
-
             tbody.appendChild(row);
         });
 
-
         table.appendChild(tbody);
-
         wrapper.appendChild(table);
-
         section.appendChild(wrapper);
-
         return section;
     }
 
-
-    // INSPECTION
-
     if (process === "Inspection") {
-
         table.innerHTML = `
             <thead>
                 <tr>
@@ -820,84 +678,34 @@ function createProcessSection(process, machines) {
             </thead>
         `;
 
-
-        const tbody =
-            document.createElement("tbody");
-
+        const tbody = document.createElement("tbody");
 
         machines.forEach(machine => {
-
-            const row =
-                document.createElement("tr");
-
-
+            const row = document.createElement("tr");
             row.innerHTML = `
-                <td>
-                    ${escapeHTML(machine.machine || "-")}
-                </td>
-
-                <td>
-                    ${statusBadge(machine.status)}
-                </td>
-
-                <td>
-                    ${escapeHTML(
-                        machine.weight ?? "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHTML(
-                        machine.jobName || "-"
-                    )}
-                </td>
-
-                <td>
-                    <div class="remarks">
-                        ${escapeHTML(
-                            machine.remarks || "-"
-                        )}
-                    </div>
-                </td>
+                <td>${escapeHTML(machine.machine || "-")}</td>
+                <td>${statusBadge(machine.status)}</td>
+                <td>${escapeHTML(machine.weight ?? "-")}</td>
+                <td>${escapeHTML(machine.jobName || "-")}</td>
+                <td><div class="remarks">${escapeHTML(machine.remarks || "-")}</div></td>
             `;
-
-
             tbody.appendChild(row);
         });
 
-
         table.appendChild(tbody);
-
         wrapper.appendChild(table);
-
         section.appendChild(wrapper);
-
         return section;
     }
 
-
-    // PRINTING / LAMINATION / SLITTING /
-    // EXTRUSION COATING
-
     let lengthHeading = "Length (m)";
 
-
-    if (process === "Printing") {
-        lengthHeading = "Printed Length (m)";
-    }
-
-    if (process === "Lamination") {
-        lengthHeading = "Laminated Length (m)";
-    }
-
-    if (process === "Slitting") {
-        lengthHeading = "Slitted Length (m)";
-    }
-
-    if (process === "Extrusion Coating") {
-        lengthHeading = "Coated Length (m)";
-    }
-
+    if (process === "Printing") lengthHeading = "Printed Length (m)";
+    if (process === "Lamination") lengthHeading = "Laminated Length (m)";
+    if (process === "Slitting") lengthHeading = "Slitted Length (m)";
+    if (process === "Extrusion Coating") lengthHeading = "Coated Length (m)";
+    if (process === "Extrusion") lengthHeading = "Extruded Length (m)";
+    if (process === "ColdSeal") lengthHeading = "ColdSealed Length (m)";
 
     table.innerHTML = `
         <thead>
@@ -913,61 +721,25 @@ function createProcessSection(process, machines) {
         </thead>
     `;
 
-
-    const tbody =
-        document.createElement("tbody");
-
+    const tbody = document.createElement("tbody");
 
     machines.forEach(machine => {
-
-        const row =
-            document.createElement("tr");
-
-
+        const row = document.createElement("tr");
         row.innerHTML = `
-            <td>
-                ${escapeHTML(machine.machine || "-")}
-            </td>
-
-            <td>
-                ${statusBadge(machine.status)}
-            </td>
-
-            <td>
-                ${escapeHTML(machine.length ?? "-")}
-            </td>
-
-            <td>
-                ${escapeHTML(machine.weight ?? "-")}
-            </td>
-
-            <td>
-                ${escapeHTML(machine.speed ?? "-")}
-            </td>
-
-            <td>
-                ${escapeHTML(machine.product || "-")}
-            </td>
-
-            <td>
-                <div class="remarks">
-                    ${escapeHTML(machine.remarks || "-")}
-                </div>
-            </td>
+            <td>${escapeHTML(machine.machine || "-")}</td>
+            <td>${statusBadge(machine.status)}</td>
+            <td>${escapeHTML(machine.length ?? "-")}</td>
+            <td>${escapeHTML(machine.weight ?? "-")}</td>
+            <td>${escapeHTML(machine.speed ?? "-")}</td>
+            <td>${escapeHTML(machine.product || "-")}</td>
+            <td><div class="remarks">${escapeHTML(machine.remarks || "-")}</div></td>
         `;
-
-
         tbody.appendChild(row);
     });
 
-
     table.appendChild(tbody);
-
     wrapper.appendChild(table);
-
     section.appendChild(wrapper);
-
-
     return section;
 }
 
@@ -976,449 +748,201 @@ function createProcessSection(process, machines) {
 // =====================================================
 
 function generateReportText(report) {
-
     const machines = Array.isArray(report.machines)
         ? report.machines
         : Object.values(report.machines || {});
 
-
     let text = "";
-
     text += "🏭 APEX PRODUCTION REPORT\n";
     text += "━━━━━━━━━━━━━━━━━\n";
-
     text += `📅 Date: ${formatDate(report.productionDate)}\n`;
     text += `🔄 Shift: ${report.shift || "-"}\n`;
     text += `🏢 Unit: ${report.unit || "-"}\n`;
     text += `👤 Supervisor: ${report.supervisor || "-"}\n`;
-
     text += "━━━━━━━━━━━━━━━━━\n";
-
-
-    // GROUP BY PROCESS
 
     const processGroups = {};
 
-
     machines.forEach(machine => {
-
-        const process =
-            machine.process || "Other";
-
+        const process = machine.process || "Other";
         if (!processGroups[process]) {
             processGroups[process] = [];
         }
-
         processGroups[process].push(machine);
     });
-
 
     const processOrder = [
         "Printing",
         "Lamination",
+        "ColdSeal",
+        "Extrusion",
         "Slitting",
         "Doctoring",
         "Inspection",
         "Extrusion Coating"
     ];
 
-
-    const sortedProcesses =
-        Object.keys(processGroups).sort(
-            (a, b) => {
-
-                const indexA =
-                    processOrder.indexOf(a);
-
-                const indexB =
-                    processOrder.indexOf(b);
-
-                const orderA =
-                    indexA === -1 ? 999 : indexA;
-
-                const orderB =
-                    indexB === -1 ? 999 : indexB;
-
-                return orderA - orderB;
-            }
-        );
-
+    const sortedProcesses = Object.keys(processGroups).sort((a, b) => {
+        const indexA = processOrder.indexOf(a);
+        const indexB = processOrder.indexOf(b);
+        const orderA = indexA === -1 ? 999 : indexA;
+        const orderB = indexB === -1 ? 999 : indexB;
+        return orderA - orderB;
+    });
 
     sortedProcesses.forEach(process => {
-
         text += `\n🔹 ${process.toUpperCase()}\n`;
-
         text += "─────────────────\n";
 
-
         processGroups[process].forEach(machine => {
-
             text += `Machine: ${machine.machine || "-"}\n`;
-
             text += `Status: ${machine.status || "-"}\n`;
 
-
             if (process === "Doctoring") {
-
                 text += `Total Coils: ${machine.totalCoils ?? "-"}\n`;
-
                 text += `Coil Details: ${machine.coilDetails || "-"}\n`;
-
-            }
-
-            else if (process === "Inspection") {
-
+            } else if (process === "Inspection") {
                 text += `Weight: ${machine.weight ?? "-"} kg\n`;
-
                 text += `Job Name: ${machine.jobName || "-"}\n`;
-
-            }
-
-            else {
-
+            } else {
                 let lengthLabel = "Length";
-
-                if (process === "Printing") {
-                    lengthLabel = "Printed Length";
-                }
-
-                if (process === "Lamination") {
-                    lengthLabel = "Laminated Length";
-                }
-
-                if (process === "Slitting") {
-                    lengthLabel = "Slitted Length";
-                }
-
-                if (process === "Extrusion Coating") {
-                    lengthLabel = "Coated Length";
-                }
-
+                if (process === "Printing") lengthLabel = "Printed Length";
+                if (process === "Lamination") lengthLabel = "Laminated Length";
+                if (process === "Slitting") lengthLabel = "Slitted Length";
+                if (process === "Extrusion Coating") lengthLabel = "Coated Length";
+                if (process === "Extrusion") lengthLabel = "Extruded Length";
+                if (process === "ColdSeal") lengthLabel = "ColdSealed Length";
 
                 text += `${lengthLabel}: ${machine.length ?? "-"} m\n`;
-
                 text += `Weight: ${machine.weight ?? "-"} kg\n`;
-
                 text += `Speed: ${machine.speed ?? "-"}\n`;
-
                 text += `Product: ${machine.product || "-"}\n`;
             }
 
-
             text += `Remarks: ${machine.remarks || "-"}\n`;
-
             text += "\n";
         });
     });
 
-
     text += "━━━━━━━━━━━━━━━━━\n";
     text += "Generated from Apex Production Report System";
 
-
     return text;
 }
-
 
 // =====================================================
 // WHATSAPP REPORT
 // =====================================================
 
 function sendWhatsAppReport(report) {
-
-    const text =
-        generateReportText(report);
-
-
-    const whatsappURL =
-        `https://wa.me/?text=${encodeURIComponent(text)}`;
-
-
-    window.open(
-        whatsappURL,
-        "_blank"
-    );
+    const text = generateReportText(report);
+    const whatsappURL = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(whatsappURL, "_blank");
 }
-
 
 // =====================================================
 // PRINT REPORT
 // =====================================================
 
 function printReport(report) {
-
     const machines = Array.isArray(report.machines)
         ? report.machines
         : Object.values(report.machines || {});
 
-
-    // Create temporary report card
     const printCard = document.createElement("div");
-
     printCard.className = "report-card";
 
-
-    const reportHeader =
-        document.createElement("div");
-
-    reportHeader.className =
-        "report-header";
-
+    const reportHeader = document.createElement("div");
+    reportHeader.className = "report-header";
 
     reportHeader.innerHTML = `
-        <div class="report-title">
-            APEX PRODUCTION REPORT
-        </div>
-
+        <div class="report-title">APEX PRODUCTION REPORT</div>
         <div class="report-info">
-
-            <span>
-                <strong>Date:</strong>
-                ${formatDate(report.productionDate)}
-            </span>
-
-            <span>
-                <strong>Shift:</strong>
-                ${escapeHTML(report.shift || "-")}
-            </span>
-
-            <span>
-                <strong>Unit:</strong>
-                ${escapeHTML(report.unit || "-")}
-            </span>
-
-            <span>
-                <strong>Supervisor:</strong>
-                ${escapeHTML(report.supervisor || "-")}
-            </span>
-
+            <span><strong>Date:</strong> ${formatDate(report.productionDate)}</span>
+            <span><strong>Shift:</strong> ${escapeHTML(report.shift || "-")}</span>
+            <span><strong>Unit:</strong> ${escapeHTML(report.unit || "-")}</span>
+            <span><strong>Supervisor:</strong> ${escapeHTML(report.supervisor || "-")}</span>
         </div>
     `;
 
-
     printCard.appendChild(reportHeader);
-
-
-    // GROUP MACHINES
 
     const processGroups = {};
 
-
     machines.forEach(machine => {
-
-        const process =
-            machine.process || "Other";
-
+        const process = machine.process || "Other";
         if (!processGroups[process]) {
             processGroups[process] = [];
         }
-
         processGroups[process].push(machine);
     });
-
 
     const processOrder = [
         "Printing",
         "Lamination",
+        "ColdSeal",
+        "Extrusion",
         "Slitting",
         "Doctoring",
         "Inspection",
         "Extrusion Coating"
     ];
 
-
-    const sortedProcesses =
-        Object.keys(processGroups).sort(
-            (a, b) => {
-
-                const indexA =
-                    processOrder.indexOf(a);
-
-                const indexB =
-                    processOrder.indexOf(b);
-
-                const orderA =
-                    indexA === -1 ? 999 : indexA;
-
-                const orderB =
-                    indexB === -1 ? 999 : indexB;
-
-                return orderA - orderB;
-            }
-        );
-
-
-    sortedProcesses.forEach(process => {
-
-        printCard.appendChild(
-            createProcessSection(
-                process,
-                processGroups[process]
-            )
-        );
+    const sortedProcesses = Object.keys(processGroups).sort((a, b) => {
+        const indexA = processOrder.indexOf(a);
+        const indexB = processOrder.indexOf(b);
+        const orderA = indexA === -1 ? 999 : indexA;
+        const orderB = indexB === -1 ? 999 : indexB;
+        return orderA - orderB;
     });
 
+    sortedProcesses.forEach(process => {
+        printCard.appendChild(createProcessSection(process, processGroups[process]));
+    });
 
-    // Open print window
-
-    const printWindow =
-        window.open(
-            "",
-            "_blank",
-            "width=1200,height=800"
-        );
-
+    const printWindow = window.open("", "_blank", "width=1200,height=800");
 
     if (!printWindow) {
-
-        alert(
-            "Please allow pop-ups to print the report."
-        );
-
+        alert("Please allow pop-ups to print the report.");
         return;
     }
 
-
     printWindow.document.write(`
-
         <!DOCTYPE html>
-
         <html>
-
         <head>
-
-            <title>
-                Apex Production Report -
-                ${formatDate(report.productionDate)}
-            </title>
-
+            <title>Apex Production Report - ${formatDate(report.productionDate)}</title>
             <style>
-
-                * {
-                    box-sizing: border-box;
-                }
-
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 20px;
-                    color: #000;
-                }
-
-                .report-card {
-                    width: 100%;
-                }
-
-                .report-title {
-                    font-size: 24px;
-                    font-weight: bold;
-                    text-align: center;
-                    margin-bottom: 15px;
-                }
-
-                .report-info {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 20px;
-                    padding: 12px;
-                    border: 1px solid #000;
-                    margin-bottom: 15px;
-                }
-
-                .process-section {
-                    margin-bottom: 20px;
-                }
-
-                .process-title {
-                    font-size: 17px;
-                    font-weight: bold;
-                    background: #eaeaea;
-                    padding: 8px;
-                    border: 1px solid #000;
-                }
-
-                .machine-table-wrapper {
-                    width: 100%;
-                }
-
-                .machine-table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                .machine-table th,
-                .machine-table td {
-                    border: 1px solid #000;
-                    padding: 7px;
-                    font-size: 12px;
-                    text-align: left;
-                    vertical-align: top;
-                }
-
-                .machine-table th {
-                    background: #f2f2f2;
-                    font-weight: bold;
-                }
-
-                .status-badge {
-                    font-weight: bold;
-                }
-
-                .status-production {
-                    color: #000;
-                }
-
-                .status-idle {
-                    color: #000;
-                }
-
-                .status-maintenance {
-                    color: #000;
-                }
-
-                .remarks {
-                    white-space: pre-wrap;
-                }
-
-                @page {
-                    size: A4 landscape;
-                    margin: 10mm;
-                }
-
-                @media print {
-
-                    body {
-                        margin: 0;
-                    }
-
-                }
-
+                * { box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; margin: 20px; color: #000; }
+                .report-card { width: 100%; }
+                .report-title { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 15px; }
+                .report-info { display: flex; flex-wrap: wrap; gap: 20px; padding: 12px; border: 1px solid #000; margin-bottom: 15px; }
+                .process-section { margin-bottom: 20px; }
+                .process-title { font-size: 17px; font-weight: bold; background: #eaeaea; padding: 8px; border: 1px solid #000; }
+                .machine-table-wrapper { width: 100%; }
+                .machine-table { width: 100%; border-collapse: collapse; }
+                .machine-table th, .machine-table td { border: 1px solid #000; padding: 7px; font-size: 12px; text-align: left; vertical-align: top; }
+                .machine-table th { background: #f2f2f2; font-weight: bold; }
+                .status-badge { font-weight: bold; }
+                .status-production { color: #000; }
+                .status-idle { color: #000; }
+                .status-maintenance { color: #000; }
+                .remarks { white-space: pre-wrap; }
+                @page { size: A4 landscape; margin: 10mm; }
+                @media print { body { margin: 0; } }
             </style>
-
         </head>
-
-        <body>
-
-            ${printCard.outerHTML}
-
-        </body>
-
+        <body>${printCard.outerHTML}</body>
         </html>
-
     `);
 
-
     printWindow.document.close();
-
-
     printWindow.focus();
 
-
     setTimeout(() => {
-
         printWindow.print();
-
         printWindow.close();
-
     }, 500);
 }
 // =====================================================
@@ -1426,27 +950,13 @@ function printReport(report) {
 // =====================================================
 
 function statusBadge(status) {
+    const value = String(status || "Production");
+    const lower = value.toLowerCase();
 
-    const value =
-        String(status || "Production");
+    let className = "status-production";
 
-
-    const lower =
-        value.toLowerCase();
-
-
-    let className =
-        "status-production";
-
-
-    if (lower.includes("idle")) {
-        className = "status-idle";
-    }
-
-    if (lower.includes("maintenance")) {
-        className = "status-maintenance";
-    }
-
+    if (lower.includes("idle")) className = "status-idle";
+    if (lower.includes("maintenance")) className = "status-maintenance";
 
     return `
         <span class="status-badge ${className}">
@@ -1455,41 +965,23 @@ function statusBadge(status) {
     `;
 }
 
-
 // =====================================================
 // DATE FORMAT
 // =====================================================
 
 function formatDate(dateString) {
-
-    if (!dateString) {
-        return "-";
-    }
-
-
-    const parts =
-        dateString.split("-");
-
-
-    if (parts.length !== 3) {
-        return escapeHTML(dateString);
-    }
-
-
+    if (!dateString) return "-";
+    const parts = dateString.split("-");
+    if (parts.length !== 3) return escapeHTML(dateString);
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
-
 
 // =====================================================
 // HTML SAFETY
 // =====================================================
 
 function escapeHTML(value) {
-
-    if (value === null || value === undefined) {
-        return "";
-    }
-
+    if (value === null || value === undefined) return "";
 
     return String(value)
         .replace(/&/g, "&amp;")
@@ -1499,94 +991,55 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-
 // =====================================================
 // SUMMARY
 // =====================================================
 
-function updateSummary(
-    reports,
-    machines,
-    production,
-    idle
-) {
-
+function updateSummary(reports, machines, production, idle) {
     reportCount.textContent = reports;
     machineCount.textContent = machines;
     productionCount.textContent = production;
     idleCount.textContent = idle;
 }
 
-
 // =====================================================
 // FILTER EVENTS
 // =====================================================
 
-reportDate.addEventListener(
-    "change",
-    applyFilters
-);
-
-shiftFilter.addEventListener(
-    "change",
-    applyFilters
-);
-
-unitFilter.addEventListener(
-    "change",
-    applyFilters
-);
-
+reportDate.addEventListener("change", applyFilters);
+shiftFilter.addEventListener("change", applyFilters);
+unitFilter.addEventListener("change", applyFilters);
 
 // =====================================================
 // SHOW ALL
 // =====================================================
 
-showAllReports.addEventListener(
-    "click",
-    () => {
-
-        reportDate.value = "";
-        shiftFilter.value = "";
-        unitFilter.value = "";
-
-        applyFilters();
-    }
-);
-
+showAllReports.addEventListener("click", () => {
+    reportDate.value = "";
+    shiftFilter.value = "";
+    unitFilter.value = "";
+    applyFilters();
+});
 
 // =====================================================
 // CLEAR FILTERS
 // =====================================================
 
-clearFilters.addEventListener(
-    "click",
-    () => {
-
-        reportDate.value = "";
-        shiftFilter.value = "";
-        unitFilter.value = "";
-
-        applyFilters();
-    }
-);
-
+clearFilters.addEventListener("click", () => {
+    reportDate.value = "";
+    shiftFilter.value = "";
+    unitFilter.value = "";
+    applyFilters();
+});
 
 // =====================================================
 // REFRESH
 // =====================================================
 
-refreshReports.addEventListener(
-    "click",
-    () => {
-
-        loadingMessage.textContent =
-            "Refreshing...";
-
-        loadReports();
-    }
-);
-
+refreshReports.addEventListener("click", () => {
+    loadingMessage.textContent = "Refreshing...";
+    loadReports();
+});
 
 // =====================================================
 // START
