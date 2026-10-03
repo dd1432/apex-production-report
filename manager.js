@@ -5,7 +5,10 @@ import {
 import {
     getDatabase,
     ref,
-    onValue
+    onValue,
+    set,
+    get,
+    child
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 
@@ -31,6 +34,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const reportsRef = ref(db, "productionReports");
+const targetsRef = ref(db, "productionTargets");
 
 
 // =====================================================
@@ -44,6 +48,7 @@ const unitFilter = document.getElementById("unitFilter");
 const showAllReports = document.getElementById("showAllReports");
 const clearFilters = document.getElementById("clearFilters");
 const refreshReports = document.getElementById("refreshReports");
+const addTargetBtn = document.getElementById("addTargetBtn");
 
 const reportsContainer = document.getElementById("reportsContainer");
 const loadingMessage = document.getElementById("loadingMessage");
@@ -53,6 +58,17 @@ const machineCount = document.getElementById("machineCount");
 const productionCount = document.getElementById("productionCount");
 const idleCount = document.getElementById("idleCount");
 
+// Target Modal Elements
+const targetModal = document.getElementById("targetModal");
+const closeTargetModal = document.getElementById("closeTargetModal");
+const saveTargetBtn = document.getElementById("saveTargetBtn");
+const cancelTargetBtn = document.getElementById("cancelTargetBtn");
+const targetDate = document.getElementById("targetDate");
+const targetUnit = document.getElementById("targetUnit");
+const targetProcessContainer = document.getElementById("targetProcessContainer");
+const targetContainer = document.getElementById("targetContainer");
+const targetCard = document.querySelector(".target-card");
+
 
 // =====================================================
 // VARIABLES
@@ -60,6 +76,221 @@ const idleCount = document.getElementById("idleCount");
 
 let allReports = [];
 
+// Unit processes configuration
+const unitProcesses = {
+    "Unit 1": ["Printing", "Lamination", "Extrusion", "Slitting"],
+    "Unit 2": ["Printing", "Lamination", "ColdSeal", "Slitting"]
+};
+
+// Process color mapping
+const processColors = {
+    "Printing": "printing-bar",
+    "Lamination": "lamination-bar",
+    "Extrusion": "extrusion-bar",
+    "Slitting": "slitting-bar",
+    "ColdSeal": "coldseal-bar"
+};
+
+
+// =====================================================
+// TARGET MODAL MANAGEMENT
+// =====================================================
+
+function openTargetModal() {
+    // Set default date to today
+    const today = new Date();
+    const dateString = today.toISOString().split('T')[0];
+    targetDate.value = dateString;
+    targetUnit.value = "";
+    targetProcessContainer.innerHTML = "";
+    
+    targetModal.classList.remove("hidden");
+}
+
+function closeTargetModalFunc() {
+    targetModal.classList.add("hidden");
+    targetProcessContainer.innerHTML = "";
+}
+
+function populateProcessInputs() {
+    const selectedUnit = targetUnit.value;
+    
+    if (!selectedUnit) {
+        targetProcessContainer.innerHTML = "";
+        return;
+    }
+    
+    const processes = unitProcesses[selectedUnit] || [];
+    targetProcessContainer.innerHTML = "";
+    
+    processes.forEach(process => {
+        const group = document.createElement("div");
+        group.className = "process-input-group";
+        
+        group.innerHTML = `
+            <label>${process}</label>
+            <input type="number" data-process="${process}" placeholder="Enter target" min="0">
+        `;
+        
+        targetProcessContainer.appendChild(group);
+    });
+}
+
+function saveTarget() {
+    const date = targetDate.value;
+    const unit = targetUnit.value;
+    
+    if (!date || !unit) {
+        alert("Please select both date and unit");
+        return;
+    }
+    
+    const targets = {};
+    let hasTarget = false;
+    
+    targetProcessContainer.querySelectorAll("input").forEach(input => {
+        const process = input.dataset.process;
+        const value = parseFloat(input.value);
+        
+        if (value > 0) {
+            targets[process] = value;
+            hasTarget = true;
+        }
+    });
+    
+    if (!hasTarget) {
+        alert("Please enter at least one target value");
+        return;
+    }
+    
+    const targetKey = `${date}_${unit}`;
+    const targetPath = `productionTargets/${targetKey}`;
+    
+    set(ref(db, targetPath), {
+        date: date,
+        unit: unit,
+        targets: targets,
+        timestamp: Date.now()
+    }).then(() => {
+        alert("Target saved successfully!");
+        closeTargetModalFunc();
+        displayTargets(date, unit);
+    }).catch(error => {
+        console.error("Error saving target:", error);
+        alert("Error saving target");
+    });
+}
+
+// =====================================================
+// DISPLAY TARGETS AND ACHIEVEMENT BARS
+// =====================================================
+
+function displayTargets(date, unit) {
+    if (!date || !unit) {
+        targetCard.classList.add("hidden");
+        return;
+    }
+    
+    targetCard.classList.remove("hidden");
+    
+    const targetKey = `${date}_${unit}`;
+    const targetPath = `productionTargets/${targetKey}`;
+    
+    get(child(ref(db), targetPath)).then(snapshot => {
+        if (!snapshot.exists()) {
+            targetContainer.innerHTML = '<p class="empty-message">No targets set for this date and unit.</p>';
+            document.getElementById("targetInfo").textContent = `${date} - ${unit}`;
+            return;
+        }
+        
+        const targetData = snapshot.val();
+        targetContainer.innerHTML = "";
+        
+        // Get actual achievements from reports
+        const filteredReports = allReports.filter(report => 
+            report.productionDate === date && report.unit === unit
+        );
+        
+        const achievements = calculateAchievements(filteredReports, targetData.targets);
+        
+        Object.entries(targetData.targets).forEach(([process, targetValue]) => {
+            const achievement = achievements[process] || 0;
+            const percentage = Math.min((achievement / targetValue) * 100, 100);
+            
+            const item = document.createElement("div");
+            item.className = "target-item";
+            
+            const colorClass = processColors[process] || "printing-bar";
+            
+            item.innerHTML = `
+                <div class="target-process-name">${process}</div>
+                <div class="target-bar-container">
+                    <div class="target-bar-fill ${colorClass}" style="width: ${percentage}%">
+                        ${Math.round(percentage)}%
+                    </div>
+                </div>
+                <div class="target-stats">
+                    <span>Achieved: ${achievement.toFixed(2)}</span>
+                    <span>Target: ${targetValue}</span>
+                    <span>Remaining: ${Math.max(0, (targetValue - achievement).toFixed(2))}</span>
+                </div>
+            `;
+            
+            targetContainer.appendChild(item);
+        });
+        
+        document.getElementById("targetInfo").textContent = `${date} - ${unit}`;
+        
+    }).catch(error => {
+        console.error("Error loading targets:", error);
+        targetContainer.innerHTML = '<p class="empty-message">Error loading targets.</p>';
+    });
+}
+
+function calculateAchievements(reports, targets) {
+    const achievements = {};
+    
+    // Initialize all processes
+    Object.keys(targets).forEach(process => {
+        achievements[process] = 0;
+    });
+    
+    // Sum up production from reports
+    reports.forEach(report => {
+        const machines = Array.isArray(report.machines)
+            ? report.machines
+            : Object.values(report.machines || {});
+        
+        machines.forEach(machine => {
+            const process = machine.process || "Other";
+            
+            if (achievements.hasOwnProperty(process)) {
+                const length = parseFloat(machine.length) || 0;
+                achievements[process] += length;
+            }
+        });
+    });
+    
+    return achievements;
+}
+
+// =====================================================
+// EVENT LISTENERS FOR TARGET MODAL
+// =====================================================
+
+addTargetBtn.addEventListener("click", openTargetModal);
+closeTargetModal.addEventListener("click", closeTargetModalFunc);
+cancelTargetBtn.addEventListener("click", closeTargetModalFunc);
+saveTargetBtn.addEventListener("click", saveTarget);
+
+targetUnit.addEventListener("change", populateProcessInputs);
+
+// Close modal when clicking outside
+targetModal.addEventListener("click", (e) => {
+    if (e.target === targetModal) {
+        closeTargetModalFunc();
+    }
+});
 
 // =====================================================
 // LOAD REPORTS FROM FIREBASE
@@ -157,6 +388,13 @@ function applyFilters() {
 });
 
     renderReports(filteredReports);
+    
+    // Display targets if both date and unit are selected
+    if (selectedDate && selectedUnit) {
+        displayTargets(selectedDate, selectedUnit);
+    } else {
+        targetCard.classList.add("hidden");
+    }
 }
 
 
