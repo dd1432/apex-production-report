@@ -1,3 +1,13 @@
+/* =====================================================
+   APEX PRODUCTION REPORT
+   SHIFT REPORT SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -11,7 +21,7 @@ import {
 
 
 /* =====================================================
-   FIREBASE CONFIGURATION
+   FIREBASE CONFIGURATION - YOUR CREDENTIALS
 ===================================================== */
 
 const firebaseConfig = {
@@ -24,11 +34,9 @@ const firebaseConfig = {
     appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
 };
 
-const firebaseApp =
-    initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
+const database = getDatabase(firebaseApp);
 
-const database =
-    getDatabase(firebaseApp);
 
 
 /* =====================================================
@@ -58,7 +66,8 @@ const machineData = {
 
         "Doctoring": [
             "Doctoring 1",
-            "Doctoring 2"
+            "Doctoring 2",
+            "Doctoring 3"
         ],
 
         "Inspection": [
@@ -85,10 +94,6 @@ const machineData = {
             "Lamination 5"
         ],
 
-        "ColdSeal": [
-            "ColdSeal"
-        ],
-
         "Slitting": [
             "Slitting 5",
             "Slitting 6",
@@ -96,7 +101,6 @@ const machineData = {
         ],
 
         "Doctoring": [
-            "Doctoring 3",
             "Doctoring 4",
             "Doctoring 5"
         ],
@@ -110,6 +114,7 @@ const machineData = {
     }
 
 };
+
 
 
 /* =====================================================
@@ -147,455 +152,29 @@ const submitShiftReport =
     document.getElementById("submitShiftReport");
 
 
-/* =====================================================
-   LOCAL DRAFT STORAGE
-===================================================== */
-
-/*
-   IMPORTANT:
-
-   This draft is stored in the browser of the data-entry
-   computer.
-
-   Therefore:
-
-   - Refresh          -> data remains
-   - Accidental reload -> data remains
-   - Minimize browser -> data remains
-   - Change tab       -> data remains
-   - Close/reopen page -> data remains, provided browser
-                          has not cleared site data
-   - Successful Firebase submission -> draft is cleared
-*/
-
-const DRAFT_STORAGE_KEY =
-    "apexProductionReport_currentDraft_v1";
-
-
-let isRestoringDraft = false;
-
 
 /* =====================================================
-   CURRENT SHIFT ENTRIES
+   CURRENT SHIFT ENTRIES & EDIT INDEX
 ===================================================== */
 
 let shiftEntries = [];
+let editingIndex = -1;
+
 
 
 /* =====================================================
    DEFAULT DATE
 ===================================================== */
 
-function getTodayString() {
+const today =
+    new Date();
 
-    const today =
-        new Date();
-
-    return today.toISOString().split("T")[0];
-
-}
-
-
-/* =====================================================
-   LOAD INITIAL DATE
-===================================================== */
+const todayString =
+    today.toISOString().split("T")[0];
 
 reportDate.value =
-    getTodayString();
+    todayString;
 
-
-/* =====================================================
-   GET CURRENT DYNAMIC FORM DATA
-===================================================== */
-
-function getCurrentMachineFormData() {
-
-    const data = {
-
-        process:
-            process.value || "",
-
-        machine:
-            machine.value || "",
-
-        status:
-            "",
-
-        remarks:
-            "",
-
-        fields: {}
-
-    };
-
-
-    const statusElement =
-        document.getElementById("machineStatus");
-
-    if (statusElement) {
-
-        data.status =
-            statusElement.value || "";
-
-    }
-
-
-    const remarksElement =
-        document.getElementById("remarks");
-
-    if (remarksElement) {
-
-        data.remarks =
-            remarksElement.value || "";
-
-    }
-
-
-    /*
-       Save every currently existing input/select/
-       textarea inside the dynamic machine form.
-
-       This is important because process-specific
-       fields are created dynamically.
-    */
-
-    const dynamicFields =
-        machineForm.querySelectorAll(
-            "input, select, textarea"
-        );
-
-
-    dynamicFields.forEach(
-        function (element) {
-
-            if (!element.id) {
-                return;
-            }
-
-            /*
-               Do not separately store machineStatus and
-               remarks here because they are already stored
-               above.
-            */
-
-            if (
-                element.id === "machineStatus" ||
-                element.id === "remarks"
-            ) {
-                return;
-            }
-
-
-            data.fields[element.id] =
-                element.value;
-
-        }
-    );
-
-
-    return data;
-
-}
-
-
-/* =====================================================
-   BUILD COMPLETE DRAFT OBJECT
-===================================================== */
-
-function getDraftData() {
-
-    return {
-
-        version: 1,
-
-        savedAt:
-            Date.now(),
-
-        reportDate:
-            reportDate.value || "",
-
-        shift:
-            shift.value || "",
-
-        unit:
-            unit.value || "",
-
-        supervisor:
-            supervisor.value || "",
-
-        currentMachineForm:
-            getCurrentMachineFormData(),
-
-        shiftEntries:
-            shiftEntries
-
-    };
-
-}
-
-
-/* =====================================================
-   SAVE DRAFT
-===================================================== */
-
-function saveDraft() {
-
-    if (isRestoringDraft) {
-        return;
-    }
-
-
-    try {
-
-        const draft =
-            getDraftData();
-
-
-        localStorage.setItem(
-            DRAFT_STORAGE_KEY,
-            JSON.stringify(draft)
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Could not save production report draft:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   LOAD DRAFT FROM LOCAL STORAGE
-===================================================== */
-
-function loadDraft() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                DRAFT_STORAGE_KEY
-            );
-
-
-        if (!saved) {
-            return null;
-        }
-
-
-        const draft =
-            JSON.parse(saved);
-
-
-        if (!draft || typeof draft !== "object") {
-            return null;
-        }
-
-
-        return draft;
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Could not load production report draft:",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================================
-   CLEAR DRAFT
-===================================================== */
-
-function clearDraft() {
-
-    try {
-
-        localStorage.removeItem(
-            DRAFT_STORAGE_KEY
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Could not clear production report draft:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   POPULATE PROCESS OPTIONS
-===================================================== */
-
-function populateProcessOptions(
-    selectedProcess = ""
-) {
-
-    process.innerHTML =
-        '<option value="">Select Process</option>';
-
-
-    if (!unit.value) {
-        return;
-    }
-
-
-    const processes =
-        machineData[unit.value];
-
-
-    if (!processes) {
-        return;
-    }
-
-
-    Object.keys(processes).forEach(
-        function (processName) {
-
-            const machines =
-                processes[processName];
-
-
-            if (machines.length > 0) {
-
-                const option =
-                    document.createElement("option");
-
-
-                option.value =
-                    processName;
-
-
-                option.textContent =
-                    processName;
-
-
-                process.appendChild(
-                    option
-                );
-
-            }
-
-        }
-    );
-
-
-    if (selectedProcess) {
-
-        const exists =
-            Array.from(
-                process.options
-            ).some(
-                option =>
-                    option.value === selectedProcess
-            );
-
-
-        if (exists) {
-
-            process.value =
-                selectedProcess;
-
-        }
-
-    }
-
-}
-
-
-/* =====================================================
-   POPULATE MACHINE OPTIONS
-===================================================== */
-
-function populateMachineOptions(
-    selectedMachine = ""
-) {
-
-    machine.innerHTML =
-        '<option value="">Select Machine</option>';
-
-
-    if (
-        !unit.value ||
-        !process.value
-    ) {
-
-        return;
-
-    }
-
-
-    const machines =
-        machineData[
-            unit.value
-        ]?.[
-            process.value
-        ] || [];
-
-
-    machines.forEach(
-        function (machineName) {
-
-            const option =
-                document.createElement("option");
-
-
-            option.value =
-                machineName;
-
-
-            option.textContent =
-                machineName;
-
-
-            machine.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    if (selectedMachine) {
-
-        const exists =
-            Array.from(
-                machine.options
-            ).some(
-                option =>
-                    option.value === selectedMachine
-            );
-
-
-        if (exists) {
-
-            machine.value =
-                selectedMachine;
-
-        }
-
-    }
-
-}
 
 
 /* =====================================================
@@ -609,33 +188,53 @@ unit.addEventListener(
         process.innerHTML =
             '<option value="">Select Process</option>';
 
-
         machine.innerHTML =
             '<option value="">Select Machine</option>';
-
 
         machineForm.innerHTML =
             '<p class="empty-message">' +
             'Select a process and machine to enter production data.' +
             '</p>';
 
-
         if (!unit.value) {
-
-            saveDraft();
-
             return;
-
         }
 
 
-        populateProcessOptions();
+        const processes =
+            machineData[unit.value];
 
 
-        saveDraft();
+        Object.keys(processes).forEach(
+            function (processName) {
+
+                const machines =
+                    processes[processName];
+
+
+                if (machines.length > 0) {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value =
+                        processName;
+
+                    option.textContent =
+                        processName;
+
+                    process.appendChild(
+                        option
+                    );
+
+                }
+
+            }
+        );
 
     }
 );
+
 
 
 /* =====================================================
@@ -649,32 +248,49 @@ process.addEventListener(
         machine.innerHTML =
             '<option value="">Select Machine</option>';
 
-
         machineForm.innerHTML =
             '<p class="empty-message">' +
             'Select a machine to enter production data.' +
             '</p>';
 
-
         if (
             !unit.value ||
             !process.value
         ) {
-
-            saveDraft();
-
             return;
-
         }
 
 
-        populateMachineOptions();
+        const machines =
+            machineData[
+                unit.value
+            ][
+                process.value
+            ];
 
 
-        saveDraft();
+        machines.forEach(
+            function (machineName) {
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    machineName;
+
+                option.textContent =
+                    machineName;
+
+                machine.appendChild(
+                    option
+                );
+
+            }
+        );
 
     }
 );
+
 
 
 /* =====================================================
@@ -687,10 +303,9 @@ machine.addEventListener(
 
         createMachineForm();
 
-        saveDraft();
-
     }
 );
+
 
 
 /* =====================================================
@@ -769,7 +384,6 @@ function createMachineForm() {
     const fieldsContainer =
         document.createElement("div");
 
-
     fieldsContainer.id =
         "processFields";
 
@@ -785,7 +399,6 @@ function createMachineForm() {
 
     const remarksGroup =
         document.createElement("div");
-
 
     remarksGroup.className =
         "form-group";
@@ -833,23 +446,13 @@ function createMachineForm() {
             "change",
             function () {
 
-                /*
-                   Save values before rebuilding fields.
-                   This protects the current draft.
-                */
-
-                saveDraft();
-
-
                 renderProcessFields();
-
-
-                saveDraft();
 
             }
         );
 
 }
+
 
 
 /* =====================================================
@@ -872,19 +475,10 @@ function renderProcessFields() {
     container.innerHTML = "";
 
 
-    const statusElement =
+    const status =
         document.getElementById(
             "machineStatus"
-        );
-
-
-    if (!statusElement) {
-        return;
-    }
-
-
-    const status =
-        statusElement.value;
+        ).value;
 
 
     /*
@@ -1010,88 +604,6 @@ function renderProcessFields() {
 
                     <label>
                         Total Laminated Length (m)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="length"
-                        min="0"
-                        placeholder="Enter length"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Speed
-                    </label>
-
-                    <input
-                        type="number"
-                        id="speed"
-                        min="0"
-                        placeholder="Enter speed"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Enter product"
-                >
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       COLDSEAL
-    ================================================= */
-
-    else if (
-        process.value === "ColdSeal"
-    ) {
-
-        container.innerHTML = `
-
-            <div class="grid">
-
-                <div class="form-group">
-
-                    <label>
-                        Total ColdSeal Length (m)
                     </label>
 
                     <input
@@ -1421,283 +933,6 @@ Munch 8.7 gm - 8 C"
 }
 
 
-/* =====================================================
-   RESTORE DYNAMIC MACHINE FORM
-===================================================== */
-
-function restoreCurrentMachineForm(
-    currentForm
-) {
-
-    if (!currentForm) {
-        return;
-    }
-
-
-    if (
-        !currentForm.process ||
-        !currentForm.machine
-    ) {
-        return;
-    }
-
-
-    /*
-       Restore process and machine selections.
-    */
-
-    process.value =
-        currentForm.process;
-
-
-    populateMachineOptions(
-        currentForm.machine
-    );
-
-
-    if (
-        machine.value !== currentForm.machine
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-       Build dynamic fields.
-    */
-
-    createMachineForm();
-
-
-    /*
-       Restore machine status.
-    */
-
-    const statusElement =
-        document.getElementById(
-            "machineStatus"
-        );
-
-
-    if (
-        statusElement &&
-        currentForm.status
-    ) {
-
-        statusElement.value =
-            currentForm.status;
-
-
-        /*
-           Re-render because Idle/Maintenance have
-           different fields.
-        */
-
-        renderProcessFields();
-
-    }
-
-
-    /*
-       Restore process-specific values.
-    */
-
-    if (currentForm.fields) {
-
-        Object.keys(
-            currentForm.fields
-        ).forEach(
-            function (fieldId) {
-
-                const element =
-                    document.getElementById(
-                        fieldId
-                    );
-
-
-                if (element) {
-
-                    element.value =
-                        currentForm.fields[fieldId];
-
-                }
-
-            }
-        );
-
-    }
-
-
-    /*
-       Restore remarks.
-    */
-
-    const remarksElement =
-        document.getElementById("remarks");
-
-
-    if (remarksElement) {
-
-        remarksElement.value =
-            currentForm.remarks || "";
-
-    }
-
-}
-
-
-/* =====================================================
-   RESTORE COMPLETE DRAFT
-===================================================== */
-
-function restoreDraft() {
-
-    const draft =
-        loadDraft();
-
-
-    if (!draft) {
-        return false;
-    }
-
-
-    /*
-       Check whether draft actually contains
-       meaningful information.
-    */
-
-    const hasData =
-        Boolean(
-            draft.reportDate ||
-            draft.shift ||
-            draft.unit ||
-            draft.supervisor ||
-            draft.currentMachineForm?.process ||
-            draft.shiftEntries?.length
-        );
-
-
-    if (!hasData) {
-        return false;
-    }
-
-
-    isRestoringDraft = true;
-
-
-    try {
-
-        /* ---------------------------------------------
-           BASIC SHIFT INFORMATION
-        --------------------------------------------- */
-
-        if (draft.reportDate) {
-
-            reportDate.value =
-                draft.reportDate;
-
-        }
-
-
-        if (draft.shift) {
-
-            shift.value =
-                draft.shift;
-
-        }
-
-
-        if (draft.supervisor !== undefined) {
-
-            supervisor.value =
-                draft.supervisor;
-
-        }
-
-
-        /* ---------------------------------------------
-           UNIT
-        --------------------------------------------- */
-
-        if (draft.unit) {
-
-            unit.value =
-                draft.unit;
-
-
-            populateProcessOptions();
-
-        }
-
-
-        /* ---------------------------------------------
-           ALREADY ADDED MACHINE REPORTS
-        --------------------------------------------- */
-
-        if (
-            Array.isArray(
-                draft.shiftEntries
-            )
-        ) {
-
-            shiftEntries =
-                draft.shiftEntries;
-
-        }
-        else {
-
-            shiftEntries = [];
-
-        }
-
-
-        displayEntries();
-
-
-        /* ---------------------------------------------
-           CURRENT MACHINE FORM
-        --------------------------------------------- */
-
-        if (
-            draft.currentMachineForm &&
-            draft.currentMachineForm.process &&
-            draft.currentMachineForm.machine
-        ) {
-
-            restoreCurrentMachineForm(
-                draft.currentMachineForm
-            );
-
-        }
-        else {
-
-            machine.innerHTML =
-                '<option value="">Select Machine</option>';
-
-
-            machineForm.innerHTML =
-                '<p class="empty-message">' +
-                'Select a process and machine to enter production data.' +
-                '</p>';
-
-        }
-
-
-    }
-
-    finally {
-
-        isRestoringDraft = false;
-
-    }
-
-
-    return true;
-
-}
-
 
 /* =====================================================
    ADD MACHINE TO CURRENT SHIFT
@@ -1706,6 +941,7 @@ function restoreDraft() {
 saveMachineReport.addEventListener(
     "click",
     function () {
+
 
         if (!unit.value) {
 
@@ -1740,25 +976,10 @@ saveMachineReport.addEventListener(
         }
 
 
-        const statusElement =
+        const status =
             document.getElementById(
                 "machineStatus"
-            );
-
-
-        if (!statusElement) {
-
-            alert(
-                "Please select machine status."
-            );
-
-            return;
-
-        }
-
-
-        const status =
-            statusElement.value;
+            ).value;
 
 
         const entry = {
@@ -1782,10 +1003,10 @@ saveMachineReport.addEventListener(
            PROCESS-SPECIFIC DATA
         ================================================= */
 
+
         if (
             process.value === "Printing" ||
             process.value === "Lamination" ||
-            process.value === "ColdSeal" ||
             process.value === "Slitting" ||
             process.value === "Extrusion Coating"
         ) {
@@ -1836,50 +1057,36 @@ saveMachineReport.addEventListener(
 
 
         /* =================================================
-           ADD ENTRY
+           ADD OR UPDATE ENTRY
         ================================================= */
 
-        shiftEntries.push(
-            entry
-        );
+        if (editingIndex === -1) {
+            // Add new entry
+            shiftEntries.push(
+                entry
+            );
+        } else {
+            // Update existing entry
+            shiftEntries[editingIndex] = entry;
+            editingIndex = -1;
+        }
 
 
         displayEntries();
 
 
-        /*
-           IMPORTANT:
-           Save immediately after adding the machine.
-
-           Therefore, even if the page refreshes after
-           this point, the machine entry is not lost.
-        */
-
-        saveDraft();
-
-
-        /* =================================================
-           RESET CURRENT MACHINE SELECTION
-        ================================================= */
+        /* Reset selection */
 
         machine.value = "";
-
 
         machineForm.innerHTML =
             '<p class="empty-message">' +
             'Machine added. Select another machine if required.' +
             '</p>';
 
-
-        /*
-           Save again because current machine selection
-           has intentionally been cleared.
-        */
-
-        saveDraft();
-
     }
 );
+
 
 
 /* =====================================================
@@ -1900,6 +1107,7 @@ function getValue(id) {
     return element.value.trim();
 
 }
+
 
 
 /* =====================================================
@@ -1928,6 +1136,7 @@ function displayEntries() {
     shiftEntries.forEach(
         function (item, index) {
 
+
             const card =
                 document.createElement("div");
 
@@ -1943,7 +1152,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Length: ${formatText(String(item.length))} m
+                        Length: ${item.length} m
                     </span>`;
 
             }
@@ -1953,7 +1162,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Weight: ${formatText(String(item.weight))} kg
+                        Weight: ${item.weight} kg
                     </span>`;
 
             }
@@ -1963,7 +1172,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Speed: ${formatText(String(item.speed))}
+                        Speed: ${item.speed}
                     </span>`;
 
             }
@@ -1973,7 +1182,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Product: ${formatText(String(item.product))}
+                        Product: ${item.product}
                     </span>`;
 
             }
@@ -1983,7 +1192,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Total Coils: ${formatText(String(item.totalCoils))} C
+                        Total Coils: ${item.totalCoils} C
                     </span>`;
 
             }
@@ -1994,7 +1203,7 @@ function displayEntries() {
                 details +=
                     `<span>
                         Coil Details:<br>
-                        ${formatText(String(item.coilDetails))}
+                        ${formatText(item.coilDetails)}
                     </span>`;
 
             }
@@ -2004,7 +1213,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Job Name: ${formatText(String(item.jobName))}
+                        Job Name: ${formatText(item.jobName)}
                     </span>`;
 
             }
@@ -2014,7 +1223,7 @@ function displayEntries() {
 
                 details +=
                     `<span>
-                        Remarks: ${formatText(String(item.remarks))}
+                        Remarks: ${formatText(item.remarks)}
                     </span>`;
 
             }
@@ -2025,16 +1234,26 @@ function displayEntries() {
                 <div class="entry-header">
 
                     <strong>
-                        ${formatText(String(item.machine || ""))}
+                        ${item.machine}
                     </strong>
 
-                    <button
-                        type="button"
-                        class="delete-button"
-                        data-index="${index}"
-                    >
-                        Remove
-                    </button>
+                    <div class="entry-actions">
+                        <button
+                            type="button"
+                            class="edit-button"
+                            data-index="${index}"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="delete-button"
+                            data-index="${index}"
+                        >
+                            Remove
+                        </button>
+                    </div>
 
                 </div>
 
@@ -2043,12 +1262,12 @@ function displayEntries() {
 
                     <span>
                         Process:
-                        ${formatText(String(item.process || ""))}
+                        ${item.process}
                     </span>
 
                     <span>
                         Status:
-                        ${formatText(String(item.status || ""))}
+                        ${item.status}
                     </span>
 
                     ${details}
@@ -2066,6 +1285,31 @@ function displayEntries() {
     );
 
 
+    // Edit button listeners
+    document
+        .querySelectorAll(".edit-button")
+        .forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const index =
+                            Number(
+                                button.dataset.index
+                            );
+
+                        editEntry(index);
+
+                    }
+                );
+
+            }
+        );
+
+
+    // Delete button listeners
     document
         .querySelectorAll(".delete-button")
         .forEach(
@@ -2089,16 +1333,6 @@ function displayEntries() {
 
                         displayEntries();
 
-
-                        /*
-                           IMPORTANT:
-                           Removing a machine is an intentional
-                           user action, so update the persistent
-                           draft immediately.
-                        */
-
-                        saveDraft();
-
                     }
                 );
 
@@ -2108,13 +1342,93 @@ function displayEntries() {
 }
 
 
+
+/* =====================================================
+   EDIT ENTRY
+===================================================== */
+
+function editEntry(index) {
+
+    const item = shiftEntries[index];
+
+    // Set the selectors to the item's values
+    unit.value = item.unit;
+
+    // Trigger unit change to populate processes
+    unit.dispatchEvent(new Event("change"));
+
+    // Set process and machine
+    process.value = item.process;
+    machine.value = item.machine;
+
+    // Trigger machine change to create form
+    editingIndex = index;
+    machine.dispatchEvent(new Event("change"));
+
+    // Set form values after form is created
+    setTimeout(function () {
+
+        document.getElementById("machineStatus").value = item.status;
+
+        if (item.length) {
+            const lengthInput = document.getElementById("length");
+            if (lengthInput) lengthInput.value = item.length;
+        }
+
+        if (item.weight) {
+            const weightInput = document.getElementById("weight");
+            if (weightInput) weightInput.value = item.weight;
+        }
+
+        if (item.speed) {
+            const speedInput = document.getElementById("speed");
+            if (speedInput) speedInput.value = item.speed;
+        }
+
+        if (item.product) {
+            const productInput = document.getElementById("product");
+            if (productInput) productInput.value = item.product;
+        }
+
+        if (item.totalCoils) {
+            const totalCoilsInput = document.getElementById("totalCoils");
+            if (totalCoilsInput) totalCoilsInput.value = item.totalCoils;
+        }
+
+        if (item.coilDetails) {
+            const coilDetailsInput = document.getElementById("coilDetails");
+            if (coilDetailsInput) coilDetailsInput.value = item.coilDetails;
+        }
+
+        if (item.jobName) {
+            const jobNameInput = document.getElementById("jobName");
+            if (jobNameInput) jobNameInput.value = item.jobName;
+        }
+
+        if (item.remarks) {
+            const remarksInput = document.getElementById("remarks");
+            if (remarksInput) remarksInput.value = item.remarks;
+        }
+
+        // Trigger status change to render fields correctly
+        document.getElementById("machineStatus").dispatchEvent(new Event("change"));
+
+    }, 100);
+
+    // Scroll to the form
+    machineForm.scrollIntoView({ behavior: "smooth" });
+
+}
+
+
+
 /* =====================================================
    FORMAT TEXT
 ===================================================== */
 
 function formatText(text) {
 
-    return String(text)
+    return text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -2122,151 +1436,6 @@ function formatText(text) {
 
 }
 
-
-/* =====================================================
-   AUTOMATIC FIELD SAVE
-===================================================== */
-
-/*
-   This is the main protection against data loss.
-
-   "input" catches:
-   - typing
-   - deleting
-   - textarea entry
-   - number changes
-
-   "change" catches:
-   - select changes
-   - date changes
-   - other committed input changes
-
-   Because the events bubble, this also works for
-   dynamically-created process fields.
-*/
-
-document.addEventListener(
-    "input",
-    function (event) {
-
-        if (isRestoringDraft) {
-            return;
-        }
-
-
-        const target =
-            event.target;
-
-
-        if (
-            target.matches(
-                "#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea"
-            )
-        ) {
-
-            saveDraft();
-
-        }
-
-    }
-);
-
-
-document.addEventListener(
-    "change",
-    function (event) {
-
-        if (isRestoringDraft) {
-            return;
-        }
-
-
-        const target =
-            event.target;
-
-
-        if (
-            target.matches(
-                "#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea"
-            )
-        ) {
-
-            /*
-               Allow the existing change handler to finish
-               rebuilding dynamic fields first.
-            */
-
-            setTimeout(
-                function () {
-
-                    saveDraft();
-
-                },
-                0
-            );
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   PAGE VISIBILITY PROTECTION
-===================================================== */
-
-/*
-   Save when the user changes browser tab, minimizes the
-   browser, or the page becomes hidden.
-*/
-
-document.addEventListener(
-    "visibilitychange",
-    function () {
-
-        if (
-            document.visibilityState === "hidden"
-        ) {
-
-            saveDraft();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   PAGE HIDE PROTECTION
-===================================================== */
-
-/*
-   This gives another opportunity to save the draft
-   before the browser unloads or navigates away.
-*/
-
-window.addEventListener(
-    "pagehide",
-    function () {
-
-        saveDraft();
-
-    }
-);
-
-
-/* =====================================================
-   BEFORE UNLOAD PROTECTION
-===================================================== */
-
-window.addEventListener(
-    "beforeunload",
-    function () {
-
-        saveDraft();
-
-    }
-);
 
 
 /* =====================================================
@@ -2276,6 +1445,7 @@ window.addEventListener(
 submitShiftReport.addEventListener(
     "click",
     async function () {
+
 
         if (!reportDate.value) {
 
@@ -2357,22 +1527,7 @@ submitShiftReport.addEventListener(
         };
 
 
-        submitShiftReport.disabled = true;
-
-        submitShiftReport.textContent = "Submitting...";
-
-
         try {
-
-            /*
-               Save one final draft before attempting
-               Firebase submission.
-
-               If Firebase fails, the entered data is
-               still available in localStorage.
-            */
-
-            saveDraft();
 
 
             const reportsRef =
@@ -2393,22 +1548,9 @@ submitShiftReport.addEventListener(
             );
 
 
-            /*
-               IMPORTANT:
-               Firebase submission succeeded.
-
-               Now and ONLY now remove the local draft.
-            */
-
-            clearDraft();
-
-
-            /*
-               Reset current report.
-            */
+            /* Reset */
 
             shiftEntries = [];
-
 
             displayEntries();
 
@@ -2423,23 +1565,10 @@ submitShiftReport.addEventListener(
                 '<option value="">Select Machine</option>';
 
 
-            /*
-               Keep the existing basic shift information
-               behavior, but reset machine/process selection.
-            */
-
-            process.innerHTML =
-                '<option value="">Select Process</option>';
-
-
-            /*
-               The report date is intentionally left as-is,
-               as in the existing application.
-            */
-
         }
 
         catch (error) {
+
 
             console.error(
                 "Firebase save error:",
@@ -2447,102 +1576,11 @@ submitShiftReport.addEventListener(
             );
 
 
-            /*
-               IMPORTANT:
-               DO NOT clear the draft here.
-
-               If internet/Firebase fails, all entered
-               information remains recoverable.
-            */
-
-            saveDraft();
-
-
             alert(
-                "Could not submit report. Please check your internet connection. Your entered data has been saved and will remain available."
+                "Could not submit report. Please check your internet connection."
             );
-
-        }
-
-        finally {
-
-            submitShiftReport.disabled = false;
-
-            submitShiftReport.textContent = "Submit Shift Report";
 
         }
 
     }
 );
-
-
-/* =====================================================
-   INITIALIZE APPLICATION
-===================================================== */
-
-function initializeApplication() {
-
-    const draft =
-        loadDraft();
-
-
-    if (draft) {
-
-        const restored =
-            restoreDraft();
-
-
-        if (restored) {
-
-            console.log(
-                "Previous production report draft restored."
-            );
-
-            return;
-
-        }
-
-    }
-
-
-    /*
-       No existing draft.
-
-       Start with today's date.
-    */
-
-    reportDate.value =
-        getTodayString();
-
-
-    /*
-       Initial empty state.
-    */
-
-    machine.innerHTML =
-        '<option value="">Select Machine</option>';
-
-
-    process.innerHTML =
-        '<option value="">Select Process</option>';
-
-
-    machineForm.innerHTML =
-        '<p class="empty-message">' +
-        'Select a process and machine to enter production data.' +
-        '</p>';
-
-
-    entries.innerHTML =
-        '<p class="empty-message">' +
-        'No machines added yet.' +
-        '</p>';
-
-}
-
-
-/* =====================================================
-   START APPLICATION
-===================================================== */
-
-initializeApplication();
