@@ -1,4 +1,3 @@
-```css
 /* =====================================================
    APEX PRODUCTION REPORT
    COMPLETE STYLE SHEET
@@ -302,11 +301,87 @@ button {
 }
 
 
+.edit-button {
+
+    border: none;
+
+    padding: 6px 10px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+}
+
+
 .delete-button:hover,
+.edit-button:hover,
 .primary-button:hover,
 .secondary-button:hover {
 
     opacity: 0.85;
+
+}
+
+
+/* =====================================================
+   ICON BUTTONS STYLING
+===================================================== */
+
+.edit-button {
+
+    background: #22c55e;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 32px;
+
+    height: 32px;
+
+    padding: 0;
+
+}
+
+
+.delete-button {
+
+    background: #ef4444;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 32px;
+
+    height: 32px;
+
+    padding: 0;
+
+}
+
+
+.edit-button:hover {
+
+    background: #16a34a;
+
+}
+
+
+.delete-button:hover {
+
+    background: #dc2626;
 
 }
 
@@ -449,4 +524,3 @@ button {
     }
 
 }
-```
