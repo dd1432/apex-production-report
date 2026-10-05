@@ -1,13 +1,3 @@
-/* =====================================================
-   APEX PRODUCTION REPORT
-   SHIFT REPORT SYSTEM
-===================================================== */
-
-
-/* =====================================================
-   FIREBASE
-===================================================== */
-
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -21,7 +11,7 @@ import {
 
 
 /* =====================================================
-   FIREBASE CONFIGURATION - YOUR CREDENTIALS
+   FIREBASE CONFIGURATION
 ===================================================== */
 
 const firebaseConfig = {
@@ -34,9 +24,11 @@ const firebaseConfig = {
     appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const database = getDatabase(firebaseApp);
+const firebaseApp =
+    initializeApp(firebaseConfig);
 
+const database =
+    getDatabase(firebaseApp);
 
 
 /* =====================================================
@@ -66,8 +58,7 @@ const machineData = {
 
         "Doctoring": [
             "Doctoring 1",
-            "Doctoring 2",
-            "Doctoring 3"
+            "Doctoring 2"
         ],
 
         "Inspection": [
@@ -94,6 +85,10 @@ const machineData = {
             "Lamination 5"
         ],
 
+        "ColdSeal": [
+            "ColdSeal"
+        ],
+
         "Slitting": [
             "Slitting 5",
             "Slitting 6",
@@ -101,6 +96,7 @@ const machineData = {
         ],
 
         "Doctoring": [
+            "Doctoring 3",
             "Doctoring 4",
             "Doctoring 5"
         ],
@@ -114,7 +110,6 @@ const machineData = {
     }
 
 };
-
 
 
 /* =====================================================
@@ -152,160 +147,235 @@ const submitShiftReport =
     document.getElementById("submitShiftReport");
 
 
+/* =====================================================
+   LOCAL DRAFT STORAGE
+===================================================== */
+
+const DRAFT_STORAGE_KEY =
+    "apexProductionReport_currentDraft_v1";
+
+let isRestoringDraft = false;
+
 
 /* =====================================================
-   CURRENT SHIFT ENTRIES & EDIT INDEX
+   CURRENT SHIFT ENTRIES & EDIT MODE
 ===================================================== */
 
 let shiftEntries = [];
 let editingIndex = -1;
 
 
-
 /* =====================================================
    DEFAULT DATE
 ===================================================== */
 
-const today =
-    new Date();
+function getTodayString() {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+}
 
-const todayString =
-    today.toISOString().split("T")[0];
+reportDate.value = getTodayString();
 
-reportDate.value =
-    todayString;
 
+/* =====================================================
+   GET CURRENT DYNAMIC FORM DATA
+===================================================== */
+
+function getCurrentMachineFormData() {
+    const data = {
+        process: process.value || "",
+        machine: machine.value || "",
+        status: "",
+        remarks: "",
+        fields: {}
+    };
+
+    const statusElement = document.getElementById("machineStatus");
+    if (statusElement) {
+        data.status = statusElement.value || "";
+    }
+
+    const remarksElement = document.getElementById("remarks");
+    if (remarksElement) {
+        data.remarks = remarksElement.value || "";
+    }
+
+    const dynamicFields = machineForm.querySelectorAll("input, select, textarea");
+    dynamicFields.forEach(function (element) {
+        if (!element.id) return;
+        if (element.id === "machineStatus" || element.id === "remarks") return;
+        data.fields[element.id] = element.value;
+    });
+
+    return data;
+}
+
+
+/* =====================================================
+   BUILD COMPLETE DRAFT OBJECT
+===================================================== */
+
+function getDraftData() {
+    return {
+        version: 1,
+        savedAt: Date.now(),
+        reportDate: reportDate.value || "",
+        shift: shift.value || "",
+        unit: unit.value || "",
+        supervisor: supervisor.value || "",
+        currentMachineForm: getCurrentMachineFormData(),
+        shiftEntries: shiftEntries
+    };
+}
+
+
+/* =====================================================
+   SAVE DRAFT
+===================================================== */
+
+function saveDraft() {
+    if (isRestoringDraft) return;
+
+    try {
+        const draft = getDraftData();
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch (error) {
+        console.error("Could not save production report draft:", error);
+    }
+}
+
+
+/* =====================================================
+   LOAD DRAFT FROM LOCAL STORAGE
+===================================================== */
+
+function loadDraft() {
+    try {
+        const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (!saved) return null;
+
+        const draft = JSON.parse(saved);
+        if (!draft || typeof draft !== "object") return null;
+
+        return draft;
+    } catch (error) {
+        console.error("Could not load production report draft:", error);
+        return null;
+    }
+}
+
+
+/* =====================================================
+   CLEAR DRAFT
+===================================================== */
+
+function clearDraft() {
+    try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch (error) {
+        console.error("Could not clear production report draft:", error);
+    }
+}
+
+
+/* =====================================================
+   POPULATE PROCESS OPTIONS
+===================================================== */
+
+function populateProcessOptions(selectedProcess = "") {
+    process.innerHTML = '<option value="">Select Process</option>';
+
+    if (!unit.value) return;
+
+    const processes = machineData[unit.value];
+    if (!processes) return;
+
+    Object.keys(processes).forEach(function (processName) {
+        const machines = processes[processName];
+        if (machines.length > 0) {
+            const option = document.createElement("option");
+            option.value = processName;
+            option.textContent = processName;
+            process.appendChild(option);
+        }
+    });
+
+    if (selectedProcess) {
+        const exists = Array.from(process.options).some(option => option.value === selectedProcess);
+        if (exists) process.value = selectedProcess;
+    }
+}
+
+
+/* =====================================================
+   POPULATE MACHINE OPTIONS
+===================================================== */
+
+function populateMachineOptions(selectedMachine = "") {
+    machine.innerHTML = '<option value="">Select Machine</option>';
+
+    if (!unit.value || !process.value) return;
+
+    const machines = machineData[unit.value]?.[process.value] || [];
+    machines.forEach(function (machineName) {
+        const option = document.createElement("option");
+        option.value = machineName;
+        option.textContent = machineName;
+        machine.appendChild(option);
+    });
+
+    if (selectedMachine) {
+        const exists = Array.from(machine.options).some(option => option.value === selectedMachine);
+        if (exists) machine.value = selectedMachine;
+    }
+}
 
 
 /* =====================================================
    UNIT CHANGE
 ===================================================== */
 
-unit.addEventListener(
-    "change",
-    function () {
+unit.addEventListener("change", function () {
+    process.innerHTML = '<option value="">Select Process</option>';
+    machine.innerHTML = '<option value="">Select Machine</option>';
+    machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
 
-        process.innerHTML =
-            '<option value="">Select Process</option>';
-
-        machine.innerHTML =
-            '<option value="">Select Machine</option>';
-
-        machineForm.innerHTML =
-            '<p class="empty-message">' +
-            'Select a process and machine to enter production data.' +
-            '</p>';
-
-        if (!unit.value) {
-            return;
-        }
-
-
-        const processes =
-            machineData[unit.value];
-
-
-        Object.keys(processes).forEach(
-            function (processName) {
-
-                const machines =
-                    processes[processName];
-
-
-                if (machines.length > 0) {
-
-                    const option =
-                        document.createElement("option");
-
-                    option.value =
-                        processName;
-
-                    option.textContent =
-                        processName;
-
-                    process.appendChild(
-                        option
-                    );
-
-                }
-
-            }
-        );
-
+    if (!unit.value) {
+        saveDraft();
+        return;
     }
-);
 
+    populateProcessOptions();
+    saveDraft();
+});
 
 
 /* =====================================================
    PROCESS CHANGE
 ===================================================== */
 
-process.addEventListener(
-    "change",
-    function () {
+process.addEventListener("change", function () {
+    machine.innerHTML = '<option value="">Select Machine</option>';
+    machineForm.innerHTML = '<p class="empty-message">Select a machine to enter production data.</p>';
 
-        machine.innerHTML =
-            '<option value="">Select Machine</option>';
-
-        machineForm.innerHTML =
-            '<p class="empty-message">' +
-            'Select a machine to enter production data.' +
-            '</p>';
-
-        if (
-            !unit.value ||
-            !process.value
-        ) {
-            return;
-        }
-
-
-        const machines =
-            machineData[
-                unit.value
-            ][
-                process.value
-            ];
-
-
-        machines.forEach(
-            function (machineName) {
-
-                const option =
-                    document.createElement("option");
-
-                option.value =
-                    machineName;
-
-                option.textContent =
-                    machineName;
-
-                machine.appendChild(
-                    option
-                );
-
-            }
-        );
-
+    if (!unit.value || !process.value) {
+        saveDraft();
+        return;
     }
-);
 
+    populateMachineOptions();
+    saveDraft();
+});
 
 
 /* =====================================================
    MACHINE CHANGE
 ===================================================== */
 
-machine.addEventListener(
-    "change",
-    function () {
-
-        createMachineForm();
-
-    }
-);
-
+machine.addEventListener("change", function () {
+    createMachineForm();
+    saveDraft();
+});
 
 
 /* =====================================================
@@ -313,146 +383,49 @@ machine.addEventListener(
 ===================================================== */
 
 function createMachineForm() {
-
     machineForm.innerHTML = "";
 
-
     if (!machine.value) {
-
-        machineForm.innerHTML =
-            '<p class="empty-message">' +
-            'Select a machine to enter production data.' +
-            '</p>';
-
+        machineForm.innerHTML = '<p class="empty-message">Select a machine to enter production data.</p>';
         return;
-
     }
 
+    const wrapper = document.createElement("div");
+    wrapper.className = "machine-entry-form";
 
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "machine-entry-form";
-
-
-    /* =================================================
-       STATUS
-    ================================================= */
-
-    const statusGroup =
-        document.createElement("div");
-
-    statusGroup.className =
-        "form-group";
-
-
+    const statusGroup = document.createElement("div");
+    statusGroup.className = "form-group";
     statusGroup.innerHTML = `
-
-        <label>
-            Machine Status
-        </label>
-
+        <label>Machine Status</label>
         <select id="machineStatus">
-
-            <option value="Production">
-                Production
-            </option>
-
-            <option value="Idle">
-                Idle
-            </option>
-
-            <option value="Maintenance">
-                Maintenance
-            </option>
-
+            <option value="Production">Production</option>
+            <option value="Idle">Idle</option>
+            <option value="Maintenance">Maintenance</option>
         </select>
-
     `;
+    wrapper.appendChild(statusGroup);
 
+    const fieldsContainer = document.createElement("div");
+    fieldsContainer.id = "processFields";
+    wrapper.appendChild(fieldsContainer);
 
-    wrapper.appendChild(
-        statusGroup
-    );
-
-
-    /* =================================================
-       PROCESS-SPECIFIC FIELDS
-    ================================================= */
-
-    const fieldsContainer =
-        document.createElement("div");
-
-    fieldsContainer.id =
-        "processFields";
-
-
-    wrapper.appendChild(
-        fieldsContainer
-    );
-
-
-    /* =================================================
-       REMARKS
-    ================================================= */
-
-    const remarksGroup =
-        document.createElement("div");
-
-    remarksGroup.className =
-        "form-group";
-
-
+    const remarksGroup = document.createElement("div");
+    remarksGroup.className = "form-group";
     remarksGroup.innerHTML = `
-
-        <label>
-            Remarks
-        </label>
-
-        <textarea
-            id="remarks"
-            rows="4"
-            placeholder="Problems / observations / remarks"
-        ></textarea>
-
+        <label>Remarks</label>
+        <textarea id="remarks" rows="4" placeholder="Problems / observations / remarks"></textarea>
     `;
+    wrapper.appendChild(remarksGroup);
 
-
-    wrapper.appendChild(
-        remarksGroup
-    );
-
-
-    machineForm.appendChild(
-        wrapper
-    );
-
-
-    /* =================================================
-       LOAD CORRECT FIELDS
-    ================================================= */
-
+    machineForm.appendChild(wrapper);
     renderProcessFields();
 
-
-    /* =================================================
-       STATUS CHANGE
-    ================================================= */
-
-    document
-        .getElementById("machineStatus")
-        .addEventListener(
-            "change",
-            function () {
-
-                renderProcessFields();
-
-            }
-        );
-
+    document.getElementById("machineStatus").addEventListener("change", function () {
+        saveDraft();
+        renderProcessFields();
+        saveDraft();
+    });
 }
-
 
 
 /* =====================================================
@@ -460,633 +433,315 @@ function createMachineForm() {
 ===================================================== */
 
 function renderProcessFields() {
-
-    const container =
-        document.getElementById(
-            "processFields"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
+    const container = document.getElementById("processFields");
+    if (!container) return;
 
     container.innerHTML = "";
+    const statusElement = document.getElementById("machineStatus");
+    if (!statusElement) return;
 
+    const status = statusElement.value;
 
-    const status =
-        document.getElementById(
-            "machineStatus"
-        ).value;
-
-
-    /*
-       For Idle / Maintenance,
-       production measurement fields
-       are not necessary.
-    */
-
-    if (
-        status === "Idle" ||
-        status === "Maintenance"
-    ) {
-
-        container.innerHTML = `
-
-            <p class="status-message">
-                ${status} — no production
-                measurement required.
-            </p>
-
-        `;
-
+    if (status === "Idle" || status === "Maintenance") {
+        container.innerHTML = `<p class="status-message">${status} — no production measurement required.</p>`;
         return;
-
     }
 
-
-    /* =================================================
-       PRINTING
-    ================================================= */
-
-    if (
-        process.value === "Printing"
-    ) {
-
+    if (process.value === "Printing") {
         container.innerHTML = `
-
             <div class="grid">
-
                 <div class="form-group">
-
-                    <label>
-                        Total Printed Length (m)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="length"
-                        min="0"
-                        placeholder="Enter length"
-                    >
-
+                    <label>Total Printed Length (m)</label>
+                    <input type="number" id="length" min="0" placeholder="Enter length">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Speed
-                    </label>
-
-                    <input
-                        type="number"
-                        id="speed"
-                        min="0"
-                        placeholder="Enter speed"
-                    >
-
+                    <label>Speed</label>
+                    <input type="number" id="speed" min="0" placeholder="Enter speed">
                 </div>
-
             </div>
-
-
             <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Enter product"
-                >
-
+                <label>Product</label>
+                <input type="text" id="product" placeholder="Enter product">
             </div>
-
         `;
-
     }
-
-
-    /* =================================================
-       LAMINATION
-    ================================================= */
-
-    else if (
-        process.value === "Lamination"
-    ) {
-
+    else if (process.value === "Lamination") {
         container.innerHTML = `
-
             <div class="grid">
-
                 <div class="form-group">
-
-                    <label>
-                        Total Laminated Length (m)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="length"
-                        min="0"
-                        placeholder="Enter length"
-                    >
-
+                    <label>Total Laminated Length (m)</label>
+                    <input type="number" id="length" min="0" placeholder="Enter length">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Speed
-                    </label>
-
-                    <input
-                        type="number"
-                        id="speed"
-                        min="0"
-                        placeholder="Enter speed"
-                    >
-
+                    <label>Speed</label>
+                    <input type="number" id="speed" min="0" placeholder="Enter speed">
                 </div>
-
             </div>
-
-
             <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Enter product"
-                >
-
+                <label>Product</label>
+                <input type="text" id="product" placeholder="Enter product">
             </div>
-
         `;
-
     }
-
-
-    /* =================================================
-       EXTRUSION COATING
-    ================================================= */
-
-    else if (
-        process.value === "Extrusion Coating"
-    ) {
-
+    else if (process.value === "ColdSeal") {
         container.innerHTML = `
-
             <div class="grid">
-
                 <div class="form-group">
-
-                    <label>
-                        Total Coated Length (m)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="length"
-                        min="0"
-                        placeholder="Enter length"
-                    >
-
+                    <label>Total ColdSeal Length (m)</label>
+                    <input type="number" id="length" min="0" placeholder="Enter length">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Speed
-                    </label>
-
-                    <input
-                        type="number"
-                        id="speed"
-                        min="0"
-                        placeholder="Enter speed"
-                    >
-
+                    <label>Speed</label>
+                    <input type="number" id="speed" min="0" placeholder="Enter speed">
                 </div>
-
             </div>
-
-
             <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Enter product"
-                >
-
+                <label>Product</label>
+                <input type="text" id="product" placeholder="Enter product">
             </div>
-
         `;
-
     }
-
-
-    /* =================================================
-       SLITTING
-    ================================================= */
-
-    else if (
-        process.value === "Slitting"
-    ) {
-
+    else if (process.value === "Extrusion Coating") {
         container.innerHTML = `
-
             <div class="grid">
-
                 <div class="form-group">
-
-                    <label>
-                        Total Slitted Length (m)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="length"
-                        min="0"
-                        placeholder="Enter length"
-                    >
-
+                    <label>Total Coated Length (m)</label>
+                    <input type="number" id="length" min="0" placeholder="Enter length">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Speed
-                    </label>
-
-                    <input
-                        type="number"
-                        id="speed"
-                        min="0"
-                        placeholder="Enter speed"
-                    >
-
+                    <label>Speed</label>
+                    <input type="number" id="speed" min="0" placeholder="Enter speed">
                 </div>
-
             </div>
-
-
             <div class="form-group">
-
-                <label>
-                    Product
-                </label>
-
-                <input
-                    type="text"
-                    id="product"
-                    placeholder="Enter product"
-                >
-
+                <label>Product</label>
+                <input type="text" id="product" placeholder="Enter product">
             </div>
-
         `;
-
     }
-
-
-    /* =================================================
-       DOCTORING
-    ================================================= */
-
-    else if (
-        process.value === "Doctoring"
-    ) {
-
+    else if (process.value === "Slitting") {
         container.innerHTML = `
-
-            <div class="form-group">
-
-                <label>
-                    Total Coils
-                </label>
-
-                <input
-                    type="number"
-                    id="totalCoils"
-                    min="0"
-                    placeholder="Example: 13"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Coil Details
-                </label>
-
-                <textarea
-                    id="coilDetails"
-                    rows="6"
-                    placeholder="Example:
-Munch 38.5 gm - 5 C
-Munch 8.7 gm - 8 C"
-                ></textarea>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =================================================
-       INSPECTION
-    ================================================= */
-
-    else if (
-        process.value === "Inspection"
-    ) {
-
-        container.innerHTML = `
-
             <div class="grid">
-
                 <div class="form-group">
-
-                    <label>
-                        Weight (kg)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="weight"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter weight"
-                    >
-
+                    <label>Total Slitted Length (m)</label>
+                    <input type="number" id="length" min="0" placeholder="Enter length">
                 </div>
-
-
                 <div class="form-group">
-
-                    <label>
-                        Job Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="jobName"
-                        placeholder="Enter job name"
-                    >
-
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
                 </div>
-
+                <div class="form-group">
+                    <label>Speed</label>
+                    <input type="number" id="speed" min="0" placeholder="Enter speed">
+                </div>
             </div>
-
+            <div class="form-group">
+                <label>Product</label>
+                <input type="text" id="product" placeholder="Enter product">
+            </div>
         `;
-
     }
-
+    else if (process.value === "Doctoring") {
+        container.innerHTML = `
+            <div class="form-group">
+                <label>Total Coils</label>
+                <input type="number" id="totalCoils" min="0" placeholder="Example: 13">
+            </div>
+            <div class="form-group">
+                <label>Coil Details</label>
+                <textarea id="coilDetails" rows="6" placeholder="Example:\nMunch 38.5 gm - 5 C\nMunch 8.7 gm - 8 C"></textarea>
+            </div>
+        `;
+    }
+    else if (process.value === "Inspection") {
+        container.innerHTML = `
+            <div class="grid">
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" min="0" step="0.01" placeholder="Enter weight">
+                </div>
+                <div class="form-group">
+                    <label>Job Name</label>
+                    <input type="text" id="jobName" placeholder="Enter job name">
+                </div>
+            </div>
+        `;
+    }
 }
 
+
+/* =====================================================
+   RESTORE DYNAMIC MACHINE FORM
+===================================================== */
+
+function restoreCurrentMachineForm(currentForm) {
+    if (!currentForm) return;
+    if (!currentForm.process || !currentForm.machine) return;
+
+    process.value = currentForm.process;
+    populateMachineOptions(currentForm.machine);
+
+    if (machine.value !== currentForm.machine) return;
+
+    createMachineForm();
+
+    const statusElement = document.getElementById("machineStatus");
+    if (statusElement && currentForm.status) {
+        statusElement.value = currentForm.status;
+        renderProcessFields();
+    }
+
+    if (currentForm.fields) {
+        Object.keys(currentForm.fields).forEach(function (fieldId) {
+            const element = document.getElementById(fieldId);
+            if (element) element.value = currentForm.fields[fieldId];
+        });
+    }
+
+    const remarksElement = document.getElementById("remarks");
+    if (remarksElement) {
+        remarksElement.value = currentForm.remarks || "";
+    }
+}
+
+
+/* =====================================================
+   RESTORE COMPLETE DRAFT
+===================================================== */
+
+function restoreDraft() {
+    const draft = loadDraft();
+    if (!draft) return false;
+
+    const hasData = Boolean(
+        draft.reportDate ||
+        draft.shift ||
+        draft.unit ||
+        draft.supervisor ||
+        draft.currentMachineForm?.process ||
+        draft.shiftEntries?.length
+    );
+
+    if (!hasData) return false;
+
+    isRestoringDraft = true;
+
+    try {
+        if (draft.reportDate) reportDate.value = draft.reportDate;
+        if (draft.shift) shift.value = draft.shift;
+        if (draft.supervisor !== undefined) supervisor.value = draft.supervisor;
+
+        if (draft.unit) {
+            unit.value = draft.unit;
+            populateProcessOptions();
+        }
+
+        if (Array.isArray(draft.shiftEntries)) {
+            shiftEntries = draft.shiftEntries;
+        } else {
+            shiftEntries = [];
+        }
+
+        displayEntries();
+
+        if (draft.currentMachineForm && draft.currentMachineForm.process && draft.currentMachineForm.machine) {
+            restoreCurrentMachineForm(draft.currentMachineForm);
+        } else {
+            machine.innerHTML = '<option value="">Select Machine</option>';
+            machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
+        }
+    } finally {
+        isRestoringDraft = false;
+    }
+
+    return true;
+}
 
 
 /* =====================================================
    ADD MACHINE TO CURRENT SHIFT
 ===================================================== */
 
-saveMachineReport.addEventListener(
-    "click",
-    function () {
-
-
-        if (!unit.value) {
-
-            alert(
-                "Please select Unit."
-            );
-
-            return;
-
-        }
-
-
-        if (!process.value) {
-
-            alert(
-                "Please select Process."
-            );
-
-            return;
-
-        }
-
-
-        if (!machine.value) {
-
-            alert(
-                "Please select Machine."
-            );
-
-            return;
-
-        }
-
-
-        const status =
-            document.getElementById(
-                "machineStatus"
-            ).value;
-
-
-        const entry = {
-
-            unit:
-                unit.value,
-
-            process:
-                process.value,
-
-            machine:
-                machine.value,
-
-            status:
-                status
-
-        };
-
-
-        /* =================================================
-           PROCESS-SPECIFIC DATA
-        ================================================= */
-
-
-        if (
-            process.value === "Printing" ||
-            process.value === "Lamination" ||
-            process.value === "Slitting" ||
-            process.value === "Extrusion Coating"
-        ) {
-
-            entry.length =
-                getValue("length");
-
-            entry.weight =
-                getValue("weight");
-
-            entry.speed =
-                getValue("speed");
-
-            entry.product =
-                getValue("product");
-
-        }
-
-
-        if (
-            process.value === "Doctoring"
-        ) {
-
-            entry.totalCoils =
-                getValue("totalCoils");
-
-            entry.coilDetails =
-                getValue("coilDetails");
-
-        }
-
-
-        if (
-            process.value === "Inspection"
-        ) {
-
-            entry.weight =
-                getValue("weight");
-
-            entry.jobName =
-                getValue("jobName");
-
-        }
-
-
-        entry.remarks =
-            getValue("remarks");
-
-
-        /* =================================================
-           ADD OR UPDATE ENTRY
-        ================================================= */
-
-        if (editingIndex === -1) {
-            // Add new entry
-            shiftEntries.push(
-                entry
-            );
-        } else {
-            // Update existing entry
-            shiftEntries[editingIndex] = entry;
-            editingIndex = -1;
-        }
-
-
-        displayEntries();
-
-
-        /* Reset selection */
-
-        machine.value = "";
-
-        machineForm.innerHTML =
-            '<p class="empty-message">' +
-            'Machine added. Select another machine if required.' +
-            '</p>';
-
+saveMachineReport.addEventListener("click", function () {
+    if (!unit.value) {
+        alert("Please select Unit.");
+        return;
     }
-);
 
+    if (!process.value) {
+        alert("Please select Process.");
+        return;
+    }
+
+    if (!machine.value) {
+        alert("Please select Machine.");
+        return;
+    }
+
+    const statusElement = document.getElementById("machineStatus");
+    if (!statusElement) {
+        alert("Please select machine status.");
+        return;
+    }
+
+    const status = statusElement.value;
+    const entry = {
+        unit: unit.value,
+        process: process.value,
+        machine: machine.value,
+        status: status
+    };
+
+    if (process.value === "Printing" || process.value === "Lamination" || process.value === "ColdSeal" || process.value === "Slitting" || process.value === "Extrusion Coating") {
+        entry.length = getValue("length");
+        entry.weight = getValue("weight");
+        entry.speed = getValue("speed");
+        entry.product = getValue("product");
+    }
+
+    if (process.value === "Doctoring") {
+        entry.totalCoils = getValue("totalCoils");
+        entry.coilDetails = getValue("coilDetails");
+    }
+
+    if (process.value === "Inspection") {
+        entry.weight = getValue("weight");
+        entry.jobName = getValue("jobName");
+    }
+
+    entry.remarks = getValue("remarks");
+
+    if (editingIndex === -1) {
+        shiftEntries.push(entry);
+    } else {
+        shiftEntries[editingIndex] = entry;
+        editingIndex = -1;
+        saveMachineReport.textContent = "+ Add Machine";
+    }
+
+    displayEntries();
+    saveDraft();
+
+    machine.value = "";
+    machineForm.innerHTML = '<p class="empty-message">Machine added. Select another machine if required.</p>';
+    saveDraft();
+});
 
 
 /* =====================================================
@@ -1094,20 +749,10 @@ saveMachineReport.addEventListener(
 ===================================================== */
 
 function getValue(id) {
-
-    const element =
-        document.getElementById(id);
-
-
-    if (!element) {
-        return "";
-    }
-
-
+    const element = document.getElementById(id);
+    if (!element) return "";
     return element.value.trim();
-
 }
-
 
 
 /* =====================================================
@@ -1115,232 +760,62 @@ function getValue(id) {
 ===================================================== */
 
 function displayEntries() {
-
     entries.innerHTML = "";
 
-
-    if (
-        shiftEntries.length === 0
-    ) {
-
-        entries.innerHTML =
-            '<p class="empty-message">' +
-            'No machines added yet.' +
-            '</p>';
-
+    if (shiftEntries.length === 0) {
+        entries.innerHTML = '<p class="empty-message">No machines added yet.</p>';
         return;
-
     }
 
+    shiftEntries.forEach(function (item, index) {
+        const card = document.createElement("div");
+        card.className = "entry-card";
 
-    shiftEntries.forEach(
-        function (item, index) {
+        let details = "";
 
+        if (item.length) details += `<span>Length: ${formatText(String(item.length))} m</span>`;
+        if (item.weight) details += `<span>Weight: ${formatText(String(item.weight))} kg</span>`;
+        if (item.speed) details += `<span>Speed: ${formatText(String(item.speed))}</span>`;
+        if (item.product) details += `<span>Product: ${formatText(String(item.product))}</span>`;
+        if (item.totalCoils) details += `<span>Total Coils: ${formatText(String(item.totalCoils))} C</span>`;
+        if (item.coilDetails) details += `<span>Coil Details:<br>${formatText(String(item.coilDetails))}</span>`;
+        if (item.jobName) details += `<span>Job Name: ${formatText(String(item.jobName))}</span>`;
+        if (item.remarks) details += `<span>Remarks: ${formatText(String(item.remarks))}</span>`;
 
-            const card =
-                document.createElement("div");
-
-
-            card.className =
-                "entry-card";
-
-
-            let details = "";
-
-
-            if (item.length) {
-
-                details +=
-                    `<span>
-                        Length: ${item.length} m
-                    </span>`;
-
-            }
-
-
-            if (item.weight) {
-
-                details +=
-                    `<span>
-                        Weight: ${item.weight} kg
-                    </span>`;
-
-            }
-
-
-            if (item.speed) {
-
-                details +=
-                    `<span>
-                        Speed: ${item.speed}
-                    </span>`;
-
-            }
-
-
-            if (item.product) {
-
-                details +=
-                    `<span>
-                        Product: ${item.product}
-                    </span>`;
-
-            }
-
-
-            if (item.totalCoils) {
-
-                details +=
-                    `<span>
-                        Total Coils: ${item.totalCoils} C
-                    </span>`;
-
-            }
-
-
-            if (item.coilDetails) {
-
-                details +=
-                    `<span>
-                        Coil Details:<br>
-                        ${formatText(item.coilDetails)}
-                    </span>`;
-
-            }
-
-
-            if (item.jobName) {
-
-                details +=
-                    `<span>
-                        Job Name: ${formatText(item.jobName)}
-                    </span>`;
-
-            }
-
-
-            if (item.remarks) {
-
-                details +=
-                    `<span>
-                        Remarks: ${formatText(item.remarks)}
-                    </span>`;
-
-            }
-
-
-            card.innerHTML = `
-
-                <div class="entry-header">
-
-                    <strong>
-                        ${item.machine}
-                    </strong>
-
-                    <div class="entry-actions">
-                        <button
-                            type="button"
-                            class="edit-button"
-                            data-index="${index}"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="delete-button"
-                            data-index="${index}"
-                        >
-                            Remove
-                        </button>
-                    </div>
-
+        card.innerHTML = `
+            <div class="entry-header">
+                <strong>${formatText(String(item.machine || ""))}</strong>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="edit-button" data-index="${index}">Edit</button>
+                    <button type="button" class="delete-button" data-index="${index}">Remove</button>
                 </div>
+            </div>
+            <div class="entry-details">
+                <span>Process: ${formatText(String(item.process || ""))}</span>
+                <span>Status: ${formatText(String(item.status || ""))}</span>
+                ${details}
+            </div>
+        `;
 
+        entries.appendChild(card);
+    });
 
-                <div class="entry-details">
+    document.querySelectorAll(".edit-button").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const index = Number(button.dataset.index);
+            editEntry(index);
+        });
+    });
 
-                    <span>
-                        Process:
-                        ${item.process}
-                    </span>
-
-                    <span>
-                        Status:
-                        ${item.status}
-                    </span>
-
-                    ${details}
-
-                </div>
-
-            `;
-
-
-            entries.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    // Edit button listeners
-    document
-        .querySelectorAll(".edit-button")
-        .forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const index =
-                            Number(
-                                button.dataset.index
-                            );
-
-                        editEntry(index);
-
-                    }
-                );
-
-            }
-        );
-
-
-    // Delete button listeners
-    document
-        .querySelectorAll(".delete-button")
-        .forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const index =
-                            Number(
-                                button.dataset.index
-                            );
-
-
-                        shiftEntries.splice(
-                            index,
-                            1
-                        );
-
-
-                        displayEntries();
-
-                    }
-                );
-
-            }
-        );
-
+    document.querySelectorAll(".delete-button").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const index = Number(button.dataset.index);
+            shiftEntries.splice(index, 1);
+            displayEntries();
+            saveDraft();
+        });
+    });
 }
-
 
 
 /* =====================================================
@@ -1348,78 +823,85 @@ function displayEntries() {
 ===================================================== */
 
 function editEntry(index) {
-
     const item = shiftEntries[index];
+    if (!item) return;
 
-    // Set the selectors to the item's values
+    editingIndex = index;
+    saveMachineReport.textContent = "✓ Update Machine";
+
     unit.value = item.unit;
 
-    // Trigger unit change to populate processes
-    unit.dispatchEvent(new Event("change"));
+    const processes = machineData[unit.value];
+    process.innerHTML = '<option value="">Select Process</option>';
+    Object.keys(processes).forEach(function (processName) {
+        const machines = processes[processName];
+        if (machines.length > 0) {
+            const option = document.createElement("option");
+            option.value = processName;
+            option.textContent = processName;
+            process.appendChild(option);
+        }
+    });
 
-    // Set process and machine
     process.value = item.process;
+
+    const machinesForProcess = machineData[unit.value][item.process] || [];
+    machine.innerHTML = '<option value="">Select Machine</option>';
+    machinesForProcess.forEach(function (machineName) {
+        const option = document.createElement("option");
+        option.value = machineName;
+        option.textContent = machineName;
+        machine.appendChild(option);
+    });
+
     machine.value = item.machine;
+    createMachineForm();
 
-    // Trigger machine change to create form
-    editingIndex = index;
-    machine.dispatchEvent(new Event("change"));
-
-    // Set form values after form is created
     setTimeout(function () {
-
-        document.getElementById("machineStatus").value = item.status;
-
-        if (item.length) {
-            const lengthInput = document.getElementById("length");
-            if (lengthInput) lengthInput.value = item.length;
+        const statusSelect = document.getElementById("machineStatus");
+        if (statusSelect) {
+            statusSelect.value = item.status;
+            renderProcessFields();
         }
 
-        if (item.weight) {
-            const weightInput = document.getElementById("weight");
-            if (weightInput) weightInput.value = item.weight;
-        }
-
-        if (item.speed) {
-            const speedInput = document.getElementById("speed");
-            if (speedInput) speedInput.value = item.speed;
-        }
-
-        if (item.product) {
-            const productInput = document.getElementById("product");
-            if (productInput) productInput.value = item.product;
-        }
-
-        if (item.totalCoils) {
-            const totalCoilsInput = document.getElementById("totalCoils");
-            if (totalCoilsInput) totalCoilsInput.value = item.totalCoils;
-        }
-
-        if (item.coilDetails) {
-            const coilDetailsInput = document.getElementById("coilDetails");
-            if (coilDetailsInput) coilDetailsInput.value = item.coilDetails;
-        }
-
-        if (item.jobName) {
-            const jobNameInput = document.getElementById("jobName");
-            if (jobNameInput) jobNameInput.value = item.jobName;
-        }
-
-        if (item.remarks) {
-            const remarksInput = document.getElementById("remarks");
-            if (remarksInput) remarksInput.value = item.remarks;
-        }
-
-        // Trigger status change to render fields correctly
-        document.getElementById("machineStatus").dispatchEvent(new Event("change"));
-
+        setTimeout(function () {
+            if (item.length) {
+                const lengthInput = document.getElementById("length");
+                if (lengthInput) lengthInput.value = item.length;
+            }
+            if (item.weight) {
+                const weightInput = document.getElementById("weight");
+                if (weightInput) weightInput.value = item.weight;
+            }
+            if (item.speed) {
+                const speedInput = document.getElementById("speed");
+                if (speedInput) speedInput.value = item.speed;
+            }
+            if (item.product) {
+                const productInput = document.getElementById("product");
+                if (productInput) productInput.value = item.product;
+            }
+            if (item.totalCoils) {
+                const totalCoilsInput = document.getElementById("totalCoils");
+                if (totalCoilsInput) totalCoilsInput.value = item.totalCoils;
+            }
+            if (item.coilDetails) {
+                const coilDetailsInput = document.getElementById("coilDetails");
+                if (coilDetailsInput) coilDetailsInput.value = item.coilDetails;
+            }
+            if (item.jobName) {
+                const jobNameInput = document.getElementById("jobName");
+                if (jobNameInput) jobNameInput.value = item.jobName;
+            }
+            if (item.remarks) {
+                const remarksInput = document.getElementById("remarks");
+                if (remarksInput) remarksInput.value = item.remarks;
+            }
+        }, 50);
     }, 100);
 
-    // Scroll to the form
-    machineForm.scrollIntoView({ behavior: "smooth" });
-
+    machineForm.scrollIntoView({ behavior: "smooth", block: "center" });
 }
-
 
 
 /* =====================================================
@@ -1427,160 +909,164 @@ function editEntry(index) {
 ===================================================== */
 
 function formatText(text) {
-
-    return text
+    return String(text)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/\n/g, "<br>");
-
 }
 
+
+/* =====================================================
+   AUTOMATIC FIELD SAVE
+===================================================== */
+
+document.addEventListener("input", function (event) {
+    if (isRestoringDraft) return;
+
+    const target = event.target;
+    if (target.matches("#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea")) {
+        saveDraft();
+    }
+});
+
+
+document.addEventListener("change", function (event) {
+    if (isRestoringDraft) return;
+
+    const target = event.target;
+    if (target.matches("#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea")) {
+        setTimeout(function () {
+            saveDraft();
+        }, 0);
+    }
+});
+
+
+/* =====================================================
+   PAGE VISIBILITY PROTECTION
+===================================================== */
+
+document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+        saveDraft();
+    }
+});
+
+
+/* =====================================================
+   PAGE HIDE PROTECTION
+===================================================== */
+
+window.addEventListener("pagehide", function () {
+    saveDraft();
+});
+
+
+/* =====================================================
+   BEFORE UNLOAD PROTECTION
+===================================================== */
+
+window.addEventListener("beforeunload", function () {
+    saveDraft();
+});
 
 
 /* =====================================================
    SUBMIT COMPLETE SHIFT REPORT
 ===================================================== */
 
-submitShiftReport.addEventListener(
-    "click",
-    async function () {
-
-
-        if (!reportDate.value) {
-
-            alert(
-                "Please select Production Date."
-            );
-
-            return;
-
-        }
-
-
-        if (!shift.value) {
-
-            alert(
-                "Please select Shift."
-            );
-
-            return;
-
-        }
-
-
-        if (!unit.value) {
-
-            alert(
-                "Please select Unit."
-            );
-
-            return;
-
-        }
-
-
-        if (!supervisor.value.trim()) {
-
-            alert(
-                "Please enter Supervisor Name."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            shiftEntries.length === 0
-        ) {
-
-            alert(
-                "Please add at least one machine report."
-            );
-
-            return;
-
-        }
-
-
-        const completeReport = {
-
-            productionDate:
-                reportDate.value,
-
-            shift:
-                shift.value,
-
-            unit:
-                unit.value,
-
-            supervisor:
-                supervisor.value.trim(),
-
-            machines:
-                shiftEntries,
-
-            entryTimestamp:
-                serverTimestamp()
-
-        };
-
-
-        try {
-
-
-            const reportsRef =
-                ref(
-                    database,
-                    "productionReports"
-                );
-
-
-            await push(
-                reportsRef,
-                completeReport
-            );
-
-
-            alert(
-                "Shift report submitted successfully!"
-            );
-
-
-            /* Reset */
-
-            shiftEntries = [];
-
-            displayEntries();
-
-
-            machineForm.innerHTML =
-                '<p class="empty-message">' +
-                'Shift report submitted. You can start a new report.' +
-                '</p>';
-
-
-            machine.innerHTML =
-                '<option value="">Select Machine</option>';
-
-
-        }
-
-        catch (error) {
-
-
-            console.error(
-                "Firebase save error:",
-                error
-            );
-
-
-            alert(
-                "Could not submit report. Please check your internet connection."
-            );
-
-        }
-
+submitShiftReport.addEventListener("click", async function () {
+    if (!reportDate.value) {
+        alert("Please select Production Date.");
+        return;
     }
-);
+
+    if (!shift.value) {
+        alert("Please select Shift.");
+        return;
+    }
+
+    if (!unit.value) {
+        alert("Please select Unit.");
+        return;
+    }
+
+    if (!supervisor.value.trim()) {
+        alert("Please enter Supervisor Name.");
+        return;
+    }
+
+    if (shiftEntries.length === 0) {
+        alert("Please add at least one machine report.");
+        return;
+    }
+
+    const completeReport = {
+        productionDate: reportDate.value,
+        shift: shift.value,
+        unit: unit.value,
+        supervisor: supervisor.value.trim(),
+        machines: shiftEntries,
+        entryTimestamp: serverTimestamp()
+    };
+
+    submitShiftReport.disabled = true;
+    submitShiftReport.textContent = "Submitting...";
+
+    try {
+        saveDraft();
+
+        const reportsRef = ref(database, "productionReports");
+        await push(reportsRef, completeReport);
+
+        alert("Shift report submitted successfully!");
+
+        clearDraft();
+        shiftEntries = [];
+        displayEntries();
+
+        machineForm.innerHTML = '<p class="empty-message">Shift report submitted. You can start a new report.</p>';
+        machine.innerHTML = '<option value="">Select Machine</option>';
+        process.innerHTML = '<option value="">Select Process</option>';
+    }
+    catch (error) {
+        console.error("Firebase save error:", error);
+        saveDraft();
+        alert("Could not submit report. Please check your internet connection. Your entered data has been saved and will remain available.");
+    }
+    finally {
+        submitShiftReport.disabled = false;
+        submitShiftReport.textContent = "Submit Shift Report";
+    }
+});
+
+
+/* =====================================================
+   INITIALIZE APPLICATION
+===================================================== */
+
+function initializeApplication() {
+    const draft = loadDraft();
+
+    if (draft) {
+        const restored = restoreDraft();
+        if (restored) {
+            console.log("Previous production report draft restored.");
+            return;
+        }
+    }
+
+    reportDate.value = getTodayString();
+    machine.innerHTML = '<option value="">Select Machine</option>';
+    process.innerHTML = '<option value="">Select Process</option>';
+    machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
+    entries.innerHTML = '<p class="empty-message">No machines added yet.</p>';
+}
+
+
+/* =====================================================
+   START APPLICATION
+===================================================== */
+
+initializeApplication();
