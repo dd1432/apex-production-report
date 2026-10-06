@@ -17,13 +17,13 @@ import {
 // =====================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
-  authDomain: "apex-production-report-90e12.firebaseapp.com",
-  databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "apex-production-report-90e12",
-  storageBucket: "apex-production-report-90e12.firebasestorage.app",
-  messagingSenderId: "857344599590",
-  appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
+    apiKey: "AIzaSyBVdV7BKtw1lBexUBSM90l2gRmg2vNE7RY",
+    authDomain: "apex-production-report-90e12.firebaseapp.com",
+    databaseURL: "https://apex-production-report-90e12-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "apex-production-report-90e12",
+    storageBucket: "apex-production-report-90e12.firebasestorage.app",
+    messagingSenderId: "857344599590",
+    appId: "1:857344599590:web:d002e55d68d896afe0e8e7"
 };
 
 // =====================================================
@@ -34,7 +34,6 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const reportsRef = ref(db, "productionReports");
-const targetsRef = ref(db, "productionTargets");
 
 
 // =====================================================
@@ -68,10 +67,11 @@ const targetUnit = document.getElementById("targetUnit");
 const targetProcessContainer = document.getElementById("targetProcessContainer");
 const targetContainer = document.getElementById("targetContainer");
 const targetCard = document.querySelector(".target-card");
+const targetInfo = document.getElementById("targetInfo");
 
 
 // =====================================================
-// VARIABLES
+// GLOBAL VARIABLES
 // =====================================================
 
 let allReports = [];
@@ -88,7 +88,8 @@ const processColors = {
     "Lamination": "lamination-bar",
     "Extrusion": "extrusion-bar",
     "Slitting": "slitting-bar",
-    "ColdSeal": "coldseal-bar"
+    "ColdSeal": "coldseal-bar",
+    "Cold Seal": "coldseal-bar"
 };
 
 
@@ -97,39 +98,42 @@ const processColors = {
 // =====================================================
 
 function openTargetModal() {
-    // Set default date to today
-    const today = new Date();
-    const dateString = today.toISOString().split('T')[0];
-    targetDate.value = dateString;
-    targetUnit.value = "";
-    targetProcessContainer.innerHTML = "";
+    if (!targetModal) return;
     
+    // Default target modal date to currently selected filter date or today
+    const selectedDate = reportDate ? reportDate.value : "";
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (targetDate) targetDate.value = selectedDate || today;
+    if (targetUnit) targetUnit.value = unitFilter ? unitFilter.value : "";
+    
+    populateProcessInputs();
     targetModal.classList.remove("hidden");
 }
 
 function closeTargetModalFunc() {
+    if (!targetModal) return;
     targetModal.classList.add("hidden");
-    targetProcessContainer.innerHTML = "";
+    if (targetProcessContainer) targetProcessContainer.innerHTML = "";
 }
 
 function populateProcessInputs() {
-    const selectedUnit = targetUnit.value;
+    if (!targetUnit || !targetProcessContainer) return;
     
-    if (!selectedUnit) {
-        targetProcessContainer.innerHTML = "";
-        return;
-    }
+    const selectedUnit = targetUnit.value;
+    targetProcessContainer.innerHTML = "";
+    
+    if (!selectedUnit) return;
     
     const processes = unitProcesses[selectedUnit] || [];
-    targetProcessContainer.innerHTML = "";
     
     processes.forEach(process => {
         const group = document.createElement("div");
         group.className = "process-input-group";
         
         group.innerHTML = `
-            <label>${process}</label>
-            <input type="number" data-process="${process}" placeholder="Enter target (kg)" min="0">
+            <label>${escapeHTML(process)}</label>
+            <input type="number" data-process="${escapeHTML(process)}" placeholder="Enter target (kg)" min="0" step="any">
         `;
         
         targetProcessContainer.appendChild(group);
@@ -137,6 +141,8 @@ function populateProcessInputs() {
 }
 
 function saveTarget() {
+    if (!targetDate || !targetUnit || !targetProcessContainer) return;
+
     const date = targetDate.value;
     const unit = targetUnit.value;
     
@@ -152,14 +158,14 @@ function saveTarget() {
         const process = input.dataset.process;
         const value = parseFloat(input.value);
         
-        if (value > 0) {
+        if (!isNaN(value) && value > 0) {
             targets[process] = value;
             hasTarget = true;
         }
     });
     
     if (!hasTarget) {
-        alert("Please enter at least one target value");
+        alert("Please enter at least one target value greater than 0");
         return;
     }
     
@@ -181,11 +187,14 @@ function saveTarget() {
     });
 }
 
+
 // =====================================================
 // DISPLAY TARGETS AND ACHIEVEMENT BARS
 // =====================================================
 
 function displayTargets(date, unit) {
+    if (!targetCard) return;
+
     if (!date || !unit) {
         targetCard.classList.add("hidden");
         return;
@@ -198,23 +207,27 @@ function displayTargets(date, unit) {
     
     get(child(ref(db), targetPath)).then(snapshot => {
         if (!snapshot.exists()) {
-            targetContainer.innerHTML = '<p class="empty-message">No targets set for this date and unit.</p>';
-            document.getElementById("targetInfo").textContent = `${date} - ${unit}`;
+            if (targetContainer) {
+                targetContainer.innerHTML = '<p class="empty-message">No targets set for this date and unit.</p>';
+            }
+            if (targetInfo) {
+                targetInfo.textContent = `${formatDate(date)} - ${unit}`;
+            }
             return;
         }
         
         const targetData = snapshot.val();
-        targetContainer.innerHTML = "";
+        if (targetContainer) targetContainer.innerHTML = "";
         
         const filteredReports = allReports.filter(report => 
             report.productionDate === date && report.unit === unit
         );
         
-        const achievements = calculateAchievements(filteredReports, targetData.targets);
+        const achievements = calculateAchievements(filteredReports, targetData.targets || {});
         
-        Object.entries(targetData.targets).forEach(([process, targetValue]) => {
+        Object.entries(targetData.targets || {}).forEach(([process, targetValue]) => {
             const achievement = achievements[process] || 0;
-            const percentage = (achievement / targetValue) * 100;
+            const percentage = targetValue > 0 ? (achievement / targetValue) * 100 : 0;
             const percentageLabel = Math.round(percentage);
             const barWidth = Math.min(Math.max(percentage, 0), 100);
             
@@ -224,7 +237,7 @@ function displayTargets(date, unit) {
             const colorClass = processColors[process] || "printing-bar";
             
             item.innerHTML = `
-                <div class="target-process-name">${process}</div>
+                <div class="target-process-name">${escapeHTML(process)}</div>
                 <div class="target-bar-container">
                     <div class="target-bar-fill ${colorClass}" style="width: ${barWidth}%">
                         ${percentageLabel}%
@@ -233,18 +246,22 @@ function displayTargets(date, unit) {
                 <div class="target-stats">
                     <span>Achieved: ${achievement.toFixed(2)} kg</span>
                     <span>Target: ${targetValue} kg</span>
-                    <span>Remaining: ${Math.max(0, (targetValue - achievement).toFixed(2))} kg</span>
+                    <span>Remaining: ${Math.max(0, (targetValue - achievement)).toFixed(2)} kg</span>
                 </div>
             `;
             
-            targetContainer.appendChild(item);
+            if (targetContainer) targetContainer.appendChild(item);
         });
         
-        document.getElementById("targetInfo").textContent = `${date} - ${unit}`;
+        if (targetInfo) {
+            targetInfo.textContent = `${formatDate(date)} - ${unit}`;
+        }
         
     }).catch(error => {
         console.error("Error loading targets:", error);
-        targetContainer.innerHTML = '<p class="empty-message">Error loading targets.</p>';
+        if (targetContainer) {
+            targetContainer.innerHTML = '<p class="empty-message">Error loading targets.</p>';
+        }
     });
 }
 
@@ -262,10 +279,19 @@ function calculateAchievements(reports, targets) {
         
         machines.forEach(machine => {
             const process = machine.process || "Other";
+            const weight = parseFloat(machine.weight) || 0;
             
+            // Match exactly or normalize process names
             if (achievements.hasOwnProperty(process)) {
-                const weight = parseFloat(machine.weight) || 0;
                 achievements[process] += weight;
+            } else {
+                // Check case-insensitive / normalized key matching
+                const key = Object.keys(achievements).find(
+                    k => k.toLowerCase().replace(/\s+/g, '') === process.toLowerCase().replace(/\s+/g, '')
+                );
+                if (key) {
+                    achievements[key] += weight;
+                }
             }
         });
     });
@@ -273,42 +299,22 @@ function calculateAchievements(reports, targets) {
     return achievements;
 }
 
-// =====================================================
-// EVENT LISTENERS FOR TARGET MODAL
-// =====================================================
-
-addTargetBtn.addEventListener("click", openTargetModal);
-closeTargetModal.addEventListener("click", closeTargetModalFunc);
-cancelTargetBtn.addEventListener("click", closeTargetModalFunc);
-saveTargetBtn.addEventListener("click", saveTarget);
-
-targetUnit.addEventListener("change", populateProcessInputs);
-
-// Close modal when clicking outside
-targetModal.addEventListener("click", (e) => {
-    if (e.target === targetModal) {
-        closeTargetModalFunc();
-    }
-});
 
 // =====================================================
 // LOAD REPORTS FROM FIREBASE
 // =====================================================
 
 function loadReports() {
-
-    loadingMessage.textContent = "Loading...";
+    if (loadingMessage) loadingMessage.textContent = "Loading...";
 
     onValue(
         reportsRef,
         (snapshot) => {
-
             const data = snapshot.val();
 
             if (!data) {
                 allReports = [];
             } else {
-
                 allReports = Object.entries(data).map(
                     ([id, report]) => ({
                         id,
@@ -317,24 +323,25 @@ function loadReports() {
                 );
             }
 
-            loadingMessage.textContent =
-                `${allReports.length} report(s) loaded`;
+            if (loadingMessage) {
+                loadingMessage.textContent = `${allReports.length} report(s) loaded`;
+            }
 
             applyFilters();
         },
-
         (error) => {
-
             console.error("Firebase error:", error);
 
-            loadingMessage.textContent = "Error loading reports";
+            if (loadingMessage) loadingMessage.textContent = "Error loading reports";
 
-            reportsContainer.innerHTML = `
-                <p class="error-message">
-                    Unable to load production reports.
-                    Please check your internet connection or Firebase settings.
-                </p>
-            `;
+            if (reportsContainer) {
+                reportsContainer.innerHTML = `
+                    <p class="error-message">
+                        Unable to load production reports.
+                        Please check your internet connection or Firebase settings.
+                    </p>
+                `;
+            }
         }
     );
 }
@@ -345,16 +352,14 @@ function loadReports() {
 // =====================================================
 
 function applyFilters() {
-
-    const selectedDate = reportDate.value;
-    const selectedShift = shiftFilter.value;
-    const selectedUnit = unitFilter.value;
+    const selectedDate = reportDate ? reportDate.value : "";
+    const selectedShift = shiftFilter ? shiftFilter.value : "";
+    const selectedUnit = unitFilter ? unitFilter.value : "";
 
     let filteredReports = [...allReports];
 
     // DATE FILTER
     if (selectedDate) {
-
         filteredReports = filteredReports.filter(
             report => report.productionDate === selectedDate
         );
@@ -362,7 +367,6 @@ function applyFilters() {
 
     // SHIFT FILTER
     if (selectedShift) {
-
         filteredReports = filteredReports.filter(
             report => report.shift === selectedShift
         );
@@ -370,26 +374,24 @@ function applyFilters() {
 
     // UNIT FILTER
     if (selectedUnit) {
-
         filteredReports = filteredReports.filter(
             report => report.unit === selectedUnit
         );
     }
 
-    // SORT REPORTS
- filteredReports.sort((a, b) => {
-
-    const timeA = Number(a.entryTimestamp || 0);
-    const timeB = Number(b.entryTimestamp || 0);
-
-    return timeB - timeA;
-});
+    // SORT REPORTS DESCENDING BY TIMESTAMP
+    filteredReports.sort((a, b) => {
+        const timeA = Number(a.entryTimestamp || 0);
+        const timeB = Number(b.entryTimestamp || 0);
+        return timeB - timeA;
+    });
 
     renderReports(filteredReports);
     
+    // Update target dashboard bar if date and unit are active
     if (selectedDate && selectedUnit) {
         displayTargets(selectedDate, selectedUnit);
-    } else {
+    } else if (targetCard) {
         targetCard.classList.add("hidden");
     }
 }
@@ -400,6 +402,7 @@ function applyFilters() {
 // =====================================================
 
 function renderReports(reports) {
+    if (!reportsContainer) return;
 
     reportsContainer.innerHTML = "";
 
@@ -407,60 +410,36 @@ function renderReports(reports) {
     let totalProduction = 0;
     let totalIdle = 0;
 
-
     if (reports.length === 0) {
-
         reportsContainer.innerHTML = `
             <p class="empty-message">
                 No reports found for the selected filters.
             </p>
         `;
 
-        updateSummary(
-            0,
-            0,
-            0,
-            0
-        );
-
+        updateSummary(0, 0, 0, 0);
         return;
     }
 
-
     reports.forEach(report => {
-
         const machines = Array.isArray(report.machines)
             ? report.machines
             : Object.values(report.machines || {});
 
-
         totalMachines += machines.length;
 
-
         machines.forEach(machine => {
+            const status = (machine.status || "").toLowerCase();
 
-            const status =
-                (machine.status || "").toLowerCase();
-
-            if (
-                status.includes("idle") ||
-                status.includes("maintenance")
-            ) {
-
+            if (status.includes("idle") || status.includes("maintenance")) {
                 totalIdle++;
-
             } else {
-
                 totalProduction++;
             }
         });
 
-
-        reportsContainer.appendChild(
-            createReportCard(report)
-        );
+        reportsContainer.appendChild(createReportCard(report));
     });
-
 
     updateSummary(
         reports.length,
@@ -476,55 +455,43 @@ function renderReports(reports) {
 // =====================================================
 
 function createReportCard(report) {
-
     const card = document.createElement("div");
-
     card.className = "report-card";
-
 
     const machines = Array.isArray(report.machines)
         ? report.machines
         : Object.values(report.machines || {});
 
-
     const reportHeader = document.createElement("div");
-
     reportHeader.className = "report-header";
-
 
     reportHeader.innerHTML = `
         <div class="report-title">
             Production Report
         </div>
-
         <div class="report-info">
-
             <span>
                 <strong>Date:</strong>
                 ${formatDate(report.productionDate)}
             </span>
-
             <span>
                 <strong>Shift:</strong>
                 ${escapeHTML(report.shift || "-")}
             </span>
-
             <span>
                 <strong>Unit:</strong>
                 ${escapeHTML(report.unit || "-")}
             </span>
-
             <span>
                 <strong>Supervisor:</strong>
                 ${escapeHTML(report.supervisor || "-")}
             </span>
-
         </div>
     `;
 
-
     card.appendChild(reportHeader);
 
+    // ACTION BUTTONS
     const actionBar = document.createElement("div");
     actionBar.className = "report-action-bar";
 
@@ -575,6 +542,7 @@ function createReportCard(report) {
     actionBar.appendChild(whatsappButton);
     card.appendChild(actionBar);
 
+    // PROCESS SECTIONS
     const processGroups = {};
 
     machines.forEach(machine => {
@@ -589,6 +557,7 @@ function createReportCard(report) {
         "Printing",
         "Lamination",
         "ColdSeal",
+        "Cold Seal",
         "Extrusion",
         "Slitting",
         "Doctoring",
@@ -612,12 +581,12 @@ function createReportCard(report) {
     return card;
 }
 
+
 // =====================================================
 // CREATE PROCESS SECTION
 // =====================================================
 
 function createProcessSection(process, machines) {
-
     const section = document.createElement("div");
     section.className = "process-section";
 
@@ -632,6 +601,7 @@ function createProcessSection(process, machines) {
     const table = document.createElement("table");
     table.className = "machine-table";
 
+    // DOCTORING PROCESS TABLE
     if (process === "Doctoring") {
         table.innerHTML = `
             <thead>
@@ -665,6 +635,7 @@ function createProcessSection(process, machines) {
         return section;
     }
 
+    // INSPECTION PROCESS TABLE
     if (process === "Inspection") {
         table.innerHTML = `
             <thead>
@@ -698,14 +669,14 @@ function createProcessSection(process, machines) {
         return section;
     }
 
+    // STANDARD PROCESS TABLE
     let lengthHeading = "Length (m)";
-
     if (process === "Printing") lengthHeading = "Printed Length (m)";
     if (process === "Lamination") lengthHeading = "Laminated Length (m)";
     if (process === "Slitting") lengthHeading = "Slitted Length (m)";
     if (process === "Extrusion Coating") lengthHeading = "Coated Length (m)";
     if (process === "Extrusion") lengthHeading = "Extruded Length (m)";
-    if (process === "ColdSeal") lengthHeading = "ColdSealed Length (m)";
+    if (process === "ColdSeal" || process === "Cold Seal") lengthHeading = "ColdSealed Length (m)";
 
     table.innerHTML = `
         <thead>
@@ -743,6 +714,7 @@ function createProcessSection(process, machines) {
     return section;
 }
 
+
 // =====================================================
 // GENERATE REPORT TEXT
 // =====================================================
@@ -775,6 +747,7 @@ function generateReportText(report) {
         "Printing",
         "Lamination",
         "ColdSeal",
+        "Cold Seal",
         "Extrusion",
         "Slitting",
         "Doctoring",
@@ -811,7 +784,7 @@ function generateReportText(report) {
                 if (process === "Slitting") lengthLabel = "Slitted Length";
                 if (process === "Extrusion Coating") lengthLabel = "Coated Length";
                 if (process === "Extrusion") lengthLabel = "Extruded Length";
-                if (process === "ColdSeal") lengthLabel = "ColdSealed Length";
+                if (process === "ColdSeal" || process === "Cold Seal") lengthLabel = "ColdSealed Length";
 
                 text += `${lengthLabel}: ${machine.length ?? "-"} m\n`;
                 text += `Weight: ${machine.weight ?? "-"} kg\n`;
@@ -819,8 +792,7 @@ function generateReportText(report) {
                 text += `Product: ${machine.product || "-"}\n`;
             }
 
-            text += `Remarks: ${machine.remarks || "-"}\n`;
-            text += "\n";
+            text += `Remarks: ${machine.remarks || "-"}\n\n`;
         });
     });
 
@@ -830,9 +802,6 @@ function generateReportText(report) {
     return text;
 }
 
-// =====================================================
-// WHATSAPP REPORT
-// =====================================================
 
 function sendWhatsAppReport(report) {
     const text = generateReportText(report);
@@ -840,9 +809,6 @@ function sendWhatsAppReport(report) {
     window.open(whatsappURL, "_blank");
 }
 
-// =====================================================
-// PRINT REPORT
-// =====================================================
 
 function printReport(report) {
     const machines = Array.isArray(report.machines)
@@ -881,6 +847,7 @@ function printReport(report) {
         "Printing",
         "Lamination",
         "ColdSeal",
+        "Cold Seal",
         "Extrusion",
         "Slitting",
         "Doctoring",
@@ -945,9 +912,7 @@ function printReport(report) {
         printWindow.close();
     }, 500);
 }
-// =====================================================
-// STATUS BADGE
-// =====================================================
+
 
 function statusBadge(status) {
     const value = String(status || "Production");
@@ -965,8 +930,9 @@ function statusBadge(status) {
     `;
 }
 
+
 // =====================================================
-// DATE FORMAT
+// UTILITY FUNCTIONS
 // =====================================================
 
 function formatDate(dateString) {
@@ -976,13 +942,8 @@ function formatDate(dateString) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-// =====================================================
-// HTML SAFETY
-// =====================================================
-
 function escapeHTML(value) {
     if (value === null || value === undefined) return "";
-
     return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -991,58 +952,66 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-// =====================================================
-// SUMMARY
-// =====================================================
-
 function updateSummary(reports, machines, production, idle) {
-    reportCount.textContent = reports;
-    machineCount.textContent = machines;
-    productionCount.textContent = production;
-    idleCount.textContent = idle;
+    if (reportCount) reportCount.textContent = reports;
+    if (machineCount) machineCount.textContent = machines;
+    if (productionCount) productionCount.textContent = production;
+    if (idleCount) idleCount.textContent = idle;
 }
 
-// =====================================================
-// FILTER EVENTS
-// =====================================================
-
-reportDate.addEventListener("change", applyFilters);
-shiftFilter.addEventListener("change", applyFilters);
-unitFilter.addEventListener("change", applyFilters);
 
 // =====================================================
-// SHOW ALL
+// EVENT LISTENERS
 // =====================================================
 
-showAllReports.addEventListener("click", () => {
-    reportDate.value = "";
-    shiftFilter.value = "";
-    unitFilter.value = "";
-    applyFilters();
-});
+if (reportDate) reportDate.addEventListener("change", applyFilters);
+if (shiftFilter) shiftFilter.addEventListener("change", applyFilters);
+if (unitFilter) unitFilter.addEventListener("change", applyFilters);
+
+if (showAllReports) {
+    showAllReports.addEventListener("click", () => {
+        if (reportDate) reportDate.value = "";
+        if (shiftFilter) shiftFilter.value = "";
+        if (unitFilter) unitFilter.value = "";
+        applyFilters();
+    });
+}
+
+if (clearFilters) {
+    clearFilters.addEventListener("click", () => {
+        if (reportDate) reportDate.value = "";
+        if (shiftFilter) shiftFilter.value = "";
+        if (unitFilter) unitFilter.value = "";
+        applyFilters();
+    });
+}
+
+if (refreshReports) {
+    refreshReports.addEventListener("click", () => {
+        if (loadingMessage) loadingMessage.textContent = "Refreshing...";
+        loadReports();
+    });
+}
+
+// TARGET MODAL EVENTS
+if (addTargetBtn) addTargetBtn.addEventListener("click", openTargetModal);
+if (closeTargetModal) closeTargetModal.addEventListener("click", closeTargetModalFunc);
+if (cancelTargetBtn) cancelTargetBtn.addEventListener("click", closeTargetModalFunc);
+if (saveTargetBtn) saveTargetBtn.addEventListener("click", saveTarget);
+
+if (targetUnit) targetUnit.addEventListener("change", populateProcessInputs);
+
+if (targetModal) {
+    targetModal.addEventListener("click", (e) => {
+        if (e.target === targetModal) {
+            closeTargetModalFunc();
+        }
+    });
+}
+
 
 // =====================================================
-// CLEAR FILTERS
-// =====================================================
-
-clearFilters.addEventListener("click", () => {
-    reportDate.value = "";
-    shiftFilter.value = "";
-    unitFilter.value = "";
-    applyFilters();
-});
-
-// =====================================================
-// REFRESH
-// =====================================================
-
-refreshReports.addEventListener("click", () => {
-    loadingMessage.textContent = "Refreshing...";
-    loadReports();
-});
-
-// =====================================================
-// START
+// INITIALIZATION
 // =====================================================
 
 loadReports();
