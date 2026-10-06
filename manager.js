@@ -1348,4 +1348,8 @@ function createReportCard(
         "Share on WhatsApp"
     );
 
-    whatsappButton.inner
+/* =====================================================
+   START
+===================================================== */
+
+loadReports();
