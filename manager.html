@@ -1,117 +1,643 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#111827">
+
     <title>Apex Manager Dashboard</title>
-    <link rel="stylesheet" href="./manager.css?v=1">
+
+    <link rel="stylesheet" href="./manager.css?v=3">
     <link rel="stylesheet" href="./daily-summary.css?v=1">
 </head>
+
 <body>
+
 <div class="container">
-    <header class="header">
-        <h1>Apex Manager Dashboard</h1>
-        <p>Production Reports</p>
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="header-left">
+
+            <div class="header-logo">
+                A
+            </div>
+
+            <div>
+                <h1>Apex Manager Dashboard</h1>
+                <p>Production Reports &amp; Performance Monitor</p>
+            </div>
+
+        </div>
+
+        <div class="header-status">
+            <span class="status-dot"></span>
+            <span id="loadingMessage">Loading...</span>
+        </div>
+
     </header>
 
-    
-    <section class="card">
-        <h2>Report Filters</h2>
+
+    <!-- =====================================================
+         FILTER PANEL
+    ====================================================== -->
+
+    <section class="filter-panel">
+
+        <div class="section-heading">
+
+            <div>
+                <span class="section-kicker">CONTROL PANEL</span>
+                <h2>Report Filters</h2>
+            </div>
+
+            <button
+                type="button"
+                id="addTargetBtn"
+                class="add-target-button">
+                <span class="add-target-icon">+</span>
+                Add Target
+            </button>
+
+        </div>
+
+
         <div class="filter-grid">
+
             <div class="form-group">
-                <label for="reportFromDate">From Date</label>
-                <input type="date" id="reportFromDate">
+
+                <label for="reportFromDate">
+                    From Date
+                </label>
+
+                <input
+                    type="date"
+                    id="reportFromDate">
+
             </div>
+
+
             <div class="form-group">
-                <label for="reportToDate">To Date</label>
-                <input type="date" id="reportToDate">
+
+                <label for="reportToDate">
+                    To Date
+                </label>
+
+                <input
+                    type="date"
+                    id="reportToDate">
+
             </div>
+
+
             <div class="form-group">
-                <label for="shiftFilter">Shift</label>
+
+                <label for="shiftFilter">
+                    Shift
+                </label>
+
                 <select id="shiftFilter">
-                    <option value="">All Shifts</option>
-                    <option value="1st">1st Shift</option>
-                    <option value="2nd">2nd Shift</option>
-                    <option value="3rd">3rd Shift</option>
+
+                    <option value="">
+                        All Shifts
+                    </option>
+
+                    <option value="1st">
+                        1st Shift
+                    </option>
+
+                    <option value="2nd">
+                        2nd Shift
+                    </option>
+
+                    <option value="3rd">
+                        3rd Shift
+                    </option>
+
                 </select>
+
             </div>
+
+
             <div class="form-group">
-                <label for="unitFilter">Unit</label>
+
+                <label for="unitFilter">
+                    Unit
+                </label>
+
                 <select id="unitFilter">
-                    <option value="">All Units</option>
-                    <option value="Unit 1">Unit 1</option>
-                    <option value="Unit 2">Unit 2</option>
+
+                    <option value="">
+                        All Units
+                    </option>
+
+                    <option value="Unit 1">
+                        Unit 1
+                    </option>
+
+                    <option value="Unit 2">
+                        Unit 2
+                    </option>
+
                 </select>
+
             </div>
+
         </div>
-        <div class="filter-buttons">
-            <button type="button" id="showAllReports" class="secondary-button">Show All Reports</button>
-            <button type="button" id="clearFilters" class="secondary-button">Clear Filters</button>
-            <button type="button" id="refreshReports" class="secondary-button">Refresh</button>
-            <button type="button" id="addTargetBtn" class="secondary-button" style="margin-left: auto; background: #28a745; color: white;">+ Add Target</button>
+
+
+        <div class="filter-actions">
+
+            <button
+                type="button"
+                id="showAllReports"
+                class="filter-button primary-filter">
+                Show All
+            </button>
+
+            <button
+                type="button"
+                id="clearFilters"
+                class="filter-button">
+                Clear
+            </button>
+
+            <button
+                type="button"
+                id="refreshReports"
+                class="filter-button">
+                ↻ Refresh
+            </button>
+
         </div>
+
     </section>
 
-    <!-- TARGET MODAL -->
+
+    <!-- =====================================================
+         TARGET MODAL
+    ====================================================== -->
+
     <div id="targetModal" class="modal hidden">
+
         <div class="modal-content">
+
             <div class="modal-header">
-                <h2>Add Production Target</h2>
-                <button class="modal-close" id="closeTargetModal">&times;</button>
+
+                <div>
+                    <span class="section-kicker">
+                        PRODUCTION PLANNING
+                    </span>
+
+                    <h2>Add Production Target</h2>
+                </div>
+
+                <button
+                    class="modal-close"
+                    id="closeTargetModal"
+                    aria-label="Close">
+                    &times;
+                </button>
+
             </div>
+
+
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="targetDate">Date</label>
-                    <input type="date" id="targetDate">
+
+                <div class="modal-form-grid">
+
+                    <div class="form-group">
+
+                        <label for="targetDate">
+                            Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="targetDate">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="targetUnit">
+                            Unit
+                        </label>
+
+                        <select id="targetUnit">
+
+                            <option value="">
+                                Select Unit
+                            </option>
+
+                            <option value="Unit 1">
+                                Unit 1
+                            </option>
+
+                            <option value="Unit 2">
+                                Unit 2
+                            </option>
+
+                        </select>
+
+                    </div>
+
                 </div>
-                <div class="form-group">
-                    <label for="targetUnit">Unit</label>
-                    <select id="targetUnit">
-                        <option value="">Select Unit</option>
-                        <option value="Unit 1">Unit 1</option>
-                        <option value="Unit 2">Unit 2</option>
-                    </select>
+
+
+                <div
+                    id="targetProcessContainer"
+                    class="target-process-inputs">
                 </div>
-                <div id="targetProcessContainer"></div>
+
             </div>
+
+
             <div class="modal-footer">
-                <button type="button" id="saveTargetBtn" class="primary-button">Save Target</button>
-                <button type="button" id="cancelTargetBtn" class="secondary-button">Cancel</button>
+
+                <button
+                    type="button"
+                    id="cancelTargetBtn"
+                    class="secondary-button">
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    id="saveTargetBtn"
+                    class="primary-button">
+                    Save Target
+                </button>
+
             </div>
+
         </div>
+
     </div>
 
-    <!-- TARGET DISPLAY SECTION -->
-    <section class="card target-card hidden">
-        <div class="daily-header">
-            <h2>Production Targets</h2>
-            <span id="targetInfo" class="daily-info">Select date and unit</span>
-        </div>
-        <div id="targetContainer"><p class="empty-message">No targets set for this date and unit.</p></div>
+
+    <!-- =====================================================
+         NAVIGATION TABS
+    ====================================================== -->
+
+    <nav class="dashboard-tabs">
+
+        <button
+            type="button"
+            class="dashboard-tab active"
+            data-tab="overviewTab">
+            <span>◉</span>
+            Overview
+        </button>
+
+        <button
+            type="button"
+            class="dashboard-tab"
+            data-tab="dailySummaryTab">
+            <span>▦</span>
+            Daily Summary
+        </button>
+
+        <button
+            type="button"
+            class="dashboard-tab"
+            data-tab="reportsTab">
+            <span>☷</span>
+            Production Reports
+        </button>
+
+    </nav>
+
+
+    <!-- =====================================================
+         OVERVIEW TAB
+    ====================================================== -->
+
+    <main id="overviewTab" class="tab-content active">
+
+
+        <!-- KPI STRIP -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-icon reports-icon">
+                    ▤
+                </div>
+
+                <div>
+                    <span
+                        class="summary-number"
+                        id="reportCount">
+                        0
+                    </span>
+
+                    <span class="summary-label">
+                        Reports
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon machine-icon">
+                    ⚙
+                </div>
+
+                <div>
+                    <span
+                        class="summary-number"
+                        id="machineCount">
+                        0
+                    </span>
+
+                    <span class="summary-label">
+                        Machines Reported
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon production-icon">
+                    ↑
+                </div>
+
+                <div>
+                    <span
+                        class="summary-number"
+                        id="productionCount">
+                        0
+                    </span>
+
+                    <span class="summary-label">
+                        Production Entries
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon idle-icon">
+                    !
+                </div>
+
+                <div>
+                    <span
+                        class="summary-number"
+                        id="idleCount">
+                        0
+                    </span>
+
+                    <span class="summary-label">
+                        Idle / Maintenance
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TARGET PERFORMANCE
+        ================================================== -->
+
+        <section
+            class="performance-card target-card hidden">
+
+            <div class="performance-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        DAILY PERFORMANCE
+                    </span>
+
+                    <h2>Target Achievement</h2>
+
+                </div>
+
+                <span
+                    id="targetInfo"
+                    class="daily-info">
+                    Select a single date and unit
+                </span>
+
+            </div>
+
+
+            <div class="performance-layout">
+
+                <!-- OVERALL ACHIEVEMENT -->
+
+                <div class="overall-achievement">
+
+                    <div class="achievement-ring">
+
+                        <div
+                            class="achievement-ring-fill"
+                            id="targetProgressRing">
+                        </div>
+
+                        <div class="achievement-ring-center">
+
+                            <strong
+                                id="targetOverallPercent">
+                                0%
+                            </strong>
+
+                            <span>
+                                Achieved
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="achievement-details">
+
+                        <div class="achievement-value-row">
+
+                            <span>
+                                Target
+                            </span>
+
+                            <strong id="targetTotalTarget">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+
+                        <div class="achievement-value-row">
+
+                            <span>
+                                Actual
+                            </span>
+
+                            <strong id="targetTotalAchieved">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+
+                        <div class="achievement-value-row remaining-row">
+
+                            <span>
+                                Remaining
+                            </span>
+
+                            <strong id="targetTotalRemaining">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROCESS ACHIEVEMENT -->
+
+                <div
+                    id="targetContainer"
+                    class="process-achievement-list">
+
+                    <p class="empty-message">
+                        Select a date and unit to view target achievement.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         DAILY SUMMARY TAB
+    ====================================================== -->
+
+    <section
+        id="dailySummaryTab"
+        class="tab-content">
+
+        <section class="card daily-production-card">
+
+            <div class="daily-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        PRODUCTION OVERVIEW
+                    </span>
+
+                    <h2>
+                        Daily Production Summary
+                    </h2>
+
+                </div>
+
+                <span
+                    id="dailyProductionInfo"
+                    class="daily-info">
+                    Select date range and unit
+                </span>
+
+            </div>
+
+
+            <div id="dailyProductionContainer">
+
+                <p class="empty-message">
+                    Select a date range and unit to view the table.
+                </p>
+
+            </div>
+
+        </section>
+
     </section>
 
-    <section class="summary-grid">
-        <div class="summary-card"><span class="summary-number" id="reportCount">0</span><span class="summary-label">Reports</span></div>
-        <div class="summary-card"><span class="summary-number" id="machineCount">0</span><span class="summary-label">Machines Reported</span></div>
-        <div class="summary-card"><span class="summary-number" id="productionCount">0</span><span class="summary-label">Production Entries</span></div>
-        <div class="summary-card"><span class="summary-number" id="idleCount">0</span><span class="summary-label">Idle / Maintenance</span></div>
+
+    <!-- =====================================================
+         PRODUCTION REPORTS TAB
+    ====================================================== -->
+
+    <section
+        id="reportsTab"
+        class="tab-content">
+
+        <section class="card reports-card">
+
+            <div class="reports-header">
+
+                <div>
+
+                    <span class="section-kicker">
+                        DETAILED RECORDS
+                    </span>
+
+                    <h2>
+                        Production Reports
+                    </h2>
+
+                </div>
+
+                <span id="reportsResultInfo">
+                    Reports
+                </span>
+
+            </div>
+
+
+            <div id="reportsContainer">
+
+                <p class="empty-message">
+                    Loading reports...
+                </p>
+
+            </div>
+
+        </section>
+
     </section>
 
-    <section class="card daily-production-card">
-        <div class="daily-header">
-            <h2>Daily Production Simple Summary</h2>
-            <span id="dailyProductionInfo" class="daily-info">Select date range and unit</span>
-        </div>
-        <div id="dailyProductionContainer"><p class="empty-message">Select a date range and unit to view the table.</p></div>
-    </section>
-
-    <section class="card">
-        <div class="reports-header"><h2>Production Reports</h2><span id="loadingMessage">Loading...</span></div>
-        <div id="reportsContainer"><p class="empty-message">Loading reports...</p></div>
-    </section>
 </div>
-<script type="module" src="./manager-range-loader.js?v=1"></script>
-<script type="module" src="./daily-summary-range-loader.js?v=1"></script>
-<script type="module" src="./manager.js?v=2"></script>
+
+
+<script type="module" src="./manager-range-loader.js?v=2"></script>
+
+<script
+    type="module"
+    src="./daily-summary-range-loader.js?v=2">
+</script>
+
+<script
+    type="module"
+    src="./manager.js?v=3">
+</script>
+
 </body>
 </html>
