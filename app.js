@@ -786,8 +786,8 @@ function displayEntries() {
             <div class="entry-header">
                 <strong>${formatText(String(item.machine || ""))}</strong>
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" class="edit-button" data-index="${index}">Edit</button>
-                    <button type="button" class="delete-button" data-index="${index}">Remove</button>
+                    <button type="button" class="edit-button" data-index="${index}">✏️</button>
+                    <button type="button" class="delete-button" data-index="${index}">❌</button>
                 </div>
             </div>
             <div class="entry-details">
