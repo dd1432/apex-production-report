@@ -551,21 +551,21 @@ function createReportCard(report) {
             document.body.removeChild(textarea);
             copyButton.innerHTML = "✅ Copied";
             setTimeout(() => {
-                copyButton.innerHTML = "📋 Copy Report";
+                copyButton.innerHTML = "📋";
             }, 2000);
         }
     });
 
     const printButton = document.createElement("button");
     printButton.className = "report-action-btn print-btn";
-    printButton.innerHTML = "🖨️ Print Report";
+    printButton.innerHTML = "🖨️";
     printButton.addEventListener("click", () => {
         printReport(report);
     });
 
     const whatsappButton = document.createElement("button");
     whatsappButton.className = "report-action-btn whatsapp-btn";
-    whatsappButton.innerHTML = "🟢 WhatsApp Report";
+    whatsappButton.innerHTML = "💬";
     whatsappButton.addEventListener("click", () => {
         sendWhatsAppReport(report);
     });
