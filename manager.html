@@ -4,113 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex Manager Dashboard</title>
-    <link rel="stylesheet" href="./manager.css?v=1">
-    <link rel="stylesheet" href="./daily-summary.css?v=1">
+    <!-- FontAwesome for clean, compact icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <div class="container">
     <header class="header">
         <h1>Apex Manager Dashboard</h1>
-        <p>Production Reports</p>
+        <p>Production Reports & Performance Tracking</p>
     </header>
 
-    <section class="card">
-        <h2>Report Filters</h2>
-        <div class="filter-grid">
-            <div class="form-group">
-                <label for="reportFromDate">From Date</label>
-                <input type="date" id="reportFromDate">
-            </div>
-            <div class="form-group">
-                <label for="reportToDate">To Date</label>
-                <input type="date" id="reportToDate">
-            </div>
-            <div class="form-group">
-                <label for="shiftFilter">Shift</label>
-                <select id="shiftFilter">
-                    <option value="">All Shifts</option>
-                    <option value="1st">1st Shift</option>
-                    <option value="2nd">2nd Shift</option>
-                    <option value="3rd">3rd Shift</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="unitFilter">Unit</label>
-                <select id="unitFilter">
-                    <option value="">All Units</option>
-                    <option value="Unit 1">Unit 1</option>
-                    <option value="Unit 2">Unit 2</option>
-                </select>
-            </div>
-        </div>
-        <div class="filter-buttons">
-            <button type="button" id="showAllReports" class="secondary-button">Show All Reports</button>
-            <button type="button" id="clearFilters" class="secondary-button">Clear Filters</button>
-            <button type="button" id="refreshReports" class="secondary-button">Refresh</button>
-            <button type="button" id="addTargetBtn" class="secondary-button" style="margin-left: auto; background: #28a745; color: white;">+ Add Target</button>
-        </div>
-    </section>
+    <!-- Navigation Tabs -->
+    <div class="dashboard-tabs">
+        <button class="tab-button active" onclick="switchTab('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard & Summary</button>
+        <button class="tab-button" onclick="switchTab('reports')"><i class="fa-solid fa-file-lines"></i> Production Reports</button>
+    </div>
 
-    <!-- TARGET MODAL -->
-    <div id="targetModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add Production Target</h2>
-                <button class="modal-close" id="closeTargetModal">&times;</button>
+    <!-- TAB 1: DASHBOARD & SUMMARY -->
+    <div id="tab-dashboard" class="tab-content active">
+        <!-- REPORT FILTERS CARD -->
+        <section class="card">
+            <div class="card-title-bar">
+                <h2>Filter Analytics</h2>
+                <button type="button" id="addTargetBtn" class="primary-button green-bg">+ Add Target</button>
             </div>
-            <div class="modal-body">
+            <div class="filter-grid">
                 <div class="form-group">
-                    <label for="targetDate">Date</label>
-                    <input type="date" id="targetDate">
+                    <label for="reportFromDate">From Date</label>
+                    <input type="date" id="reportFromDate">
                 </div>
                 <div class="form-group">
-                    <label for="targetUnit">Unit</label>
-                    <select id="targetUnit">
-                        <option value="">Select Unit</option>
+                    <label for="reportToDate">To Date</label>
+                    <input type="date" id="reportToDate">
+                </div>
+                <div class="form-group">
+                    <label for="shiftFilter">Shift</label>
+                    <select id="shiftFilter">
+                        <option value="">All Shifts</option>
+                        <option value="1st">1st Shift</option>
+                        <option value="2nd">2nd Shift</option>
+                        <option value="3rd">3rd Shift</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="unitFilter">Unit</label>
+                    <select id="unitFilter">
+                        <option value="">All Units</option>
                         <option value="Unit 1">Unit 1</option>
                         <option value="Unit 2">Unit 2</option>
                     </select>
                 </div>
-                <div id="targetProcessContainer"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="saveTargetBtn" class="primary-button">Save Target</button>
-                <button type="button" id="cancelTargetBtn" class="secondary-button">Cancel</button>
+            <div class="filter-buttons">
+                <button type="button" id="showAllReports" class="secondary-button">Show All Reports</button>
+                <button type="button" id="clearFilters" class="secondary-button">Clear Filters</button>
+                <button type="button" id="refreshReports" class="secondary-button">Refresh</button>
             </div>
+        </section>
+
+        <!-- KPI SUMMARY METRICS -->
+        <section class="summary-grid">
+            <div class="summary-card"><span class="summary-number" id="reportCount">0</span><span class="summary-label">Reports</span></div>
+            <div class="summary-card"><span class="summary-number" id="machineCount">0</span><span class="summary-label">Machines Reported</span></div>
+            <div class="summary-card"><span class="summary-number" id="productionCount">0</span><span class="summary-label">Production Entries</span></div>
+            <div class="summary-card"><span class="summary-number" id="idleCount">0</span><span class="summary-label">Idle / Maintenance</span></div>
+        </section>
+
+        <!-- TARGET VS ACTUAL SIDE-BY-SIDE GRID -->
+        <div class="target-split-layout">
+            <!-- TARGET DISPLAY SECTION -->
+            <section class="card target-card hidden">
+                <div class="daily-header">
+                    <h2>Production Targets</h2>
+                    <span id="targetInfo" class="daily-info">Select date and unit</span>
+                </div>
+                <div id="targetContainer"><p class="empty-message">No targets set for this date and unit.</p></div>
+            </section>
+
+            <!-- DAILY PRODUCTION SIMPLE SUMMARY -->
+            <section class="card daily-production-card">
+                <div class="daily-header">
+                    <h2>Daily Production Summary</h2>
+                    <span id="dailyProductionInfo" class="daily-info">Select date range and unit</span>
+                </div>
+                <div id="dailyProductionContainer"><p class="empty-message">Select a date range and unit to view the table.</p></div>
+            </section>
         </div>
     </div>
 
-    <!-- TARGET DISPLAY SECTION -->
-    <section class="card target-card hidden">
-        <div class="daily-header">
-            <h2>Production Targets</h2>
-            <span id="targetInfo" class="daily-info">Select date and unit</span>
-        </div>
-        <div id="targetContainer"><p class="empty-message">No targets set for this date and unit.</p></div>
-    </section>
-
-    <section class="summary-grid">
-        <div class="summary-card"><span class="summary-number" id="reportCount">0</span><span class="summary-label">Reports</span></div>
-        <div class="summary-card"><span class="summary-number" id="machineCount">0</span><span class="summary-label">Machines Reported</span></div>
-        <div class="summary-card"><span class="summary-number" id="productionCount">0</span><span class="summary-label">Production Entries</span></div>
-        <div class="summary-card"><span class="summary-number" id="idleCount">0</span><span class="summary-label">Idle / Maintenance</span></div>
-    </section>
-
-    <section class="card daily-production-card">
-        <div class="daily-header">
-            <h2>Daily Production Simple Summary</h2>
-            <span id="dailyProductionInfo" class="daily-info">Select date range and unit</span>
-        </div>
-        <div id="dailyProductionContainer"><p class="empty-message">Select a date range and unit to view the table.</p></div>
-    </section>
-
-    <section class="card">
-        <div class="reports-header"><h2>Production Reports</h2><span id="loadingMessage">Loading...</span></div>
-        <div id="reportsContainer"><p class="empty-message">Loading reports...</p></div>
-    </section>
+    <!-- TAB 2: DETAILED PRODUCTION REPORTS -->
+    <div id="tab-reports" class="tab-content">
+        <section class="card">
+            <div class="reports-header">
+                <h2>Production Reports</h2>
+                <span id="loadingMessage">Loading...</span>
+            </div>
+            <div id="reportsContainer"><p class="empty-message">Loading reports...</p></div>
+        </section>
+    </div>
 </div>
-<script type="module" src="./manager-range-loader.js?v=1"></script>
-<script type="module" src="./daily-summary-range-loader.js?v=1"></script>
-<script type="module" src="./manager.js?v=2"></script>
+
+<!-- TARGET MODAL -->
+<div id="targetModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Production Target</h2>
+            <button class="modal-close" id="closeTargetModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="targetDate">Date</label>
+                <input type="date" id="targetDate">
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label for="targetUnit">Unit</label>
+                <select id="targetUnit">
+                    <option value="">Select Unit</option>
+                    <option value="Unit 1">Unit 1</option>
+                    <option value="Unit 2">Unit 2</option>
+                </select>
+            </div>
+            <div id="targetProcessContainer" style="margin-top: 15px;"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="saveTargetBtn" class="primary-button">Save Target</button>
+            <button type="button" id="cancelTargetBtn" class="secondary-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="app.js"></script>
+<script>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
 </body>
 </html>
