@@ -70,6 +70,60 @@ function createTotals() {
     return totals;
 }
 
+function printDailySummary() {
+    const wrapper = container.querySelector(".daily-table-wrapper");
+    if (!wrapper) {
+        alert("No table data available to print.");
+        return;
+    }
+
+    const printWindow = window.open("", "_blank", "width=1200,height=800");
+    if (!printWindow) {
+        alert("Please allow pop-ups to print the report.");
+        return;
+    }
+
+    const titleText = info ? info.textContent : "Daily Production Summary";
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Apex Daily Production Summary</title>
+            <style>
+                * { box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; margin: 20px; color: #000; }
+                .summary-header { text-align: center; margin-bottom: 20px; }
+                .summary-header h2 { margin: 0 0 5px 0; font-size: 20px; }
+                .summary-header p { margin: 0; font-size: 14px; color: #555; }
+                .daily-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                .daily-table th, .daily-table td { border: 1px solid #000; padding: 8px; font-size: 12px; text-align: center; }
+                .daily-table th { background: #f2f2f2; font-weight: bold; }
+                .total-column { background-color: #f9f9f9; font-weight: bold; }
+                .extra-metric-row td { font-weight: bold; }
+                @page { size: A4 landscape; margin: 10mm; }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="summary-header">
+                <h2>APEX PRODUCTION - DAILY SUMMARY REPORT</h2>
+                <p>${titleText}</p>
+            </div>
+            ${wrapper.outerHTML}
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+}
+
 function renderDailyTable() {
     const selectedDate = dateInput.value;
     const selectedUnit = unitInput.value;
@@ -124,7 +178,6 @@ function renderDailyTable() {
 
     info.textContent = `${selectedDate} • ${selectedUnit}${selectedShift ? ` • ${selectedShift} Shift` : " • All Shifts"} • ${reportCount} report(s)`;
 
-    // Regular process table rows
     const rows = Object.entries(selectedProcessMachines).map(([process, machines]) => {
         const processTotal = { length: 0, weight: 0 };
         const shiftTotals = Object.fromEntries(shifts.map(shift => [shift, { length: 0, weight: 0 }]));
@@ -155,7 +208,6 @@ function renderDailyTable() {
         `;
     }).join("");
 
-    // Calculate Slitting specific metrics & Doctoring coils for extra rows
     const slittingMachines = selectedProcessMachines["Slitting"] || [];
     const doctoringMachines = selectedProcessMachines["Doctoring"] || [];
 
@@ -177,7 +229,6 @@ function renderDailyTable() {
     const holdReelsData = getMetricShiftTotals(slittingMachines, "hold_reels");
     const coilsData = getMetricShiftTotals(doctoringMachines, "totalCoils");
 
-    // Helper to render count rows with units spanning across the table structure
     const renderExtraMetricRow = (label, data) => {
         return `
             <tr class="extra-metric-row">
@@ -200,27 +251,39 @@ function renderDailyTable() {
     const unitHeadings = shifts.map(() => `<th class="unit-heading">Mtr</th><th class="unit-heading">Kg</th>`).join("");
 
     container.innerHTML = `
-        <div class="daily-table-wrapper">
-            <table class="daily-table">
-                <thead>
-                    <tr>
-                        <th rowspan="2">Production</th>
-                        ${shiftHeadings}
-                        <th class="total-column" colspan="2">All Shift Total</th>
-                    </tr>
-                    <tr>
-                        ${unitHeadings}
-                        <th class="unit-heading total-column">Mtr</th>
-                        <th class="unit-heading total-column">Kg</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows}
-                    ${extraRows}
-                </tbody>
-            </table>
+        <div style="position: relative; width: 100%;">
+            <button id="printDailySummaryBtn" class="report-action-btn print-btn" title="Print Summary" aria-label="Print Summary" style="position: absolute; top: -45px; right: 0; z-index: 10;">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor">
+                    <path d="M19 8H5c-1.66 0-3 1.34-3 3v4h4v4h12v-4h4v-4c0-1.66-1.34-3-3-3zm-3 9H8v-5h8v5zm3-5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-2-9H6v4h12V3z"></path>
+                </svg>
+            </button>
+            <div class="daily-table-wrapper">
+                <table class="daily-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Production</th>
+                            ${shiftHeadings}
+                            <th class="total-column" colspan="2">All Shift Total</th>
+                        </tr>
+                        <tr>
+                            ${unitHeadings}
+                            <th class="unit-heading total-column">Mtr</th>
+                            <th class="unit-heading total-column">Kg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                        ${extraRows}
+                    </tbody>
+                </table>
+            </div>
         </div>
     `;
+
+    const printBtn = document.getElementById("printDailySummaryBtn");
+    if (printBtn) {
+        printBtn.addEventListener("click", printDailySummary);
+    }
 }
 
 [dateInput, shiftInput, unitInput].forEach(element => {
