@@ -721,7 +721,7 @@ saveMachineReport.addEventListener("click", function () {
         entry.weight = getValue("weight");
         entry.speed = getValue("speed");
         entry.reels = getValue("reels");
-        entry. = getValue("");
+        entry.hold_reels = getValue("hold_reels");
         entry.product = getValue("product");
     }
 
