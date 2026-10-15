@@ -556,7 +556,7 @@ function renderProcessFields() {
                 </div>
                 <div class="form-group">
                     <label>Hold-Reels (Nos)</label>
-                    <input type="number" id="hold_Reels" min="0" step="1" placeholder="Enter Hold Reels">
+                    <input type="number" id="hold_reels" min="0" step="1" placeholder="Enter Hold Reels">
                 </div>
             </div>
             <div class="form-group">
