@@ -550,6 +550,14 @@ function renderProcessFields() {
                     <label>Speed</label>
                     <input type="number" id="speed" min="0" placeholder="Enter speed">
                 </div>
+                <div class="form-group">
+                    <label>Reels (Nos)</label>
+                    <input type="number" id="reels" min="0" step="1" placeholder="Enter Total Reels">
+                </div>
+                <div class="form-group">
+                    <label>Hold-Reels (Nos)</label>
+                    <input type="number" id="hold_Reels" min="0" step="1" placeholder="Enter Hold Reels">
+                </div>
             </div>
             <div class="form-group">
                 <label>Product</label>
@@ -712,6 +720,8 @@ saveMachineReport.addEventListener("click", function () {
         entry.length = getValue("length");
         entry.weight = getValue("weight");
         entry.speed = getValue("speed");
+        entry.reels = getValue("reels");
+        entry.hold_reels = getValue("hold_reels");
         entry.product = getValue("product");
     }
 
@@ -776,6 +786,8 @@ function displayEntries() {
         if (item.length) details += `<span>Length: ${formatText(String(item.length))} m</span>`;
         if (item.weight) details += `<span>Weight: ${formatText(String(item.weight))} kg</span>`;
         if (item.speed) details += `<span>Speed: ${formatText(String(item.speed))}</span>`;
+        if (item.reels) details += `<span>Reels: ${formatText(String(item.reels))} Nos</span>`;
+        if (item.hold_reels) details += `<span>Hold_reels: ${formatText(String(item.hold_reels))} Nos</span>`;
         if (item.product) details += `<span>Product: ${formatText(String(item.product))}</span>`;
         if (item.totalCoils) details += `<span>Total Coils: ${formatText(String(item.totalCoils))} C</span>`;
         if (item.coilDetails) details += `<span>Coil Details:<br>${formatText(String(item.coilDetails))}</span>`;
@@ -876,6 +888,14 @@ function editEntry(index) {
             if (item.speed) {
                 const speedInput = document.getElementById("speed");
                 if (speedInput) speedInput.value = item.speed;
+            }
+            if (item.reels) {
+                const reelsInput = document.getElementById("reels");
+                if (reelsInput) reelsInput.value = item.reels;
+            }
+            if (item.hold_reels) {
+                const hold_reelsInput = document.getElementById("hold_reels");
+                if (hold_reelsInput) hold_reelsInput.value = item.hold_reels;
             }
             if (item.product) {
                 const productInput = document.getElementById("product");
