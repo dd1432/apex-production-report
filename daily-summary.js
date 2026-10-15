@@ -117,11 +117,6 @@ function printDailySummary() {
 
     printWindow.document.close();
     printWindow.focus();
-
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 500);
 }
 
 function renderDailyTable() {
