@@ -1723,6 +1723,113 @@ function createProcessSection(
     }
 
 
+    // =================================================
+    // Slitting
+    // =================================================
+
+    if (process === "Slitting") {
+
+        table.innerHTML = `
+            <thead>
+                <tr>
+                <th>Machine</th>
+                <th>Status</th>
+                <th>${lengthHeading}</th>
+                <th>Weight (kg)</th>
+                <th>Speed</th>
+                <th>Reels (kg)</th>
+                <th>Hold Reels (Nos)</th>
+                <th>Product</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+    `;
+
+
+
+    const tbody =
+        document.createElement("tbody");
+
+
+
+    machines.forEach(machine => {
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                ${escapeHTML(
+                    machine.machine || "-"
+                )}
+            </td>
+
+            <td>
+                ${statusBadge(
+                    machine.status
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.length ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.weight ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.speed ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.reels ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.hold_reels ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    machine.product || "-"
+                )}
+            </td>
+
+            <td>
+                <div class="remarks">
+                    ${escapeHTML(
+                        machine.remarks || "-"
+                    )}
+                </div>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+
+    });
+
+
+
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+    section.appendChild(wrapper);
+
+    return section;
+
+}
+
+
 
     // =================================================
     // STANDARD PROCESSES
