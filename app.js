@@ -556,7 +556,7 @@ function renderProcessFields() {
                 </div>
                 <div class="form-group">
                     <label>Hold-Reels (Nos)</label>
-                    <input type="number" id="hold_reels" min="0" step="1" placeholder="Enter Hold Reels">
+                    <input type="number" id="" min="0" step="1" placeholder="Enter Hold Reels">
                 </div>
             </div>
             <div class="form-group">
@@ -721,7 +721,7 @@ saveMachineReport.addEventListener("click", function () {
         entry.weight = getValue("weight");
         entry.speed = getValue("speed");
         entry.reels = getValue("reels");
-        entry.hold_reels = getValue("hold_reels");
+        entry. = getValue("");
         entry.product = getValue("product");
     }
 
@@ -787,7 +787,7 @@ function displayEntries() {
         if (item.weight) details += `<span>Weight: ${formatText(String(item.weight))} kg</span>`;
         if (item.speed) details += `<span>Speed: ${formatText(String(item.speed))}</span>`;
         if (item.reels) details += `<span>Reels: ${formatText(String(item.reels))} Nos</span>`;
-        if (item.hold_reels) details += `<span>Hold_reels: ${formatText(String(item.hold_reels))} Nos</span>`;
+        if (item.hold_reels) details += `<span>Hold Reels: ${formatText(String(item.hold_reels))} Nos</span>`;
         if (item.product) details += `<span>Product: ${formatText(String(item.product))}</span>`;
         if (item.totalCoils) details += `<span>Total Coils: ${formatText(String(item.totalCoils))} C</span>`;
         if (item.coilDetails) details += `<span>Coil Details:<br>${formatText(String(item.coilDetails))}</span>`;
