@@ -483,9 +483,9 @@ function loadPendingWIP() {
         const data = snapshot.val();
 
         if (!data || typeof data !== "object") {
-            allPendingWIP = [];
+             = [];
         } else {
-            allPendingWIP = Object.entries(data)
+             = Object.entries(data)
                 .filter(([, record]) => {
                     return record !== null &&
                         typeof record === "object";
@@ -626,8 +626,6 @@ function renderPendingWIP() {
     }
 
     pendingWIPContainer.innerHTML = "";
-
-    const count = allPendingWIP.length;
 
     const count = allPendingWIP.length;
 
