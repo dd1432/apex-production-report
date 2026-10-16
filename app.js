@@ -1,3 +1,4 @@
+```javascript
 import {
     initializeApp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -148,6 +149,38 @@ const submitShiftReport =
 
 
 /* =====================================================
+   PENDING WIP DOM ELEMENTS
+===================================================== */
+
+const wipJobNo =
+    document.getElementById("wipJobNo");
+
+const wipJobName =
+    document.getElementById("wipJobName");
+
+const wipStatus =
+    document.getElementById("wipStatus");
+
+const wipRollNo =
+    document.getElementById("wipRollNo");
+
+const wipWeight =
+    document.getElementById("wipWeight");
+
+const wipProductionDate =
+    document.getElementById("wipProductionDate");
+
+const wipRemarkOnLabel =
+    document.getElementById("wipRemarkOnLabel");
+
+const savePendingWIP =
+    document.getElementById("savePendingWIP");
+
+const pendingWIPMessage =
+    document.getElementById("pendingWIPMessage");
+
+
+/* =====================================================
    LOCAL DRAFT STORAGE
 ===================================================== */
 
@@ -171,10 +204,24 @@ let editingIndex = -1;
 
 function getTodayString() {
     const today = new Date();
-    return today.toISOString().split("T")[0];
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
 }
 
 reportDate.value = getTodayString();
+
+
+/* =====================================================
+   PENDING WIP DEFAULT DATE
+===================================================== */
+
+if (wipProductionDate) {
+    wipProductionDate.value = getTodayString();
+}
 
 
 /* =====================================================
@@ -191,19 +238,26 @@ function getCurrentMachineFormData() {
     };
 
     const statusElement = document.getElementById("machineStatus");
+
     if (statusElement) {
         data.status = statusElement.value || "";
     }
 
     const remarksElement = document.getElementById("remarks");
+
     if (remarksElement) {
         data.remarks = remarksElement.value || "";
     }
 
     const dynamicFields = machineForm.querySelectorAll("input, select, textarea");
+
     dynamicFields.forEach(function (element) {
         if (!element.id) return;
-        if (element.id === "machineStatus" || element.id === "remarks") return;
+
+        if (element.id === "machineStatus" || element.id === "remarks") {
+            return;
+        }
+
         data.fields[element.id] = element.value;
     });
 
@@ -238,7 +292,11 @@ function saveDraft() {
 
     try {
         const draft = getDraftData();
-        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+
+        localStorage.setItem(
+            DRAFT_STORAGE_KEY,
+            JSON.stringify(draft)
+        );
     } catch (error) {
         console.error("Could not save production report draft:", error);
     }
@@ -252,12 +310,15 @@ function saveDraft() {
 function loadDraft() {
     try {
         const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+
         if (!saved) return null;
 
         const draft = JSON.parse(saved);
+
         if (!draft || typeof draft !== "object") return null;
 
         return draft;
+
     } catch (error) {
         console.error("Could not load production report draft:", error);
         return null;
@@ -288,21 +349,30 @@ function populateProcessOptions(selectedProcess = "") {
     if (!unit.value) return;
 
     const processes = machineData[unit.value];
+
     if (!processes) return;
 
     Object.keys(processes).forEach(function (processName) {
         const machines = processes[processName];
+
         if (machines.length > 0) {
             const option = document.createElement("option");
+
             option.value = processName;
             option.textContent = processName;
+
             process.appendChild(option);
         }
     });
 
     if (selectedProcess) {
-        const exists = Array.from(process.options).some(option => option.value === selectedProcess);
-        if (exists) process.value = selectedProcess;
+        const exists = Array.from(process.options).some(
+            option => option.value === selectedProcess
+        );
+
+        if (exists) {
+            process.value = selectedProcess;
+        }
     }
 }
 
@@ -317,16 +387,24 @@ function populateMachineOptions(selectedMachine = "") {
     if (!unit.value || !process.value) return;
 
     const machines = machineData[unit.value]?.[process.value] || [];
+
     machines.forEach(function (machineName) {
         const option = document.createElement("option");
+
         option.value = machineName;
         option.textContent = machineName;
+
         machine.appendChild(option);
     });
 
     if (selectedMachine) {
-        const exists = Array.from(machine.options).some(option => option.value === selectedMachine);
-        if (exists) machine.value = selectedMachine;
+        const exists = Array.from(machine.options).some(
+            option => option.value === selectedMachine
+        );
+
+        if (exists) {
+            machine.value = selectedMachine;
+        }
     }
 }
 
@@ -337,8 +415,11 @@ function populateMachineOptions(selectedMachine = "") {
 
 unit.addEventListener("change", function () {
     process.innerHTML = '<option value="">Select Process</option>';
+
     machine.innerHTML = '<option value="">Select Machine</option>';
-    machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
+
+    machineForm.innerHTML =
+        '<p class="empty-message">Select a process and machine to enter production data.</p>';
 
     if (!unit.value) {
         saveDraft();
@@ -346,6 +427,7 @@ unit.addEventListener("change", function () {
     }
 
     populateProcessOptions();
+
     saveDraft();
 });
 
@@ -356,7 +438,9 @@ unit.addEventListener("change", function () {
 
 process.addEventListener("change", function () {
     machine.innerHTML = '<option value="">Select Machine</option>';
-    machineForm.innerHTML = '<p class="empty-message">Select a machine to enter production data.</p>';
+
+    machineForm.innerHTML =
+        '<p class="empty-message">Select a machine to enter production data.</p>';
 
     if (!unit.value || !process.value) {
         saveDraft();
@@ -364,6 +448,7 @@ process.addEventListener("change", function () {
     }
 
     populateMachineOptions();
+
     saveDraft();
 });
 
@@ -374,6 +459,7 @@ process.addEventListener("change", function () {
 
 machine.addEventListener("change", function () {
     createMachineForm();
+
     saveDraft();
 });
 
@@ -386,15 +472,20 @@ function createMachineForm() {
     machineForm.innerHTML = "";
 
     if (!machine.value) {
-        machineForm.innerHTML = '<p class="empty-message">Select a machine to enter production data.</p>';
+        machineForm.innerHTML =
+            '<p class="empty-message">Select a machine to enter production data.</p>';
+
         return;
     }
 
     const wrapper = document.createElement("div");
+
     wrapper.className = "machine-entry-form";
 
     const statusGroup = document.createElement("div");
+
     statusGroup.className = "form-group";
+
     statusGroup.innerHTML = `
         <label>Machine Status</label>
         <select id="machineStatus">
@@ -403,26 +494,35 @@ function createMachineForm() {
             <option value="Maintenance">Maintenance</option>
         </select>
     `;
+
     wrapper.appendChild(statusGroup);
 
     const fieldsContainer = document.createElement("div");
+
     fieldsContainer.id = "processFields";
+
     wrapper.appendChild(fieldsContainer);
 
     const remarksGroup = document.createElement("div");
+
     remarksGroup.className = "form-group";
+
     remarksGroup.innerHTML = `
         <label>Remarks</label>
         <textarea id="remarks" rows="4" placeholder="Problems / observations / remarks"></textarea>
     `;
+
     wrapper.appendChild(remarksGroup);
 
     machineForm.appendChild(wrapper);
+
     renderProcessFields();
 
     document.getElementById("machineStatus").addEventListener("change", function () {
         saveDraft();
+
         renderProcessFields();
+
         saveDraft();
     });
 }
@@ -434,16 +534,21 @@ function createMachineForm() {
 
 function renderProcessFields() {
     const container = document.getElementById("processFields");
+
     if (!container) return;
 
     container.innerHTML = "";
+
     const statusElement = document.getElementById("machineStatus");
+
     if (!statusElement) return;
 
     const status = statusElement.value;
 
     if (status === "Idle" || status === "Maintenance") {
-        container.innerHTML = `<p class="status-message">${status} — no production measurement required.</p>`;
+        container.innerHTML =
+            `<p class="status-message">${status} — no production measurement required.</p>`;
+
         return;
     }
 
@@ -600,9 +705,11 @@ function renderProcessFields() {
 
 function restoreCurrentMachineForm(currentForm) {
     if (!currentForm) return;
+
     if (!currentForm.process || !currentForm.machine) return;
 
     process.value = currentForm.process;
+
     populateMachineOptions(currentForm.machine);
 
     if (machine.value !== currentForm.machine) return;
@@ -610,19 +717,25 @@ function restoreCurrentMachineForm(currentForm) {
     createMachineForm();
 
     const statusElement = document.getElementById("machineStatus");
+
     if (statusElement && currentForm.status) {
         statusElement.value = currentForm.status;
+
         renderProcessFields();
     }
 
     if (currentForm.fields) {
         Object.keys(currentForm.fields).forEach(function (fieldId) {
             const element = document.getElementById(fieldId);
-            if (element) element.value = currentForm.fields[fieldId];
+
+            if (element) {
+                element.value = currentForm.fields[fieldId];
+            }
         });
     }
 
     const remarksElement = document.getElementById("remarks");
+
     if (remarksElement) {
         remarksElement.value = currentForm.remarks || "";
     }
@@ -635,6 +748,7 @@ function restoreCurrentMachineForm(currentForm) {
 
 function restoreDraft() {
     const draft = loadDraft();
+
     if (!draft) return false;
 
     const hasData = Boolean(
@@ -651,12 +765,21 @@ function restoreDraft() {
     isRestoringDraft = true;
 
     try {
-        if (draft.reportDate) reportDate.value = draft.reportDate;
-        if (draft.shift) shift.value = draft.shift;
-        if (draft.supervisor !== undefined) supervisor.value = draft.supervisor;
+        if (draft.reportDate) {
+            reportDate.value = draft.reportDate;
+        }
+
+        if (draft.shift) {
+            shift.value = draft.shift;
+        }
+
+        if (draft.supervisor !== undefined) {
+            supervisor.value = draft.supervisor;
+        }
 
         if (draft.unit) {
             unit.value = draft.unit;
+
             populateProcessOptions();
         }
 
@@ -668,12 +791,19 @@ function restoreDraft() {
 
         displayEntries();
 
-        if (draft.currentMachineForm && draft.currentMachineForm.process && draft.currentMachineForm.machine) {
+        if (
+            draft.currentMachineForm &&
+            draft.currentMachineForm.process &&
+            draft.currentMachineForm.machine
+        ) {
             restoreCurrentMachineForm(draft.currentMachineForm);
         } else {
             machine.innerHTML = '<option value="">Select Machine</option>';
-            machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
+
+            machineForm.innerHTML =
+                '<p class="empty-message">Select a process and machine to enter production data.</p>';
         }
+
     } finally {
         isRestoringDraft = false;
     }
@@ -703,12 +833,14 @@ saveMachineReport.addEventListener("click", function () {
     }
 
     const statusElement = document.getElementById("machineStatus");
+
     if (!statusElement) {
         alert("Please select machine status.");
         return;
     }
 
     const status = statusElement.value;
+
     const entry = {
         unit: unit.value,
         process: process.value,
@@ -716,7 +848,13 @@ saveMachineReport.addEventListener("click", function () {
         status: status
     };
 
-    if (process.value === "Printing" || process.value === "Lamination" || process.value === "ColdSeal" || process.value === "Slitting" || process.value === "Extrusion Coating") {
+    if (
+        process.value === "Printing" ||
+        process.value === "Lamination" ||
+        process.value === "ColdSeal" ||
+        process.value === "Slitting" ||
+        process.value === "Extrusion Coating"
+    ) {
         entry.length = getValue("length");
         entry.weight = getValue("weight");
         entry.speed = getValue("speed");
@@ -741,15 +879,21 @@ saveMachineReport.addEventListener("click", function () {
         shiftEntries.push(entry);
     } else {
         shiftEntries[editingIndex] = entry;
+
         editingIndex = -1;
+
         saveMachineReport.textContent = "+ Add Machine";
     }
 
     displayEntries();
+
     saveDraft();
 
     machine.value = "";
-    machineForm.innerHTML = '<p class="empty-message">Machine added. Select another machine if required.</p>';
+
+    machineForm.innerHTML =
+        '<p class="empty-message">Machine added. Select another machine if required.</p>';
+
     saveDraft();
 });
 
@@ -760,7 +904,9 @@ saveMachineReport.addEventListener("click", function () {
 
 function getValue(id) {
     const element = document.getElementById(id);
+
     if (!element) return "";
+
     return element.value.trim();
 }
 
@@ -773,26 +919,58 @@ function displayEntries() {
     entries.innerHTML = "";
 
     if (shiftEntries.length === 0) {
-        entries.innerHTML = '<p class="empty-message">No machines added yet.</p>';
+        entries.innerHTML =
+            '<p class="empty-message">No machines added yet.</p>';
+
         return;
     }
 
     shiftEntries.forEach(function (item, index) {
         const card = document.createElement("div");
+
         card.className = "entry-card";
 
         let details = "";
 
-        if (item.length) details += `<span>Length: ${formatText(String(item.length))} m</span>`;
-        if (item.weight) details += `<span>Weight: ${formatText(String(item.weight))} kg</span>`;
-        if (item.speed) details += `<span>Speed: ${formatText(String(item.speed))}</span>`;
-        if (item.reels) details += `<span>Reels: ${formatText(String(item.reels))} Nos</span>`;
-        if (item.hold_reels) details += `<span>Hold Reels: ${formatText(String(item.hold_reels))} Nos</span>`;
-        if (item.product) details += `<span>Product: ${formatText(String(item.product))}</span>`;
-        if (item.totalCoils) details += `<span>Total Coils: ${formatText(String(item.totalCoils))} C</span>`;
-        if (item.coilDetails) details += `<span>Coil Details:<br>${formatText(String(item.coilDetails))}</span>`;
-        if (item.jobName) details += `<span>Job Name: ${formatText(String(item.jobName))}</span>`;
-        if (item.remarks) details += `<span>Remarks: ${formatText(String(item.remarks))}</span>`;
+        if (item.length) {
+            details += `<span>Length: ${formatText(String(item.length))} m</span>`;
+        }
+
+        if (item.weight) {
+            details += `<span>Weight: ${formatText(String(item.weight))} kg</span>`;
+        }
+
+        if (item.speed) {
+            details += `<span>Speed: ${formatText(String(item.speed))}</span>`;
+        }
+
+        if (item.reels) {
+            details += `<span>Reels: ${formatText(String(item.reels))} Nos</span>`;
+        }
+
+        if (item.hold_reels) {
+            details += `<span>Hold Reels: ${formatText(String(item.hold_reels))} Nos</span>`;
+        }
+
+        if (item.product) {
+            details += `<span>Product: ${formatText(String(item.product))}</span>`;
+        }
+
+        if (item.totalCoils) {
+            details += `<span>Total Coils: ${formatText(String(item.totalCoils))} C</span>`;
+        }
+
+        if (item.coilDetails) {
+            details += `<span>Coil Details:<br>${formatText(String(item.coilDetails))}</span>`;
+        }
+
+        if (item.jobName) {
+            details += `<span>Job Name: ${formatText(String(item.jobName))}</span>`;
+        }
+
+        if (item.remarks) {
+            details += `<span>Remarks: ${formatText(String(item.remarks))}</span>`;
+        }
 
         card.innerHTML = `
             <div class="entry-header">
@@ -815,6 +993,7 @@ function displayEntries() {
     document.querySelectorAll(".edit-button").forEach(function (button) {
         button.addEventListener("click", function () {
             const index = Number(button.dataset.index);
+
             editEntry(index);
         });
     });
@@ -822,8 +1001,11 @@ function displayEntries() {
     document.querySelectorAll(".delete-button").forEach(function (button) {
         button.addEventListener("click", function () {
             const index = Number(button.dataset.index);
+
             shiftEntries.splice(index, 1);
+
             displayEntries();
+
             saveDraft();
         });
     });
@@ -836,91 +1018,140 @@ function displayEntries() {
 
 function editEntry(index) {
     const item = shiftEntries[index];
+
     if (!item) return;
 
     editingIndex = index;
+
     saveMachineReport.textContent = "✓ Update Machine";
 
     unit.value = item.unit;
 
     const processes = machineData[unit.value];
+
     process.innerHTML = '<option value="">Select Process</option>';
+
     Object.keys(processes).forEach(function (processName) {
         const machines = processes[processName];
+
         if (machines.length > 0) {
             const option = document.createElement("option");
+
             option.value = processName;
             option.textContent = processName;
+
             process.appendChild(option);
         }
     });
 
     process.value = item.process;
 
-    const machinesForProcess = machineData[unit.value][item.process] || [];
+    const machinesForProcess =
+        machineData[unit.value][item.process] || [];
+
     machine.innerHTML = '<option value="">Select Machine</option>';
+
     machinesForProcess.forEach(function (machineName) {
         const option = document.createElement("option");
+
         option.value = machineName;
         option.textContent = machineName;
+
         machine.appendChild(option);
     });
 
     machine.value = item.machine;
+
     createMachineForm();
 
     setTimeout(function () {
         const statusSelect = document.getElementById("machineStatus");
+
         if (statusSelect) {
             statusSelect.value = item.status;
+
             renderProcessFields();
         }
 
         setTimeout(function () {
             if (item.length) {
                 const lengthInput = document.getElementById("length");
+
                 if (lengthInput) lengthInput.value = item.length;
             }
+
             if (item.weight) {
                 const weightInput = document.getElementById("weight");
+
                 if (weightInput) weightInput.value = item.weight;
             }
+
             if (item.speed) {
                 const speedInput = document.getElementById("speed");
+
                 if (speedInput) speedInput.value = item.speed;
             }
+
             if (item.reels) {
                 const reelsInput = document.getElementById("reels");
+
                 if (reelsInput) reelsInput.value = item.reels;
             }
+
             if (item.hold_reels) {
                 const hold_reelsInput = document.getElementById("hold_reels");
-                if (hold_reelsInput) hold_reelsInput.value = item.hold_reels;
+
+                if (hold_reelsInput) {
+                    hold_reelsInput.value = item.hold_reels;
+                }
             }
+
             if (item.product) {
                 const productInput = document.getElementById("product");
+
                 if (productInput) productInput.value = item.product;
             }
+
             if (item.totalCoils) {
                 const totalCoilsInput = document.getElementById("totalCoils");
-                if (totalCoilsInput) totalCoilsInput.value = item.totalCoils;
+
+                if (totalCoilsInput) {
+                    totalCoilsInput.value = item.totalCoils;
+                }
             }
+
             if (item.coilDetails) {
                 const coilDetailsInput = document.getElementById("coilDetails");
-                if (coilDetailsInput) coilDetailsInput.value = item.coilDetails;
+
+                if (coilDetailsInput) {
+                    coilDetailsInput.value = item.coilDetails;
+                }
             }
+
             if (item.jobName) {
                 const jobNameInput = document.getElementById("jobName");
-                if (jobNameInput) jobNameInput.value = item.jobName;
+
+                if (jobNameInput) {
+                    jobNameInput.value = item.jobName;
+                }
             }
+
             if (item.remarks) {
                 const remarksInput = document.getElementById("remarks");
-                if (remarksInput) remarksInput.value = item.remarks;
+
+                if (remarksInput) {
+                    remarksInput.value = item.remarks;
+                }
             }
+
         }, 50);
+
     }, 100);
 
-    machineForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    machineForm.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
 }
 
 
@@ -945,7 +1176,12 @@ document.addEventListener("input", function (event) {
     if (isRestoringDraft) return;
 
     const target = event.target;
-    if (target.matches("#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea")) {
+
+    if (
+        target.matches(
+            "#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea"
+        )
+    ) {
         saveDraft();
     }
 });
@@ -955,7 +1191,12 @@ document.addEventListener("change", function (event) {
     if (isRestoringDraft) return;
 
     const target = event.target;
-    if (target.matches("#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea")) {
+
+    if (
+        target.matches(
+            "#reportDate, #shift, #unit, #supervisor, #process, #machine, #machineForm input, #machineForm select, #machineForm textarea"
+        )
+    ) {
         setTimeout(function () {
             saveDraft();
         }, 0);
@@ -1032,34 +1273,203 @@ submitShiftReport.addEventListener("click", async function () {
     };
 
     submitShiftReport.disabled = true;
+
     submitShiftReport.textContent = "Submitting...";
 
     try {
         saveDraft();
 
         const reportsRef = ref(database, "productionReports");
+
         await push(reportsRef, completeReport);
 
         alert("Shift report submitted successfully!");
 
         clearDraft();
+
         shiftEntries = [];
+
         displayEntries();
 
-        machineForm.innerHTML = '<p class="empty-message">Shift report submitted. You can start a new report.</p>';
+        machineForm.innerHTML =
+            '<p class="empty-message">Shift report submitted. You can start a new report.</p>';
+
         machine.innerHTML = '<option value="">Select Machine</option>';
+
         process.innerHTML = '<option value="">Select Process</option>';
+
     }
     catch (error) {
         console.error("Firebase save error:", error);
+
         saveDraft();
-        alert("Could not submit report. Please check your internet connection. Your entered data has been saved and will remain available.");
+
+        alert(
+            "Could not submit report. Please check your internet connection. Your entered data has been saved and will remain available."
+        );
+
     }
     finally {
         submitShiftReport.disabled = false;
+
         submitShiftReport.textContent = "Submit Shift Report";
     }
 });
+
+
+/* =====================================================
+   SAVE PENDING WIP ROLL
+===================================================== */
+
+if (
+    savePendingWIP &&
+    wipJobNo &&
+    wipJobName &&
+    wipStatus &&
+    wipRollNo &&
+    wipWeight &&
+    wipProductionDate &&
+    wipRemarkOnLabel
+) {
+
+    savePendingWIP.addEventListener("click", async function () {
+
+        // Prevent duplicate submissions.
+        if (savePendingWIP.disabled) return;
+
+        const jobNo = wipJobNo.value.trim();
+        const jobName = wipJobName.value.trim();
+        const status = wipStatus.value;
+        const rollNo = wipRollNo.value.trim();
+        const weightValue = wipWeight.value;
+        const productionDate = wipProductionDate.value;
+        const remarkOnLabel = wipRemarkOnLabel.value.trim();
+
+        /* ---------------------------------------------
+           VALIDATION
+        --------------------------------------------- */
+
+        if (!jobNo) {
+            alert("Please enter Job No.");
+            wipJobNo.focus();
+            return;
+        }
+
+        if (!jobName) {
+            alert("Please enter Job Name.");
+            wipJobName.focus();
+            return;
+        }
+
+        if (!status) {
+            alert("Please select Status.");
+            wipStatus.focus();
+            return;
+        }
+
+        if (!rollNo) {
+            alert("Please enter Roll No.");
+            wipRollNo.focus();
+            return;
+        }
+
+        if (
+            weightValue === "" ||
+            !Number.isFinite(Number(weightValue)) ||
+            Number(weightValue) < 0
+        ) {
+            alert("Please enter a valid Weight in kg.");
+            wipWeight.focus();
+            return;
+        }
+
+        if (!productionDate) {
+            alert("Please select Production Date.");
+            wipProductionDate.focus();
+            return;
+        }
+
+        /* ---------------------------------------------
+           PREPARE WIP RECORD
+        --------------------------------------------- */
+
+        const pendingWIPRecord = {
+            jobNo: jobNo,
+            jobName: jobName,
+            status: status,
+            rollNo: rollNo,
+            weight: Number(weightValue),
+            productionDate: productionDate,
+            remarkOnLabel: remarkOnLabel,
+            entryTimestamp: serverTimestamp()
+        };
+
+        /* ---------------------------------------------
+           SAVE TO SEPARATE FIREBASE PATH
+        --------------------------------------------- */
+
+        savePendingWIP.disabled = true;
+
+        savePendingWIP.textContent = "Saving WIP Roll...";
+
+        if (pendingWIPMessage) {
+            pendingWIPMessage.textContent = "";
+            pendingWIPMessage.className = "";
+        }
+
+        try {
+            const pendingWIPRef = ref(database, "pendingWIP");
+
+            await push(pendingWIPRef, pendingWIPRecord);
+
+            if (pendingWIPMessage) {
+                pendingWIPMessage.textContent =
+                    "Pending WIP roll added successfully.";
+
+                pendingWIPMessage.className = "status-message";
+            }
+
+            alert("Pending WIP roll added successfully!");
+
+            /* -----------------------------------------
+               CLEAR ONLY THE WIP FORM
+            ----------------------------------------- */
+
+            wipJobNo.value = "";
+            wipJobName.value = "";
+            wipStatus.value = "";
+            wipRollNo.value = "";
+            wipWeight.value = "";
+            wipProductionDate.value = getTodayString();
+            wipRemarkOnLabel.value = "";
+
+            wipJobNo.focus();
+
+        }
+        catch (error) {
+            console.error("Pending WIP Firebase save error:", error);
+
+            if (pendingWIPMessage) {
+                pendingWIPMessage.textContent =
+                    "Could not save the WIP roll. Please check your internet connection and try again.";
+
+                pendingWIPMessage.className = "error-message";
+            }
+
+            alert(
+                "Could not save the Pending WIP roll. Please check your internet connection and try again."
+            );
+
+        }
+        finally {
+            savePendingWIP.disabled = false;
+
+            savePendingWIP.textContent = "+ Add Pending WIP Roll";
+        }
+
+    });
+
+}
 
 
 /* =====================================================
@@ -1071,6 +1481,7 @@ function initializeApplication() {
 
     if (draft) {
         const restored = restoreDraft();
+
         if (restored) {
             console.log("Previous production report draft restored.");
             return;
@@ -1078,10 +1489,16 @@ function initializeApplication() {
     }
 
     reportDate.value = getTodayString();
+
     machine.innerHTML = '<option value="">Select Machine</option>';
+
     process.innerHTML = '<option value="">Select Process</option>';
-    machineForm.innerHTML = '<p class="empty-message">Select a process and machine to enter production data.</p>';
-    entries.innerHTML = '<p class="empty-message">No machines added yet.</p>';
+
+    machineForm.innerHTML =
+        '<p class="empty-message">Select a process and machine to enter production data.</p>';
+
+    entries.innerHTML =
+        '<p class="empty-message">No machines added yet.</p>';
 }
 
 
@@ -1090,3 +1507,4 @@ function initializeApplication() {
 ===================================================== */
 
 initializeApplication();
+```
