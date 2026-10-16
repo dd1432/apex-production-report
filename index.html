@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,17 +16,17 @@
 
     <!-- CSS -->
     <link rel="stylesheet"
-          href="./style.css?v=3">
-    <link rel="icon" type="image/png" href="https://res.cloudinary.com/org593vv/image/upload/v1790600713/Apex_webpage_Icon.png">
+          href="./style.css?v=4">
+
+    <link rel="icon"
+          type="image/png"
+          href="https://res.cloudinary.com/org593vv/image/upload/v1790600713/Apex_webpage_Icon.png">
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
     <!-- =================================================
          HEADER
@@ -44,7 +45,6 @@
     </header>
 
 
-
     <!-- =================================================
          SHIFT INFORMATION
     ================================================== -->
@@ -55,9 +55,7 @@
             Shift Information
         </h2>
 
-
         <div class="grid">
-
 
             <!-- DATE -->
 
@@ -74,8 +72,6 @@
                 >
 
             </div>
-
-
 
             <!-- SHIFT -->
 
@@ -110,8 +106,6 @@
 
             </div>
 
-
-
             <!-- UNIT -->
 
             <div class="form-group">
@@ -141,8 +135,6 @@
 
             </div>
 
-
-
             <!-- SUPERVISOR -->
 
             <div class="form-group">
@@ -161,11 +153,9 @@
 
             </div>
 
-
         </div>
 
     </section>
-
 
 
     <!-- =================================================
@@ -178,9 +168,7 @@
             Machine Report
         </h2>
 
-
         <div class="grid">
-
 
             <!-- PROCESS -->
 
@@ -200,8 +188,6 @@
 
             </div>
 
-
-
             <!-- MACHINE -->
 
             <div class="form-group">
@@ -220,14 +206,9 @@
 
             </div>
 
-
         </div>
 
-
-
-        <!-- =================================================
-             DYNAMIC MACHINE FORM
-        ================================================== -->
+        <!-- DYNAMIC MACHINE FORM -->
 
         <div id="machineForm">
 
@@ -237,11 +218,7 @@
 
         </div>
 
-
-
-        <!-- =================================================
-             ADD MACHINE
-        ================================================== -->
+        <!-- ADD MACHINE -->
 
         <button
             type="button"
@@ -251,9 +228,7 @@
             + Add Machine
         </button>
 
-
     </section>
-
 
 
     <!-- =================================================
@@ -266,7 +241,6 @@
             Current Shift Entries
         </h2>
 
-
         <div id="entries">
 
             <p class="empty-message">
@@ -275,13 +249,197 @@
 
         </div>
 
+    </section>
+
+
+    <!-- =================================================
+         PENDING WIP ROLL ENTRY
+    ================================================== -->
+
+    <section class="card" id="pendingWIPEntrySection">
+
+        <h2>
+            Pending WIP Roll Entry
+        </h2>
+
+        <p>
+            Enter the details of a roll to add it to the Pending WIP list.
+        </p>
+
+        <div class="grid">
+
+            <!-- JOB NUMBER -->
+
+            <div class="form-group">
+
+                <label for="wipJobNo">
+                    Job No.
+                </label>
+
+                <input
+                    type="text"
+                    id="wipJobNo"
+                    placeholder="Enter job number"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+            <!-- JOB NAME -->
+
+            <div class="form-group">
+
+                <label for="wipJobName">
+                    Job Name
+                </label>
+
+                <input
+                    type="text"
+                    id="wipJobName"
+                    placeholder="Enter job name"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+            <!-- STATUS -->
+
+            <div class="form-group">
+
+                <label for="wipStatus">
+                    Status
+                </label>
+
+                <select
+                    id="wipStatus"
+                    required
+                >
+
+                    <option value="">
+                        Select Status
+                    </option>
+
+                    <option value="Pending Printing">
+                        Pending Printing
+                    </option>
+
+                    <option value="Pending Lamination">
+                        Pending Lamination
+                    </option>
+
+                    <option value="Pending Slitting">
+                        Pending Slitting
+                    </option>
+
+                    <option value="Pending Coating">
+                        Pending Coating
+                    </option>
+
+                    <option value="Pending QC">
+                        Pending QC
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+            <!-- ROLL NUMBER -->
+
+            <div class="form-group">
+
+                <label for="wipRollNo">
+                    Roll No.
+                </label>
+
+                <input
+                    type="text"
+                    id="wipRollNo"
+                    placeholder="Enter roll number"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+            <!-- WEIGHT -->
+
+            <div class="form-group">
+
+                <label for="wipWeight">
+                    Weight (kg)
+                </label>
+
+                <input
+                    type="number"
+                    id="wipWeight"
+                    placeholder="Enter weight"
+                    min="0"
+                    step="any"
+                    required
+                >
+
+            </div>
+
+            <!-- PRODUCTION DATE -->
+
+            <div class="form-group">
+
+                <label for="wipProductionDate">
+                    Production Date
+                </label>
+
+                <input
+                    type="date"
+                    id="wipProductionDate"
+                    required
+                >
+
+            </div>
+
+            <!-- REMARK ON LABEL -->
+
+            <div class="form-group">
+
+                <label for="wipRemarkOnLabel">
+                    Remark on Label
+                </label>
+
+                <input
+                    type="text"
+                    id="wipRemarkOnLabel"
+                    placeholder="Enter label remark"
+                    autocomplete="off"
+                >
+
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            id="savePendingWIP"
+            class="primary-button"
+        >
+            + Add Pending WIP Roll
+        </button>
+
+        <div
+            id="pendingWIPMessage"
+            role="status"
+            aria-live="polite"
+        ></div>
 
     </section>
 
 
-
     <!-- =================================================
-         SUBMIT
+         SUBMIT SHIFT REPORT
     ================================================== -->
 
     <div class="submit-area">
@@ -296,9 +454,7 @@
 
     </div>
 
-
 </div>
-
 
 
 <!-- =====================================================
@@ -307,10 +463,10 @@
 
 <script
     type="module"
-    src="./app.js?v=3">
+    src="./app.js?v=4">
 </script>
-
 
 </body>
 
 </html>
+```
