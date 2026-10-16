@@ -1502,6 +1502,52 @@ function initializeApplication() {
 }
 
 
+/* =========================================
+   PENDING WIP FORM TOGGLE
+========================================= */
+
+const togglePendingWIP =
+    document.getElementById("togglePendingWIP");
+
+const closePendingWIP =
+    document.getElementById("closePendingWIP");
+
+const pendingWIPEntrySection =
+    document.getElementById("pendingWIPEntrySection");
+
+if (
+    togglePendingWIP &&
+    closePendingWIP &&
+    pendingWIPEntrySection
+) {
+    function setPendingWIPVisibility(show) {
+        pendingWIPEntrySection.hidden = !show;
+
+        togglePendingWIP.setAttribute(
+            "aria-expanded",
+            String(show)
+        );
+
+        if (show) {
+            pendingWIPEntrySection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+
+    togglePendingWIP.addEventListener("click", function () {
+        setPendingWIPVisibility(
+            pendingWIPEntrySection.hidden
+        );
+    });
+
+    closePendingWIP.addEventListener("click", function () {
+        setPendingWIPVisibility(false);
+    });
+}
+
+
 /* =====================================================
    START APPLICATION
 ===================================================== */
