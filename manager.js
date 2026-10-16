@@ -629,8 +629,17 @@ function renderPendingWIP() {
 
     const count = allPendingWIP.length;
 
-    pendingWIPResultInfo.textContent =
-        `${count} roll${count === 1 ? "" : "s"}`;
+    const count = allPendingWIP.length;
+
+const totalWeight = allPendingWIP.reduce((sum, record) => {
+    const weight = Number(record.weight);
+    return sum + (Number.isFinite(weight) ? weight : 0);
+}, 0);
+
+const formattedWeight = Number(totalWeight.toFixed(2));
+
+pendingWIPResultInfo.textContent =
+    `${count} roll${count === 1 ? "" : "s"} · ${formattedWeight.toLocaleString("en-IN")} kg`;
 
     if (count === 0) {
         pendingWIPContainer.innerHTML = `
