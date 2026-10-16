@@ -257,182 +257,112 @@
 
     <section class="card" id="pendingWIPEntrySection">
 
-        <h2>
-            Pending WIP Roll Entry
-        </h2>
+<!-- PENDING WIP FLOATING BUTTON -->
+<button
+    type="button"
+    id="togglePendingWIP"
+    class="wip-floating-button"
+    aria-controls="pendingWIPEntrySection"
+    aria-expanded="false"
+>
+    + Add Pending WIP
+</button>
 
-        <p>
-            Enter the details of a roll to add it to the Pending WIP list.
-        </p>
 
-        <div class="grid">
-
-            <!-- JOB NUMBER -->
-
-            <div class="form-group">
-
-                <label for="wipJobNo">
-                    Job No.
-                </label>
-
-                <input
-                    type="text"
-                    id="wipJobNo"
-                    placeholder="Enter job number"
-                    autocomplete="off"
-                    required
-                >
-
-            </div>
-
-            <!-- JOB NAME -->
-
-            <div class="form-group">
-
-                <label for="wipJobName">
-                    Job Name
-                </label>
-
-                <input
-                    type="text"
-                    id="wipJobName"
-                    placeholder="Enter job name"
-                    autocomplete="off"
-                    required
-                >
-
-            </div>
-
-            <!-- STATUS -->
-
-            <div class="form-group">
-
-                <label for="wipStatus">
-                    Status
-                </label>
-
-                <select
-                    id="wipStatus"
-                    required
-                >
-
-                    <option value="">
-                        Select Status
-                    </option>
-
-                    <option value="Pending Printing">
-                        Pending Printing
-                    </option>
-
-                    <option value="Pending Lamination">
-                        Pending Lamination
-                    </option>
-
-                    <option value="Pending Slitting">
-                        Pending Slitting
-                    </option>
-
-                    <option value="Pending Coating">
-                        Pending Coating
-                    </option>
-
-                    <option value="Pending QC">
-                        Pending QC
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
-
-                </select>
-
-            </div>
-
-            <!-- ROLL NUMBER -->
-
-            <div class="form-group">
-
-                <label for="wipRollNo">
-                    Roll No.
-                </label>
-
-                <input
-                    type="text"
-                    id="wipRollNo"
-                    placeholder="Enter roll number"
-                    autocomplete="off"
-                    required
-                >
-
-            </div>
-
-            <!-- WEIGHT -->
-
-            <div class="form-group">
-
-                <label for="wipWeight">
-                    Weight (kg)
-                </label>
-
-                <input
-                    type="number"
-                    id="wipWeight"
-                    placeholder="Enter weight"
-                    min="0"
-                    step="any"
-                    required
-                >
-
-            </div>
-
-            <!-- PRODUCTION DATE -->
-
-            <div class="form-group">
-
-                <label for="wipProductionDate">
-                    Production Date
-                </label>
-
-                <input
-                    type="date"
-                    id="wipProductionDate"
-                    required
-                >
-
-            </div>
-
-            <!-- REMARK ON LABEL -->
-
-            <div class="form-group">
-
-                <label for="wipRemarkOnLabel">
-                    Remark on Label
-                </label>
-
-                <input
-                    type="text"
-                    id="wipRemarkOnLabel"
-                    placeholder="Enter label remark"
-                    autocomplete="off"
-                >
-
-            </div>
-
-        </div>
+<!-- PENDING WIP FORM: HIDDEN BY DEFAULT -->
+<section
+    class="card wip-entry-card"
+    id="pendingWIPEntrySection"
+    hidden
+>
+    <div class="wip-entry-header">
+        <h2>Pending WIP Roll Entry</h2>
 
         <button
             type="button"
-            id="savePendingWIP"
-            class="primary-button"
+            id="closePendingWIP"
+            class="wip-close-button"
+            aria-label="Close Pending WIP form"
         >
-            + Add Pending WIP Roll
+            ✕
         </button>
+    </div>
 
-        <div
-            id="pendingWIPMessage"
-            role="status"
-            aria-live="polite"
-        ></div>
+    <p>
+        Enter the details of a roll to add it to the Pending WIP list.
+    </p>
+
+    <div class="grid">
+
+        <div class="form-group">
+            <label for="wipJobNo">Job No.</label>
+            <input type="text" id="wipJobNo"
+                   placeholder="Enter job number"
+                   autocomplete="off" required>
+        </div>
+
+        <div class="form-group">
+            <label for="wipJobName">Job Name</label>
+            <input type="text" id="wipJobName"
+                   placeholder="Enter job name"
+                   autocomplete="off" required>
+        </div>
+
+        <div class="form-group">
+            <label for="wipStatus">Status</label>
+            <select id="wipStatus" required>
+                <option value="">Select Status</option>
+                <option value="Pending Printing">Pending Printing</option>
+                <option value="Pending Lamination">Pending Lamination</option>
+                <option value="Pending Slitting">Pending Slitting</option>
+                <option value="Pending Coating">Pending Coating</option>
+                <option value="Pending QC">Pending QC</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="wipRollNo">Roll No.</label>
+            <input type="text" id="wipRollNo"
+                   placeholder="Enter roll number"
+                   autocomplete="off" required>
+        </div>
+
+        <div class="form-group">
+            <label for="wipWeight">Weight (kg)</label>
+            <input type="number" id="wipWeight"
+                   placeholder="Enter weight"
+                   min="0" step="any" required>
+        </div>
+
+        <div class="form-group">
+            <label for="wipProductionDate">Production Date</label>
+            <input type="date" id="wipProductionDate" required>
+        </div>
+
+        <div class="form-group">
+            <label for="wipRemarkOnLabel">Remark on Label</label>
+            <input type="text" id="wipRemarkOnLabel"
+                   placeholder="Enter label remark"
+                   autocomplete="off">
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        id="savePendingWIP"
+        class="primary-button"
+    >
+        + Add Pending WIP Roll
+    </button>
+
+    <div
+        id="pendingWIPMessage"
+        role="status"
+        aria-live="polite"
+    ></div>
+</section>
 
     </section>
 
