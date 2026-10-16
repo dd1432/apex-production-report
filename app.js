@@ -1515,38 +1515,33 @@ const closePendingWIP =
 const pendingWIPEntrySection =
     document.getElementById("pendingWIPEntrySection");
 
-if (
-    togglePendingWIP &&
-    closePendingWIP &&
-    pendingWIPEntrySection
-) {
-    function setPendingWIPVisibility(show) {
-        pendingWIPEntrySection.hidden = !show;
+if (togglePendingWIP && pendingWIPEntrySection) {
 
-        togglePendingWIP.setAttribute(
-            "aria-expanded",
-            String(show)
-        );
-
-        if (show) {
-            pendingWIPEntrySection.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
-    }
+    // Ensure the form starts hidden.
+    pendingWIPEntrySection.hidden = true;
 
     togglePendingWIP.addEventListener("click", function () {
-        setPendingWIPVisibility(
-            pendingWIPEntrySection.hidden
-        );
+
+        pendingWIPEntrySection.hidden = false;
+
+        togglePendingWIP.style.display = "none";
+
+        pendingWIPEntrySection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     });
 
-    closePendingWIP.addEventListener("click", function () {
-        setPendingWIPVisibility(false);
-    });
+    if (closePendingWIP) {
+        closePendingWIP.addEventListener("click", function () {
+
+            pendingWIPEntrySection.hidden = true;
+
+            togglePendingWIP.style.display = "";
+
+        });
+    }
 }
-
 
 /* =====================================================
    START APPLICATION
