@@ -483,9 +483,9 @@ function loadPendingWIP() {
         const data = snapshot.val();
 
         if (!data || typeof data !== "object") {
-             = [];
+            allPendingWIP = [];
         } else {
-             = Object.entries(data)
+            allPendingWIP = Object.entries(data)
                 .filter(([, record]) => {
                     return record !== null &&
                         typeof record === "object";
