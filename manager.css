@@ -1,3 +1,4 @@
+
 /* =========================================================
    APEX MANAGER DASHBOARD
    MODERN MANAGER UI
@@ -20,11 +21,9 @@ body {
         Arial,
         Helvetica,
         sans-serif;
-
     background: #f3f5f8;
     color: #172033;
 }
-
 
 /* =========================================================
    MAIN CONTAINER
@@ -37,7 +36,6 @@ body {
     padding: 22px;
 }
 
-
 /* =========================================================
    HEADER
 ========================================================= */
@@ -46,7 +44,6 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 18px;
     padding: 6px 2px;
 }
@@ -60,36 +57,27 @@ body {
 .header-logo {
     width: 46px;
     height: 46px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
-
     background: #111827;
     color: white;
-
     font-size: 23px;
     font-weight: 800;
-
-    box-shadow:
-        0 5px 15px rgba(17, 24, 39, 0.18);
+    box-shadow: 0 5px 15px rgba(17, 24, 39, 0.18);
 }
 
 .dashboard-header h1 {
     margin: 0;
-
     font-size: 25px;
     line-height: 1.2;
     font-weight: 750;
-
     color: #111827;
 }
 
 .dashboard-header p {
     margin: 4px 0 0;
-
     color: #737b8c;
     font-size: 13px;
 }
@@ -98,7 +86,6 @@ body {
     display: flex;
     align-items: center;
     gap: 7px;
-
     color: #7a8291;
     font-size: 12px;
 }
@@ -106,12 +93,9 @@ body {
 .status-dot {
     width: 7px;
     height: 7px;
-
     border-radius: 50%;
-
     background: #22c55e;
 }
-
 
 /* =========================================================
    COMMON SECTION LABEL
@@ -119,17 +103,12 @@ body {
 
 .section-kicker {
     display: block;
-
     margin-bottom: 4px;
-
     color: #8a93a3;
-
     font-size: 10px;
     font-weight: 800;
-
     letter-spacing: 1.1px;
 }
-
 
 /* =========================================================
    FILTER PANEL
@@ -137,23 +116,17 @@ body {
 
 .filter-panel {
     background: #ffffff;
-
     border: 1px solid #e7eaf0;
     border-radius: 14px;
-
     padding: 18px 20px;
-
     margin-bottom: 16px;
-
-    box-shadow:
-        0 3px 12px rgba(20, 30, 50, 0.045);
+    box-shadow: 0 3px 12px rgba(20, 30, 50, 0.045);
 }
 
 .section-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     margin-bottom: 15px;
 }
 
@@ -162,13 +135,10 @@ body {
 .daily-header h2,
 .reports-header h2 {
     margin: 0;
-
     color: #172033;
-
     font-size: 18px;
     font-weight: 750;
 }
-
 
 /* =========================================================
    FILTER GRID
@@ -176,10 +146,7 @@ body {
 
 .filter-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -189,11 +156,8 @@ body {
 
 .form-group label {
     display: block;
-
     margin-bottom: 6px;
-
     color: #596273;
-
     font-size: 12px;
     font-weight: 700;
 }
@@ -201,26 +165,16 @@ body {
 input,
 select {
     width: 100%;
-
     height: 40px;
-
     padding: 8px 11px;
-
     border: 1px solid #d9dee7;
     border-radius: 8px;
-
     background: #ffffff;
-
     color: #1f2937;
-
     font-family: inherit;
     font-size: 13px;
-
     outline: none;
-
-    transition:
-        border-color 0.15s ease,
-        box-shadow 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 input:hover,
@@ -231,11 +185,8 @@ select:hover {
 input:focus,
 select:focus {
     border-color: #64748b;
-
-    box-shadow:
-        0 0 0 3px rgba(100, 116, 139, 0.10);
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.10);
 }
-
 
 /* =========================================================
    FILTER ACTIONS
@@ -244,9 +195,7 @@ select:focus {
 .filter-actions {
     display: flex;
     align-items: center;
-
     gap: 8px;
-
     margin-top: 13px;
 }
 
@@ -254,25 +203,16 @@ select:focus {
 .secondary-button,
 .primary-button {
     height: 36px;
-
     padding: 0 14px;
-
     border: 1px solid #dfe3ea;
     border-radius: 8px;
-
     background: #f8f9fb;
     color: #394150;
-
     font-family: inherit;
-
     font-size: 12px;
     font-weight: 700;
-
     cursor: pointer;
-
-    transition:
-        background 0.15s ease,
-        transform 0.15s ease,
+    transition: background 0.15s ease, transform 0.15s ease,
         border-color 0.15s ease;
 }
 
@@ -299,31 +239,23 @@ select:focus {
     border-color: #1f2937;
 }
 
-
 /* =========================================================
    ADD TARGET
 ========================================================= */
 
 .add-target-button {
     height: 36px;
-
     display: inline-flex;
     align-items: center;
     gap: 7px;
-
     padding: 0 13px;
-
     border: 1px solid #bbf7d0;
     border-radius: 8px;
-
     background: #f0fdf4;
     color: #15803d;
-
     font-size: 12px;
     font-weight: 750;
-
     cursor: pointer;
-
     transition: 0.15s ease;
 }
 
@@ -334,22 +266,16 @@ select:focus {
 
 .add-target-icon {
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
-
     width: 17px;
     height: 17px;
-
     border-radius: 5px;
-
     background: #22c55e;
     color: white;
-
     font-size: 15px;
     line-height: 1;
 }
-
 
 /* =========================================================
    TABS
@@ -358,17 +284,11 @@ select:focus {
 .dashboard-tabs {
     display: flex;
     align-items: center;
-
     gap: 4px;
-
     margin-bottom: 15px;
-
     padding: 4px;
-
     background: #e9edf2;
-
     border-radius: 10px;
-
     width: fit-content;
 }
 
@@ -377,28 +297,19 @@ select:focus {
     align-items: center;
     justify-content: center;
     gap: 7px;
-
     min-width: 145px;
-
     height: 38px;
-
     padding: 0 15px;
-
     border: none;
     border-radius: 7px;
-
     background: transparent;
-
     color: #687182;
-
     font-family: inherit;
-
     font-size: 12px;
     font-weight: 750;
-
     cursor: pointer;
-
     transition: 0.18s ease;
+    white-space: nowrap;
 }
 
 .dashboard-tab span {
@@ -412,11 +323,8 @@ select:focus {
 .dashboard-tab.active {
     background: white;
     color: #111827;
-
-    box-shadow:
-        0 2px 6px rgba(20, 30, 50, 0.10);
+    box-shadow: 0 2px 6px rgba(20, 30, 50, 0.10);
 }
-
 
 /* =========================================================
    TAB CONTENT
@@ -430,53 +338,37 @@ select:focus {
     display: block;
 }
 
-
 /* =========================================================
    KPI SUMMARY
 ========================================================= */
 
 .summary-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
-
     margin-bottom: 15px;
 }
 
 .summary-card {
     min-height: 82px;
-
     display: flex;
     align-items: center;
-
     gap: 12px;
-
     padding: 15px;
-
     background: #ffffff;
-
     border: 1px solid #e7eaf0;
     border-radius: 12px;
-
-    box-shadow:
-        0 3px 12px rgba(20, 30, 50, 0.04);
+    box-shadow: 0 3px 12px rgba(20, 30, 50, 0.04);
 }
 
 .summary-icon {
     width: 38px;
     height: 38px;
-
     flex: 0 0 38px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 9px;
-
     font-size: 16px;
     font-weight: 800;
 }
@@ -503,26 +395,19 @@ select:focus {
 
 .summary-number {
     display: block;
-
     color: #111827;
-
     font-size: 22px;
     font-weight: 800;
-
     line-height: 1;
 }
 
 .summary-label {
     display: block;
-
     margin-top: 5px;
-
     color: #7a8291;
-
     font-size: 11px;
     font-weight: 600;
 }
-
 
 /* =========================================================
    COMMON CARD
@@ -531,14 +416,10 @@ select:focus {
 .card,
 .performance-card {
     background: white;
-
     border: 1px solid #e7eaf0;
     border-radius: 14px;
-
     margin-bottom: 16px;
-
-    box-shadow:
-        0 3px 12px rgba(20, 30, 50, 0.045);
+    box-shadow: 0 3px 12px rgba(20, 30, 50, 0.045);
 }
 
 .card {
@@ -549,7 +430,6 @@ select:focus {
 .target-card.hidden {
     display: none;
 }
-
 
 /* =========================================================
    TARGET PERFORMANCE
@@ -563,9 +443,7 @@ select:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
-
     margin-bottom: 17px;
 }
 
@@ -575,21 +453,15 @@ select:focus {
     font-weight: 600;
 }
 
-
 /* =========================================================
    PERFORMANCE LAYOUT
 ========================================================= */
 
 .performance-layout {
     display: grid;
-
-    grid-template-columns:
-        minmax(300px, 0.8fr)
-        minmax(0, 1.5fr);
-
+    grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.5fr);
     gap: 18px;
 }
-
 
 /* =========================================================
    OVERALL ACHIEVEMENT
@@ -598,43 +470,26 @@ select:focus {
 .overall-achievement {
     display: flex;
     align-items: center;
-
     gap: 22px;
-
     min-height: 205px;
-
     padding: 20px;
-
     border-radius: 12px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #f8fafc,
-            #f1f5f9
-        );
-
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
     border: 1px solid #e2e8f0;
 }
 
 .achievement-ring {
     position: relative;
-
     width: 145px;
     height: 145px;
-
     flex: 0 0 145px;
-
     border-radius: 50%;
-
-    background:
-        conic-gradient(
-            #22c55e 0deg,
-            #22c55e 0deg,
-            #e5e7eb 0deg,
-            #e5e7eb 360deg
-        );
-
+    background: conic-gradient(
+        #22c55e 0deg,
+        #22c55e 0deg,
+        #e5e7eb 0deg,
+        #e5e7eb 360deg
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -642,58 +497,43 @@ select:focus {
 
 .achievement-ring::after {
     content: "";
-
     position: absolute;
-
     width: 113px;
     height: 113px;
-
     border-radius: 50%;
-
     background: white;
 }
 
 .achievement-ring-fill {
     position: absolute;
-
     inset: 0;
-
     border-radius: 50%;
-
     display: none;
 }
 
 .achievement-ring-center {
     position: relative;
-
     z-index: 2;
-
     display: flex;
     flex-direction: column;
-
     align-items: center;
     justify-content: center;
 }
 
 .achievement-ring-center strong {
     color: #111827;
-
     font-size: 28px;
     font-weight: 850;
 }
 
 .achievement-ring-center span {
     margin-top: 2px;
-
     color: #7a8291;
-
     font-size: 10px;
     font-weight: 700;
-
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
 
 /* =========================================================
    ACHIEVEMENT DETAILS
@@ -707,11 +547,8 @@ select:focus {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
-
     padding: 9px 0;
-
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -721,14 +558,12 @@ select:focus {
 
 .achievement-value-row span {
     color: #7a8291;
-
     font-size: 11px;
     font-weight: 650;
 }
 
 .achievement-value-row strong {
     color: #172033;
-
     font-size: 14px;
     font-weight: 800;
 }
@@ -737,80 +572,57 @@ select:focus {
     color: #dc2626;
 }
 
-
 /* =========================================================
    PROCESS ACHIEVEMENT
 ========================================================= */
 
 .process-achievement-list {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-
     align-content: center;
 }
 
 .target-item {
     margin: 0;
-
     padding: 13px;
-
     border: 1px solid #e5e7eb;
     border-radius: 10px;
-
     background: #ffffff;
 }
 
 .target-process-name {
     display: flex;
     align-items: center;
-
     margin-bottom: 9px;
-
     color: #374151;
-
     font-size: 12px;
     font-weight: 800;
 }
 
 .target-process-name::before {
     content: "";
-
     width: 7px;
     height: 7px;
-
     margin-right: 7px;
-
     border-radius: 50%;
-
     background: #94a3b8;
 }
 
 .target-bar-container {
     position: relative;
-
     width: 100%;
     height: 10px;
-
     overflow: hidden;
-
     margin-bottom: 8px;
-
     border-radius: 99px;
-
     background: #edf0f3;
 }
 
 .target-bar-fill {
     height: 100%;
-
     min-width: 2px;
-
     border-radius: 99px;
-
     transition: width 0.35s ease;
 }
 
@@ -836,14 +648,9 @@ select:focus {
 
 .target-stats {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
+    grid-template-columns: repeat(3, 1fr);
     gap: 4px;
-
     color: #7a8291;
-
     font-size: 9px;
     line-height: 1.3;
 }
@@ -856,7 +663,6 @@ select:focus {
     text-align: right;
 }
 
-
 /* =========================================================
    DAILY SUMMARY / REPORT HEADER
 ========================================================= */
@@ -864,23 +670,18 @@ select:focus {
 .daily-header,
 .reports-header {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
     gap: 15px;
-
     margin-bottom: 15px;
 }
 
 #loadingMessage,
 #reportsResultInfo {
     color: #7b8493;
-
     font-size: 11px;
     font-weight: 600;
 }
-
 
 /* =========================================================
    REPORT CARD
@@ -888,28 +689,21 @@ select:focus {
 
 .report-card {
     overflow: hidden;
-
     margin-bottom: 14px;
-
     border: 1px solid #e0e5eb;
     border-radius: 11px;
-
     background: #ffffff;
 }
 
 .report-header {
     padding: 13px 15px;
-
     background: #f8fafc;
-
     border-bottom: 1px solid #e5e7eb;
 }
 
 .report-title {
     margin-bottom: 7px;
-
     color: #172033;
-
     font-size: 15px;
     font-weight: 800;
 }
@@ -917,18 +711,14 @@ select:focus {
 .report-info {
     display: flex;
     flex-wrap: wrap;
-
     gap: 5px 18px;
-
     color: #697384;
-
     font-size: 11px;
 }
 
 .report-info strong {
     color: #414a59;
 }
-
 
 /* =========================================================
    REPORT ACTION BAR
@@ -938,46 +728,31 @@ select:focus {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-
     gap: 5px;
-
     padding: 7px 10px;
-
     border-bottom: 1px solid #edf0f3;
-
     background: #ffffff;
 }
 
 .report-action-btn {
     width: 31px;
     height: 31px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     padding: 0;
-
     border: 1px solid #e1e5eb;
     border-radius: 7px;
-
     background: #ffffff;
-
     color: #596273;
-
     cursor: pointer;
-
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease,
-        transform 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease,
+        border-color 0.15s ease, transform 0.15s ease;
 }
 
 .report-action-btn svg {
     width: 15px;
     height: 15px;
-
     fill: currentColor;
 }
 
@@ -1003,14 +778,12 @@ select:focus {
     border-color: #bbf7d0;
 }
 
-
 /* =========================================================
    PROCESS SECTION
 ========================================================= */
 
 .process-section {
     padding: 13px 15px;
-
     border-bottom: 1px solid #edf0f3;
 }
 
@@ -1020,13 +793,10 @@ select:focus {
 
 .process-title {
     margin-bottom: 9px;
-
     color: #273244;
-
     font-size: 13px;
     font-weight: 800;
 }
-
 
 /* =========================================================
    MACHINE TABLE
@@ -1034,36 +804,27 @@ select:focus {
 
 .machine-table-wrapper {
     width: 100%;
-
     overflow-x: auto;
 }
 
 .machine-table {
     width: 100%;
-
     min-width: 700px;
-
     border-collapse: collapse;
-
     font-size: 11px;
 }
 
 .machine-table th {
     background: #f8fafc;
-
     color: #5c6675;
-
     font-weight: 750;
 }
 
 .machine-table th,
 .machine-table td {
     padding: 8px 9px;
-
     border: 1px solid #e3e7ec;
-
     text-align: left;
-
     vertical-align: top;
 }
 
@@ -1071,22 +832,16 @@ select:focus {
     background: #fafbfc;
 }
 
-
 /* =========================================================
    STATUS
 ========================================================= */
 
 .status-badge {
     display: inline-flex;
-
     align-items: center;
-
     min-height: 22px;
-
     padding: 3px 7px;
-
     border-radius: 5px;
-
     font-size: 10px;
     font-weight: 750;
 }
@@ -1106,23 +861,19 @@ select:focus {
     color: #b91c1c;
 }
 
-
 /* =========================================================
    REMARKS
 ========================================================= */
 
 .remarks {
     white-space: pre-wrap;
-
     line-height: 1.4;
 }
 
 .coil-details {
     white-space: pre-wrap;
-
     line-height: 1.4;
 }
-
 
 /* =========================================================
    EMPTY / ERROR
@@ -1130,31 +881,21 @@ select:focus {
 
 .empty-message {
     margin: 0;
-
     padding: 35px 15px;
-
     text-align: center;
-
     color: #858e9d;
-
     font-size: 12px;
 }
 
 .error-message {
     margin: 0;
-
     padding: 14px;
-
     border: 1px solid #fecaca;
     border-radius: 8px;
-
     background: #fef2f2;
-
     color: #b91c1c;
-
     font-size: 12px;
 }
-
 
 /* =========================================================
    MODAL
@@ -1162,18 +903,12 @@ select:focus {
 
 .modal {
     position: fixed;
-
     inset: 0;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     padding: 20px;
-
     background: rgba(15, 23, 42, 0.55);
-
     z-index: 1000;
 }
 
@@ -1184,49 +919,34 @@ select:focus {
 .modal-content {
     width: 100%;
     max-width: 520px;
-
     max-height: 90vh;
-
     overflow-y: auto;
-
     border-radius: 14px;
-
     background: white;
-
-    box-shadow:
-        0 20px 60px rgba(15, 23, 42, 0.25);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
 }
 
 .modal-header {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
-
     padding: 18px 20px;
-
     border-bottom: 1px solid #edf0f3;
 }
 
 .modal-header h2 {
     margin: 0;
-
     font-size: 18px;
 }
 
 .modal-close {
     width: 32px;
     height: 32px;
-
     border: none;
     border-radius: 7px;
-
     background: #f3f4f6;
-
     color: #697384;
-
     font-size: 22px;
-
     cursor: pointer;
 }
 
@@ -1241,69 +961,49 @@ select:focus {
 
 .modal-form-grid {
     display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-
     margin-bottom: 15px;
 }
 
 .target-process-inputs {
     display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
 .process-input-group {
     margin: 0;
-
     padding: 11px;
-
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-
     background: #f8fafc;
 }
 
 .process-input-group label {
     display: block;
-
     margin-bottom: 6px;
-
     color: #4b5563;
-
     font-size: 11px;
     font-weight: 750;
 }
 
 .process-input-group input {
     height: 36px;
-
     background: white;
 }
 
 .modal-footer {
     display: flex;
-
     justify-content: flex-end;
-
     gap: 8px;
-
     padding: 13px 20px;
-
     border-top: 1px solid #edf0f3;
 }
 
 .primary-button {
     border-color: #111827;
-
     background: #111827;
-
     color: white;
 }
 
@@ -1311,21 +1011,283 @@ select:focus {
     background: #1f2937;
 }
 
+/* =========================================================
+   PENDING WIP
+========================================================= */
+
+.pending-wip-card {
+    overflow: hidden;
+}
+
+.pending-wip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.pending-wip-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 18px;
+    font-weight: 750;
+}
+
+.pending-wip-info {
+    color: #7b8493;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.pending-wip-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e3e7ec;
+    border-radius: 9px;
+    background: #ffffff;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pending-wip-table {
+    width: 100%;
+    min-width: 1250px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+.pending-wip-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 12px 10px;
+    background: #f1f5f9;
+    color: #475569;
+    border-bottom: 1px solid #dce3ec;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pending-wip-table tbody td {
+    padding: 11px 10px;
+    color: #374151;
+    border-bottom: 1px solid #edf0f3;
+    vertical-align: middle;
+    line-height: 1.45;
+}
+
+.pending-wip-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.pending-wip-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.pending-wip-table th:first-child,
+.pending-wip-table td:first-child {
+    text-align: center;
+    width: 65px;
+}
+
+.pending-wip-table th:nth-child(6),
+.pending-wip-table td:nth-child(6),
+.pending-wip-table th:nth-child(8),
+.pending-wip-table td:nth-child(8) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.pending-wip-table th:nth-child(7),
+.pending-wip-table td:nth-child(7) {
+    white-space: nowrap;
+}
+
+.pending-wip-table th:nth-child(9),
+.pending-wip-table td:nth-child(9) {
+    min-width: 180px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.pending-wip-table th:last-child,
+.pending-wip-table td:last-child {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.pending-wip-job-no {
+    color: #172033;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.pending-wip-job-name {
+    min-width: 150px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.pending-wip-roll-no {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pending-wip-weight {
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+.pending-wip-age {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 35px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.pending-wip-age.age-warning {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.pending-wip-age.age-critical {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.pending-wip-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 180px;
+    padding: 5px 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 10px;
+    font-weight: 750;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.pending-wip-status.status-pending {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
+}
+
+.pending-wip-status.status-ready {
+    background: #ecfdf5;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.pending-wip-release-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 6px 11px;
+    border: 1px solid #bbf7d0;
+    border-radius: 7px;
+    background: #f0fdf4;
+    color: #15803d;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.pending-wip-release-btn:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+}
+
+.pending-wip-release-btn:active {
+    transform: scale(0.97);
+}
+
+.pending-wip-release-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pending-wip-release-btn svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    fill: currentColor;
+}
+
+.pending-wip-empty {
+    margin: 0;
+    padding: 45px 16px;
+    text-align: center;
+    color: #858e9d;
+    font-size: 13px;
+}
+
+.pending-wip-empty::before {
+    content: "✓";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.pending-wip-error {
+    margin: 0;
+    padding: 14px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 12px;
+}
+
+.pending-wip-loading {
+    margin: 0;
+    padding: 35px 15px;
+    text-align: center;
+    color: #858e9d;
+    font-size: 12px;
+}
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
 @media (max-width: 900px) {
-
     .filter-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .summary-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .performance-layout {
@@ -1333,23 +1295,22 @@ select:focus {
     }
 
     .process-achievement-list {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pending-wip-table {
+        min-width: 1200px;
     }
 }
 
-
 @media (max-width: 650px) {
-
     .container {
         padding: 12px;
     }
 
     .dashboard-header {
         align-items: flex-start;
-
         flex-direction: column;
-
         gap: 10px;
     }
 
@@ -1376,47 +1337,39 @@ select:focus {
 
     .section-heading {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
     .add-target-button {
         width: 100%;
-
         justify-content: center;
     }
 
     .dashboard-tabs {
         width: 100%;
-
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .dashboard-tab {
         min-width: 120px;
-
-        flex: 1;
+        flex: 0 0 auto;
     }
 
     .summary-grid {
-        grid-template-columns:
-            1fr 1fr;
-
+        grid-template-columns: 1fr 1fr;
         gap: 8px;
     }
 
     .summary-card {
         padding: 12px 10px;
-
         gap: 8px;
     }
 
     .summary-icon {
         width: 32px;
         height: 32px;
-
         flex-basis: 32px;
-
         font-size: 14px;
     }
 
@@ -1432,13 +1385,11 @@ select:focus {
     .daily-header,
     .reports-header {
         align-items: flex-start;
-
         flex-direction: column;
     }
 
     .overall-achievement {
         flex-direction: column;
-
         text-align: center;
     }
 
@@ -1471,11 +1422,27 @@ select:focus {
         justify-content: flex-end;
     }
 
+    .pending-wip-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .pending-wip-table {
+        min-width: 1200px;
+    }
+
+    .pending-wip-table thead th,
+    .pending-wip-table tbody td {
+        padding: 10px 8px;
+    }
+
+    .pending-wip-release-btn {
+        min-height: 34px;
+        padding: 7px 10px;
+    }
 }
 
-
 @media (max-width: 420px) {
-
     .summary-card {
         min-height: 70px;
     }
@@ -1486,10 +1453,7 @@ select:focus {
 
     .dashboard-tab {
         min-width: 105px;
-
         padding: 0 8px;
-
         font-size: 11px;
     }
-
 }
