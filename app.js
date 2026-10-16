@@ -1506,4 +1506,4 @@ function initializeApplication() {
 ===================================================== */
 
 initializeApplication();
-```
+
