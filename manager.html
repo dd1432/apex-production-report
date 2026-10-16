@@ -1,497 +1,679 @@
-```css
-/* =====================================================
-   APEX PRODUCTION REPORT
-   COMPLETE STYLE SHEET
-===================================================== */
+```html
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/* =====================================================
-   BASIC RESET
-===================================================== */
+    <meta name="theme-color" content="#111827">
 
-* {
-    box-sizing: border-box;
-}
+    <title>Apex Manager Dashboard</title>
 
+    <link
+        rel="icon"
+        type="image/png"
+        href="https://res.cloudinary.com/org593vv/image/upload/v1791302844/ChatGPT_Image_Oct_6_2026_09_34_40_PM.png"
+    >
 
-body {
-    margin: 0;
-    padding: 0;
+    <link
+        rel="apple-touch-icon"
+        href="https://res.cloudinary.com/org593vv/image/upload/v1791302844/ChatGPT_Image_Oct_6_2026_09_34_40_PM.png"
+    >
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+    <link rel="stylesheet" href="./manager.css?v=4">
+    <link rel="stylesheet" href="./daily-summary.css?v=1">
+</head>
 
-    background: #f4f6f8;
-    color: #222;
-}
+<body>
 
+<div class="container">
 
-/* =====================================================
-   MAIN CONTAINER
-===================================================== */
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-.container {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-}
+    <header class="dashboard-header">
 
+        <div class="header-left">
 
-/* =====================================================
-   HEADER
-===================================================== */
+            <div class="header-logo">
+                A
+            </div>
 
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-}
+            <div>
+                <h1>Apex Manager Dashboard</h1>
+                <p>Production Reports &amp; Performance Monitor</p>
+            </div>
 
+        </div>
 
-.header h1 {
-    margin: 0;
-    font-size: 30px;
-}
+        <div class="header-status">
+            <span class="status-dot"></span>
+            <span id="loadingMessage">Loading...</span>
+        </div>
 
+    </header>
 
-.header p {
-    margin-top: 6px;
-    color: #666;
-    font-size: 15px;
-}
 
+    <!-- =====================================================
+         FILTER PANEL
+    ====================================================== -->
 
-/* =====================================================
-   CARDS
-===================================================== */
+    <section class="filter-panel">
 
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
+        <div class="section-heading">
 
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08);
-}
+            <div>
+                <span class="section-kicker">CONTROL PANEL</span>
+                <h2>Report Filters</h2>
+            </div>
 
+            <button
+                type="button"
+                id="addTargetBtn"
+                class="add-target-button">
 
-.card h2 {
-    margin-top: 0;
-    margin-bottom: 18px;
-    font-size: 20px;
-}
+                <span class="add-target-icon">+</span>
+                Add Target
 
+            </button>
 
-/* =====================================================
-   GRID
-===================================================== */
+        </div>
 
-.grid {
-    display: grid;
 
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+        <div class="filter-grid">
 
-    gap: 16px;
-}
+            <div class="form-group">
 
+                <label for="reportFromDate">
+                    From Date
+                </label>
 
-/* =====================================================
-   FORM GROUP
-===================================================== */
+                <input
+                    type="date"
+                    id="reportFromDate">
 
-.form-group {
-    width: 100%;
-    margin-bottom: 15px;
-}
+            </div>
 
 
-.form-group label {
-    display: block;
-    margin-bottom: 7px;
-    font-weight: 600;
-    font-size: 14px;
-}
+            <div class="form-group">
 
+                <label for="reportToDate">
+                    To Date
+                </label>
 
-/* =====================================================
-   INPUTS / SELECTS / TEXTAREA
-===================================================== */
+                <input
+                    type="date"
+                    id="reportToDate">
 
-input,
-select,
-textarea {
-    width: 100%;
-    padding: 11px 12px;
+            </div>
 
-    border: 1px solid #ccc;
-    border-radius: 7px;
 
-    background: white;
-    font-family: inherit;
-    font-size: 15px;
+            <div class="form-group">
 
-    outline: none;
-}
+                <label for="shiftFilter">
+                    Shift
+                </label>
 
+                <select id="shiftFilter">
 
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #555;
-}
+                    <option value="">All Shifts</option>
+                    <option value="1st">1st Shift</option>
+                    <option value="2nd">2nd Shift</option>
+                    <option value="3rd">3rd Shift</option>
 
+                </select>
 
-textarea {
-    min-height: 90px;
-    resize: vertical;
-}
+            </div>
 
 
-/* =====================================================
-   MACHINE ENTRY FORM
-===================================================== */
+            <div class="form-group">
 
-.machine-entry-form {
-    margin-top: 18px;
-    padding: 16px;
+                <label for="unitFilter">
+                    Unit
+                </label>
 
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
+                <select id="unitFilter">
 
-    background: #fafafa;
-}
+                    <option value="">All Units</option>
+                    <option value="Unit 1">Unit 1</option>
+                    <option value="Unit 2">Unit 2</option>
 
+                </select>
 
-/* =====================================================
-   STATUS MESSAGE
-===================================================== */
+            </div>
 
-.status-message {
-    padding: 12px;
-    margin: 10px 0;
+        </div>
 
-    border-radius: 7px;
 
-    background: #f1f3f5;
-    color: #555;
+        <div class="filter-actions">
 
-    font-size: 14px;
-}
+            <button
+                type="button"
+                id="showAllReports"
+                class="filter-button primary-filter">
+                Show All
+            </button>
 
+            <button
+                type="button"
+                id="clearFilters"
+                class="filter-button">
+                Clear
+            </button>
 
-/* =====================================================
-   PENDING WIP FORM
-===================================================== */
+            <button
+                type="button"
+                id="refreshReports"
+                class="filter-button">
+                ↻ Refresh
+            </button>
 
-#pendingWIPEntrySection {
-    border-top: 4px solid #2563eb;
-}
+        </div>
 
+    </section>
 
-#pendingWIPEntrySection > p {
-    margin-top: -8px;
-    margin-bottom: 18px;
 
-    color: #666;
-    font-size: 14px;
-    line-height: 1.5;
-}
+    <!-- =====================================================
+         TARGET MODAL
+    ====================================================== -->
 
+    <div id="targetModal" class="modal hidden">
 
-#pendingWIPEntrySection input:focus,
-#pendingWIPEntrySection select:focus,
-#pendingWIPEntrySection textarea:focus {
-    border-color: #2563eb;
+        <div class="modal-content">
 
-    box-shadow:
-        0 0 0 2px rgba(37, 99, 235, 0.10);
-}
+            <div class="modal-header">
 
+                <div>
+                    <span class="section-kicker">
+                        PRODUCTION PLANNING
+                    </span>
 
-#pendingWIPEntrySection #savePendingWIP {
-    margin-top: 5px;
+                    <h2>Add Production Target</h2>
+                </div>
 
-    background: #2563eb;
-    color: white;
-}
+                <button
+                    class="modal-close"
+                    id="closeTargetModal"
+                    aria-label="Close">
+                    &times;
+                </button>
 
+            </div>
 
-#pendingWIPEntrySection #savePendingWIP:hover {
-    background: #1d4ed8;
-    opacity: 1;
-}
 
+            <div class="modal-body">
 
-#pendingWIPEntrySection #savePendingWIP:disabled {
-    background: #94a3b8;
-    cursor: not-allowed;
-    opacity: 1;
-}
+                <div class="modal-form-grid">
 
+                    <div class="form-group">
 
-/* =====================================================
-   PENDING WIP SUCCESS / ERROR MESSAGES
-===================================================== */
+                        <label for="targetDate">Date</label>
 
-#pendingWIPMessage {
-    font-size: 14px;
-    line-height: 1.5;
-}
+                        <input
+                            type="date"
+                            id="targetDate">
 
+                    </div>
 
-#pendingWIPMessage:empty {
-    display: none;
-}
 
+                    <div class="form-group">
 
-#pendingWIPMessage.status-message {
-    margin-top: 14px;
-    margin-bottom: 0;
+                        <label for="targetUnit">Unit</label>
 
-    background: #dcfce7;
-    color: #166534;
+                        <select id="targetUnit">
 
-    border: 1px solid #bbf7d0;
-}
+                            <option value="">Select Unit</option>
+                            <option value="Unit 1">Unit 1</option>
+                            <option value="Unit 2">Unit 2</option>
 
+                        </select>
 
-#pendingWIPMessage.error-message {
-    margin-top: 14px;
-    padding: 12px;
+                    </div>
 
-    border-radius: 7px;
+                </div>
 
-    background: #fee2e2;
-    color: #991b1b;
 
-    border: 1px solid #fecaca;
-}
+                <div
+                    id="targetProcessContainer"
+                    class="target-process-inputs">
+                </div>
 
+            </div>
 
-/* =====================================================
-   BUTTONS
-===================================================== */
 
-button {
-    font-family: inherit;
-}
+            <div class="modal-footer">
 
+                <button
+                    type="button"
+                    id="cancelTargetBtn"
+                    class="secondary-button">
+                    Cancel
+                </button>
 
-.primary-button {
-    width: 100%;
-    padding: 14px 18px;
+                <button
+                    type="button"
+                    id="saveTargetBtn"
+                    class="primary-button">
+                    Save Target
+                </button>
 
-    border: none;
-    border-radius: 8px;
+            </div>
 
-    font-size: 16px;
-    font-weight: 700;
+        </div>
 
-    cursor: pointer;
-}
+    </div>
 
 
-.secondary-button {
-    padding: 11px 18px;
+    <!-- =====================================================
+         NAVIGATION TABS
+    ====================================================== -->
 
-    border: none;
-    border-radius: 7px;
+    <nav class="dashboard-tabs">
 
-    font-size: 15px;
-    font-weight: 600;
+        <button
+            type="button"
+            class="dashboard-tab active"
+            data-tab="overviewTab">
 
-    cursor: pointer;
-}
+            <span>◉</span>
+            Overview
 
+        </button>
 
-.delete-button {
-    border: none;
-    padding: 6px 10px;
 
-    border-radius: 6px;
+        <button
+            type="button"
+            class="dashboard-tab"
+            data-tab="dailySummaryTab">
 
-    font-size: 13px;
-    cursor: pointer;
-}
+            <span>▦</span>
+            Daily Summary
 
+        </button>
 
-.edit-button {
-    border: none;
-    padding: 6px 10px;
 
-    border-radius: 6px;
+        <button
+            type="button"
+            class="dashboard-tab"
+            data-tab="reportsTab">
 
-    font-size: 13px;
-    cursor: pointer;
-}
+            <span>☷</span>
+            Production Reports
 
+        </button>
 
-.delete-button:hover,
-.edit-button:hover,
-.primary-button:hover,
-.secondary-button:hover {
-    opacity: 0.85;
-}
 
+        <button
+            type="button"
+            class="dashboard-tab"
+            data-tab="pendingWIPTab">
 
-button:disabled {
-    cursor: not-allowed;
-}
+            <span>▤</span>
+            Pending WIP
 
+        </button>
 
-/* =====================================================
-   ICON BUTTONS STYLING
-===================================================== */
+    </nav>
 
-.edit-button {
-    background: #22c55e;
-    color: white;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    <!-- =====================================================
+         OVERVIEW TAB
+    ====================================================== -->
 
-    min-width: 32px;
-    height: 32px;
+    <main id="overviewTab" class="tab-content active">
 
-    padding: 0;
-}
 
+        <!-- KPI STRIP -->
 
-.delete-button {
-    background: #ef4444;
-    color: white;
+        <section class="summary-grid">
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+            <div class="summary-card">
 
-    min-width: 32px;
-    height: 32px;
+                <div class="summary-icon reports-icon">
+                    ▤
+                </div>
 
-    padding: 0;
-}
+                <div>
+                    <span
+                        class="summary-number"
+                        id="reportCount">
+                        0
+                    </span>
 
+                    <span class="summary-label">
+                        Reports
+                    </span>
+                </div>
 
-.edit-button:hover {
-    background: #16a34a;
-}
+            </div>
 
 
-.delete-button:hover {
-    background: #dc2626;
-}
+            <div class="summary-card">
 
+                <div class="summary-icon machine-icon">
+                    ⚙
+                </div>
 
-/* =====================================================
-   CURRENT SHIFT ENTRY
-===================================================== */
+                <div>
+                    <span
+                        class="summary-number"
+                        id="machineCount">
+                        0
+                    </span>
 
-.entry-card {
-    border: 1px solid #ddd;
-    border-radius: 10px;
+                    <span class="summary-label">
+                        Machines Reported
+                    </span>
+                </div>
 
-    padding: 15px;
-    margin-top: 12px;
+            </div>
 
-    background: #fafafa;
-}
 
+            <div class="summary-card">
 
-.entry-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+                <div class="summary-icon production-icon">
+                    ↑
+                </div>
 
-    gap: 10px;
-    margin-bottom: 10px;
-}
+                <div>
+                    <span
+                        class="summary-number"
+                        id="productionCount">
+                        0
+                    </span>
 
+                    <span class="summary-label">
+                        Production Entries
+                    </span>
+                </div>
 
-.entry-details {
-    display: flex;
-    flex-direction: column;
+            </div>
 
-    gap: 6px;
 
-    font-size: 14px;
-    line-height: 1.5;
-}
+            <div class="summary-card">
 
+                <div class="summary-icon idle-icon">
+                    !
+                </div>
 
-/* =====================================================
-   EMPTY MESSAGE
-===================================================== */
+                <div>
+                    <span
+                        class="summary-number"
+                        id="idleCount">
+                        0
+                    </span>
 
-.empty-message {
-    margin: 0;
-    padding: 12px 0;
+                    <span class="summary-label">
+                        Idle / Maintenance
+                    </span>
+                </div>
 
-    color: #777;
-    font-size: 14px;
-}
+            </div>
 
+        </section>
 
-/* =====================================================
-   SUBMIT AREA
-===================================================== */
 
-.submit-area {
-    margin-top: 20px;
-    margin-bottom: 30px;
-}
+        <!-- =================================================
+             TARGET PERFORMANCE
+        ================================================== -->
 
+        <section class="performance-card target-card hidden">
 
-/* =====================================================
-   MOBILE RESPONSIVE
-===================================================== */
+            <div class="performance-header">
 
-@media (max-width: 650px) {
+                <div>
+                    <span class="section-kicker">
+                        DAILY PERFORMANCE
+                    </span>
 
-    .container {
-        padding: 12px;
-    }
+                    <h2>Target Achievement</h2>
+                </div>
 
+                <span
+                    id="targetInfo"
+                    class="daily-info">
+                    Select a single date and unit
+                </span>
 
-    .header h1 {
-        font-size: 24px;
-    }
+            </div>
 
 
-    .card {
-        padding: 15px;
-    }
+            <div class="performance-layout">
 
+                <!-- OVERALL ACHIEVEMENT -->
 
-    .grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
+                <div class="overall-achievement">
 
+                    <div class="achievement-ring">
 
-    .entry-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
+                        <div
+                            class="achievement-ring-fill"
+                            id="targetProgressRing">
+                        </div>
 
+                        <div class="achievement-ring-center">
 
-    .delete-button {
-        width: 100%;
-    }
+                            <strong id="targetOverallPercent">
+                                0%
+                            </strong>
 
+                            <span>Achieved</span>
 
-    .primary-button {
-        font-size: 15px;
-    }
+                        </div>
 
+                    </div>
 
-    #pendingWIPEntrySection #savePendingWIP {
-        width: 100%;
-    }
 
-}
+                    <div class="achievement-details">
+
+                        <div class="achievement-value-row">
+
+                            <span>Target</span>
+
+                            <strong id="targetTotalTarget">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+
+                        <div class="achievement-value-row">
+
+                            <span>Actual</span>
+
+                            <strong id="targetTotalAchieved">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+
+                        <div class="achievement-value-row remaining-row">
+
+                            <span>Remaining</span>
+
+                            <strong id="targetTotalRemaining">
+                                0 kg
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROCESS ACHIEVEMENT -->
+
+                <div
+                    id="targetContainer"
+                    class="process-achievement-list">
+
+                    <p class="empty-message">
+                        Select a date and unit to view target achievement.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         DAILY SUMMARY TAB
+    ====================================================== -->
+
+    <section
+        id="dailySummaryTab"
+        class="tab-content">
+
+        <section class="card daily-production-card">
+
+            <div class="daily-header">
+
+                <div>
+                    <span class="section-kicker">
+                        PRODUCTION OVERVIEW
+                    </span>
+
+                    <h2>Daily Production Summary</h2>
+                </div>
+
+                <span
+                    id="dailyProductionInfo"
+                    class="daily-info">
+                    Select date range and unit
+                </span>
+
+            </div>
+
+
+            <div id="dailyProductionContainer">
+
+                <p class="empty-message">
+                    Select a date range and unit to view the table.
+                </p>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- =====================================================
+         PRODUCTION REPORTS TAB
+    ====================================================== -->
+
+    <section
+        id="reportsTab"
+        class="tab-content">
+
+        <section class="card reports-card">
+
+            <div class="reports-header">
+
+                <div>
+                    <span class="section-kicker">
+                        DETAILED RECORDS
+                    </span>
+
+                    <h2>Production Reports</h2>
+                </div>
+
+                <span id="reportsResultInfo">
+                    Reports
+                </span>
+
+            </div>
+
+
+            <div id="reportsContainer">
+
+                <p class="empty-message">
+                    Loading reports...
+                </p>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+    <!-- =====================================================
+         PENDING WIP TAB
+    ====================================================== -->
+
+    <section
+        id="pendingWIPTab"
+        class="tab-content">
+
+        <section class="card pending-wip-card">
+
+            <div class="pending-wip-header">
+
+                <div>
+                    <span class="section-kicker">
+                        WORK IN PROGRESS
+                    </span>
+
+                    <h2>Pending WIP Rolls</h2>
+
+                </div>
+
+                <span
+                    id="pendingWIPResultInfo"
+                    class="daily-info">
+                    Pending WIP rolls
+                </span>
+
+            </div>
+
+
+            <div
+                id="pendingWIPContainer"
+                class="pending-wip-table-container">
+
+                <p class="empty-message">
+                    Loading Pending WIP rolls...
+                </p>
+
+            </div>
+
+        </section>
+
+    </section>
+
+
+</div>
+
+
+<!-- =====================================================
+     EXISTING DASHBOARD SCRIPTS
+====================================================== -->
+
+<script
+    type="module"
+    src="./manager-range-loader.js?v=2">
+</script>
+
+<script
+    type="module"
+    src="./daily-summary-range-loader.js?v=2">
+</script>
+
+<script
+    type="module"
+    src="./manager.js?v=4">
+</script>
+
+</body>
+</html>
 ```
