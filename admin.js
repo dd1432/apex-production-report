@@ -1,10 +1,6 @@
 /* =====================================================
    APEX PRODUCTION REPORT
-   ADMIN EDITOR
-===================================================== */
-
-/* =====================================================
-   FIREBASE
+   ADMIN EDITOR (WITH PENDING WIP SUPPORT)
 ===================================================== */
 
 import {
@@ -16,7 +12,10 @@ import {
     ref,
     onValue,
     update,
-    remove
+    remove,
+    set,
+    push,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 /* =====================================================
@@ -67,6 +66,10 @@ const machineData = {
 let allReports = [];
 let currentReport = null;
 
+let allPendingWIP = [];
+let currentWIP = null;
+let activeTab = "reports"; // "reports" or "wip"
+
 /* =====================================================
    DOM ELEMENTS
 ===================================================== */
@@ -80,6 +83,8 @@ const filterUnit = document.getElementById("filterUnit");
 const searchText = document.getElementById("searchText");
 const clearFilters = document.getElementById("clearFilters");
 const refreshButton = document.getElementById("refreshButton");
+
+// Modal elements for Production Reports
 const editModal = document.getElementById("editModal");
 const closeModal = document.getElementById("closeModal");
 const cancelEdit = document.getElementById("cancelEdit");
@@ -87,6 +92,25 @@ const saveChangesButton = document.getElementById("saveChangesButton");
 const deleteReportButton = document.getElementById("deleteReportButton");
 const addMachineButton = document.getElementById("addMachineButton");
 const machinesEditor = document.getElementById("machinesEditor");
+
+/* =====================================================
+   TAB NAVIGATION HANDLERS (Reports vs Pending WIP)
+===================================================== */
+
+document.querySelectorAll(".dashboard-tab").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".dashboard-tab").forEach(tab => tab.classList.remove("active"));
+        button.classList.add("active");
+        
+        activeTab = button.dataset.tab; // expected values: "reports" or "wip"
+        
+        if (activeTab === "wip") {
+            loadPendingWIP();
+        } else {
+            loadReports();
+        }
+    });
+});
 
 /* =====================================================
    LOAD REPORTS
@@ -125,6 +149,41 @@ function loadReports() {
 }
 
 /* =====================================================
+   LOAD PENDING WIP ROLLS
+===================================================== */
+
+function loadPendingWIP() {
+    loadingMessage.textContent = "Loading Pending WIP rolls...";
+    loadingMessage.style.display = "block";
+
+    const wipRef = ref(database, "pendingWIP");
+
+    onValue(wipRef, function (snapshot) {
+        const data = snapshot.val();
+
+        if (!data) {
+            allPendingWIP = [];
+            renderPendingWIPList();
+            loadingMessage.textContent = "No Pending WIP rolls found.";
+            return;
+        }
+
+        allPendingWIP = Object.entries(data).map(function ([id, record]) {
+            return {
+                id: id,
+                ...record
+            };
+        });
+
+        renderPendingWIPList();
+        loadingMessage.style.display = "none";
+    }, function (error) {
+        console.error("Firebase WIP loading error:", error);
+        loadingMessage.textContent = "Unable to load Pending WIP rolls.";
+    });
+}
+
+/* =====================================================
    SORT REPORTS (NEWEST FIRST)
 ===================================================== */
 
@@ -146,6 +205,7 @@ function sortReports() {
 ===================================================== */
 
 function renderReports() {
+    if (activeTab !== "reports") return;
     const filtered = getFilteredReports();
     reportCount.textContent = `${filtered.length} report${filtered.length === 1 ? "" : "s"} found`;
     reportsContainer.innerHTML = "";
@@ -164,6 +224,84 @@ function renderReports() {
     filtered.forEach(function (report) {
         reportsContainer.appendChild(createReportCard(report));
     });
+}
+
+/* =====================================================
+   RENDER PENDING WIP LIST
+===================================================== */
+
+function renderPendingWIPList() {
+    if (activeTab !== "wip") return;
+    
+    const searchValue = searchText.value.trim().toLowerCase();
+    const filtered = allPendingWIP.filter(item => {
+        if (!searchValue) return true;
+        const searchable = [
+            item.jobNo,
+            item.jobName,
+            item.status,
+            item.rollNo,
+            item.productionDate,
+            item.remarkOnLabel,
+            item.responsiblePerson
+        ].join(" ").toLowerCase();
+        return searchable.includes(searchValue);
+    });
+
+    reportCount.textContent = `${filtered.length} Pending WIP roll${filtered.length === 1 ? "" : "s"} found`;
+    reportsContainer.innerHTML = "";
+
+    if (filtered.length === 0) {
+        reportsContainer.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>No Pending WIP rolls found</h3>
+            </div>
+        `;
+        return;
+    }
+
+    filtered.forEach(function (record) {
+        reportsContainer.appendChild(createWIPCard(record));
+    });
+}
+
+/* =====================================================
+   CREATE PENDING WIP CARD FOR ADMIN VIEW
+===================================================== */
+
+function createWIPCard(record) {
+    const card = document.createElement("div");
+    card.className = "report-card";
+
+    card.innerHTML = `
+        <div class="report-card-header">
+            <div>
+                <h3>🏷️ Job No: ${escapeHTML(record.jobNo || "-")} (${escapeHTML(record.jobName || "-")})</h3>
+                <div class="report-meta">
+                    <span>Status: <strong>${escapeHTML(record.status || "-")}</strong></span>
+                    <span>Roll No: ${escapeHTML(record.rollNo || "-")}</span>
+                    <span>Weight: ${escapeHTML(record.weight || "-")} kg</span>
+                    <span>Date: ${escapeHTML(record.productionDate || "-")}</span>
+                </div>
+            </div>
+            <button type="button" class="edit-wip-button">✏️ Edit WIP</button>
+        </div>
+        <div class="machine-preview">
+            <div class="machine-preview-row">
+                <div class="machine-preview-details">
+                    <strong>Responsible Person:</strong> ${escapeHTML(record.responsiblePerson || "Not Assigned")} <br>
+                    <strong>Remark on Label:</strong> ${escapeHTML(record.remarkOnLabel || "-")}
+                </div>
+            </div>
+        </div>
+    `;
+
+    card.querySelector(".edit-wip-button").addEventListener("click", function () {
+        openWIPEditModal(record);
+    });
+
+    return card;
 }
 
 /* =====================================================
@@ -322,7 +460,7 @@ function createMachinePreview(machines) {
 }
 
 /* =====================================================
-   OPEN EDIT MODAL
+   OPEN / CLOSE EDIT MODALS
 ===================================================== */
 
 function openEditModal(report) {
@@ -340,14 +478,145 @@ function openEditModal(report) {
     document.body.classList.add("modal-open");
 }
 
-/* =====================================================
-   CLOSE EDIT MODAL
-===================================================== */
+function openWIPEditModal(record) {
+    currentWIP = JSON.parse(JSON.stringify(record));
+
+    // Create or reuse an edit modal structure for WIP items
+    let wipModal = document.getElementById("wipEditModal");
+    if (!wipModal) {
+        // Dynamically inject modal HTML if it doesn't exist in HTML template
+        const modalDiv = document.createElement("div");
+        modalDiv.id = "wipEditModal";
+        modalDiv.className = "modal hidden";
+        modalDiv.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Pending WIP Roll</h2>
+                    <button class="modal-close" id="closeWIPModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="editingWIPId" style="font-size: 12px; color: #6b7280; margin-bottom: 10px;"></p>
+                    <div class="form-group"><label>Job No.</label><input type="text" id="editWipJobNo"></div>
+                    <div class="form-group"><label>Job Name</label><input type="text" id="editWipJobName"></div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="editWipStatus">
+                            <option value="Pending Printing">Pending Printing</option>
+                            <option value="Pending Lamination">Pending Lamination</option>
+                            <option value="Pending Slitting">Pending Slitting</option>
+                            <option value="Pending Coating">Pending Coating</option>
+                            <option value="Pending QC">Pending QC</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Roll No.</label><input type="text" id="editWipRollNo"></div>
+                    <div class="form-group"><label>Weight (kg)</label><input type="number" id="editWipWeight" step="any"></div>
+                    <div class="form-group"><label>Production Date</label><input type="date" id="editWipProductionDate"></div>
+                    <div class="form-group"><label>Responsible Person</label><input type="text" id="editWipResponsiblePerson"></div>
+                    <div class="form-group"><label>Remark on Label</label><input type="text" id="editWipRemarkOnLabel"></div>
+                </div>
+                <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" id="deleteWIPButton" class="secondary-button" style="background: #dc2626; color: #fff;">🗑️ Delete Roll</button>
+                    <button type="button" id="cancelWIPEdit" class="secondary-button">Cancel</button>
+                    <button type="button" id="saveWIPChangesButton" class="primary-button">💾 Save Changes</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalDiv);
+        wipModal = modalDiv;
+
+        // Bind events for dynamically created modal
+        document.getElementById("closeWIPModal").addEventListener("click", closeWIPEditModal);
+        document.getElementById("cancelWIPEdit").addEventListener("click", closeWIPEditModal);
+        document.getElementById("saveWIPChangesButton").addEventListener("click", saveWIPChanges);
+        document.getElementById("deleteWIPButton").addEventListener("click", deleteWIPRecord);
+    }
+
+    document.getElementById("editingWIPId").textContent = `Record ID: ${record.id}`;
+    document.getElementById("editWipJobNo").value = record.jobNo || "";
+    document.getElementById("editWipJobName").value = record.jobName || "";
+    document.getElementById("editWipStatus").value = record.status || "";
+    document.getElementById("editWipRollNo").value = record.rollNo || "";
+    document.getElementById("editWipWeight").value = record.weight || "";
+    document.getElementById("editWipProductionDate").value = record.productionDate || "";
+    document.getElementById("editWipResponsiblePerson").value = record.responsiblePerson || "";
+    document.getElementById("editWipRemarkOnLabel").value = record.remarkOnLabel || "";
+
+    wipModal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+}
+
+function closeWIPEditModal() {
+    currentWIP = null;
+    const wipModal = document.getElementById("wipEditModal");
+    if (wipModal) wipModal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+}
 
 function closeEditModal() {
     currentReport = null;
     editModal.classList.add("hidden");
     document.body.classList.remove("modal-open");
+}
+
+/* =====================================================
+   SAVE WIP CHANGES TO FIREBASE
+===================================================== */
+
+async function saveWIPChanges() {
+    if (!currentWIP) return;
+
+    const jobNo = document.getElementById("editWipJobNo").value.trim();
+    const jobName = document.getElementById("editWipJobName").value.trim();
+    const status = document.getElementById("editWipStatus").value;
+    const rollNo = document.getElementById("editWipRollNo").value.trim();
+    const weight = document.getElementById("editWipWeight").value;
+    const productionDate = document.getElementById("editWipProductionDate").value;
+    const responsiblePerson = document.getElementById("editWipResponsiblePerson").value.trim();
+    const remarkOnLabel = document.getElementById("editWipRemarkOnLabel").value.trim();
+
+    if (!jobNo || !jobName || !status || !rollNo || !weight || !productionDate) {
+        alert("Please fill out all required fields.");
+        return;
+    }
+
+    if (!confirm("Save updates to this Pending WIP roll?")) return;
+
+    try {
+        const wipRef = ref(database, "pendingWIP/" + currentWIP.id);
+        await update(wipRef, {
+            jobNo,
+            jobName,
+            status,
+            rollNo,
+            weight: Number(weight),
+            productionDate,
+            responsiblePerson,
+            remarkOnLabel
+        });
+
+        alert("✅ Pending WIP roll updated successfully!");
+        closeWIPEditModal();
+        loadPendingWIP();
+    } catch (error) {
+        console.error("Error updating WIP:", error);
+        alert("❌ Could not save changes.");
+    }
+}
+
+async function deleteWIPRecord() {
+    if (!currentWIP) return;
+    if (!confirm("⚠️ DELETE THIS PENDING WIP ROLL?\n\nThis cannot be undone.")) return;
+
+    try {
+        const wipRef = ref(database, "pendingWIP/" + currentWIP.id);
+        await remove(wipRef);
+        alert("Pending WIP roll deleted.");
+        closeWIPEditModal();
+        loadPendingWIP();
+    } catch (error) {
+        console.error("Error deleting WIP:", error);
+        alert("Could not delete record.");
+    }
 }
 
 /* =====================================================
@@ -624,7 +893,7 @@ function collectMachineData() {
 }
 
 /* =====================================================
-   SAVE CHANGES
+   SAVE CHANGES (REPORTS)
 ===================================================== */
 
 saveChangesButton.addEventListener("click", async function () {
@@ -666,6 +935,7 @@ saveChangesButton.addEventListener("click", async function () {
 
         alert("✅ Report corrected successfully!");
         closeEditModal();
+        loadReports();
     } catch (error) {
         console.error("Firebase update error:", error);
         alert("❌ Could not save changes. Please try again.");
@@ -693,6 +963,7 @@ deleteReportButton.addEventListener("click", async function () {
         await remove(reportRef);
         alert("Report deleted successfully.");
         closeEditModal();
+        loadReports();
     } catch (error) {
         console.error("Firebase delete error:", error);
         alert("Could not delete report. Please try again.");
@@ -706,22 +977,26 @@ deleteReportButton.addEventListener("click", async function () {
    EVENTS & UTILITIES
 ===================================================== */
 
-filterDate.addEventListener("change", renderReports);
-filterShift.addEventListener("input", renderReports);
-filterUnit.addEventListener("change", renderReports);
-searchText.addEventListener("input", renderReports);
+filterDate.addEventListener("change", () => { activeTab === "reports" ? renderReports() : renderPendingWIPList(); });
+filterShift.addEventListener("input", () => { activeTab === "reports" ? renderReports() : renderPendingWIPList(); });
+filterUnit.addEventListener("change", () => { activeTab === "reports" ? renderReports() : renderPendingWIPList(); });
+searchText.addEventListener("input", () => { activeTab === "reports" ? renderReports() : renderPendingWIPList(); });
 
 clearFilters.addEventListener("click", function () {
     filterDate.value = "";
     filterShift.value = "";
     filterUnit.value = "";
     searchText.value = "";
-    renderReports();
+    activeTab === "reports" ? renderReports() : renderPendingWIPList();
 });
 
 refreshButton.addEventListener("click", function () {
-    sortReports();
-    renderReports();
+    if (activeTab === "reports") {
+        sortReports();
+        renderReports();
+    } else {
+        loadPendingWIP();
+    }
 });
 
 closeModal.addEventListener("click", closeEditModal);
@@ -732,8 +1007,10 @@ editModal.addEventListener("click", function (event) {
 });
 
 document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !editModal.classList.contains("hidden")) {
-        closeEditModal();
+    if (event.key === "Escape") {
+        if (!editModal.classList.contains("hidden")) closeEditModal();
+        const wipModal = document.getElementById("wipEditModal");
+        if (wipModal && !wipModal.classList.contains("hidden")) closeWIPEditModal();
     }
 });
 
