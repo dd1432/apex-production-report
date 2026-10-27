@@ -173,6 +173,9 @@ const wipProductionDate =
 const wipRemarkOnLabel =
     document.getElementById("wipRemarkOnLabel");
 
+const wipResponsiblePerson =
+    document.getElementById("wipResponsiblePerson");
+
 const savePendingWIP =
     document.getElementById("savePendingWIP");
 
@@ -1329,7 +1332,8 @@ if (
     wipRollNo &&
     wipWeight &&
     wipProductionDate &&
-    wipRemarkOnLabel
+    wipRemarkOnLabel &&
+    wipResponsiblePerson
 ) {
 
     savePendingWIP.addEventListener("click", async function () {
@@ -1344,6 +1348,7 @@ if (
         const weightValue = wipWeight.value;
         const productionDate = wipProductionDate.value;
         const remarkOnLabel = wipRemarkOnLabel.value.trim();
+        const responsiblePerson = wipResponsiblePerson.value.trim();
 
         /* ---------------------------------------------
            VALIDATION
@@ -1401,6 +1406,7 @@ if (
             weight: Number(weightValue),
             productionDate: productionDate,
             remarkOnLabel: remarkOnLabel,
+            responsiblePerson: responsiblePerson,
             entryTimestamp: serverTimestamp()
         };
 
@@ -1442,6 +1448,7 @@ if (
             wipWeight.value = "";
             wipProductionDate.value = getTodayString();
             wipRemarkOnLabel.value = "";
+            wipResponsiblePerson.value = "";
 
             wipJobNo.focus();
 
