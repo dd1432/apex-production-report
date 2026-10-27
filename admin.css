@@ -164,7 +164,59 @@ body.modal-open {
 
 
 
+/* =====================================================
+   ADMIN NAVIGATION TABS
+===================================================== */
 
+.dashboard-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 15px 25px 0 25px;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    max-width: 1500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-tab {
+    padding: 10px 20px;
+    background: #f3f4f6;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b5563;
+    cursor: pointer;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.dashboard-tab:hover {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.dashboard-tab.active {
+    background: #ffffff;
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 650px) {
+    .dashboard-tabs {
+        padding: 10px 12px 0 12px;
+        gap: 5px;
+    }
+    .dashboard-tab {
+        padding: 8px 12px;
+        font-size: 13px;
+        flex: 1;
+        text-align: center;
+    }
+}
 
 /* =====================================================
    FILTER SECTION
@@ -748,7 +800,7 @@ body.modal-open {
 
     max-width: 1200px;
 
-    max-height: 94vh;
+    max-height: 90vh;
 
     border-radius: 12px;
 
@@ -880,6 +932,18 @@ body.modal-open {
 
     gap: 15px;
 
+}
+
+@media (max-width: 900px) {
+    .edit-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 650px) {
+    .edit-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 
