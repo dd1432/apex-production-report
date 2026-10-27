@@ -680,6 +680,7 @@ pendingWIPResultInfo.textContent =
         "Production Date",
         "Age (Days)",
         "Remark on Label",
+        "Responsible Person",
         "Action — Release"
     ];
 
@@ -720,6 +721,10 @@ pendingWIPResultInfo.textContent =
             record.labelRemark ??
             record.remark ??
             "";
+        
+        const responsiblePerson = record.responsiblePerson ??
+            record.responsible ??
+            "";
 
         row.appendChild(createPendingWIPCell(index + 1));
         row.appendChild(createPendingWIPCell(jobNo));
@@ -735,6 +740,7 @@ pendingWIPResultInfo.textContent =
             createPendingWIPCell(age === null ? "-" : age)
         );
 
+        row.appendChild(createPendingWIPCell(responsiblePerson));
         row.appendChild(createPendingWIPCell(remarkOnLabel));
 
         const actionCell = document.createElement("td");
