@@ -63,7 +63,25 @@
 
 </header>
 
-
+<!-- =====================================================
+     NAVIGATION TABS
+====================================================== -->
+<nav class="dashboard-tabs" style="display: flex; gap: 10px; padding: 15px 20px; background: #fff; border-bottom: 1px solid #e5e7eb;">
+    <button
+        type="button"
+        class="dashboard-tab active"
+        data-tab="reports"
+        style="padding: 8px 16px; cursor: pointer; font-weight: bold;">
+        📊 Production Reports
+    </button>
+    <button
+        type="button"
+        class="dashboard-tab"
+        data-tab="wip"
+        style="padding: 8px 16px; cursor: pointer; font-weight: bold;">
+        📦 Pending WIP Rolls
+    </button>
+</nav>
 
 
 
@@ -260,69 +278,64 @@
 
         <!-- REPORT HEADER -->
 
-        <section class="edit-section">
+        <section class="edit-section" style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
 
-            <h3>
+            <h3 style="margin-bottom: 12px; font-size: 16px;">
                 📋 Report Information
             </h3>
 
 
-            <div class="edit-grid">
+            <div class="edit-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
 
 
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
 
-                    <label for="editDate">
+                    <label for="editDate" style="font-size: 13px; font-weight: 600;">
                         Production Date
                     </label>
 
                     <input
                         type="date"
                         id="editDate"
+                        style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; box-sizing: border-box;"
                     >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
 
-                    <label for="editShift">
+                    <label for="editShift" style="font-size: 13px; font-weight: 600;">
                         Shift
                     </label>
 
-                   <input
-    type="text"
-    id="editShift"
-    placeholder="Enter Shift"
->
+                    <input
+                        type="text"
+                        id="editShift"
+                        placeholder="Enter Shift"
+                        style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; box-sizing: border-box;"
+                    >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
 
-                    <label for="editUnit">
+                    <label for="editUnit" style="font-size: 13px; font-weight: 600;">
                         Unit
                     </label>
 
-                    <select id="editUnit">
-
-                        <option value="Unit 1">
-                            Unit 1
-                        </option>
-
-                        <option value="Unit 2">
-                            Unit 2
-                        </option>
-
+                    <select id="editUnit" style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; box-sizing: border-box; background: #fff;">
+                        <option value="Unit 1">Unit 1</option>
+                        <option value="Unit 2">Unit 2</option>
                     </select>
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 5px;">
 
-                    <label for="editSupervisor">
+                    <label for="editSupervisor" style="font-size: 13px; font-weight: 600;">
                         Supervisor
                     </label>
 
@@ -330,6 +343,7 @@
                         type="text"
                         id="editSupervisor"
                         placeholder="Supervisor name"
+                        style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; box-sizing: border-box;"
                     >
 
                 </div>
@@ -338,7 +352,6 @@
             </div>
 
         </section>
-
 
 
 
