@@ -740,8 +740,8 @@ pendingWIPResultInfo.textContent =
             createPendingWIPCell(age === null ? "-" : age)
         );
 
-        row.appendChild(createPendingWIPCell(responsiblePerson));
         row.appendChild(createPendingWIPCell(remarkOnLabel));
+        row.appendChild(createPendingWIPCell(responsiblePerson));
 
         const actionCell = document.createElement("td");
         actionCell.className = "pending-wip-action-cell";
