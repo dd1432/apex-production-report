@@ -123,11 +123,8 @@ function renderDailyTable() {
     const selectedDate = dateInput.value;
     const selectedUnit = unitInput.value;
     const selectedShift = shiftInput.value;
-    
-    const selectedProcessMachines =
-        selectedUnit === "Unit 1"
-            ? processMachines
-            : unit2ProcessMachines;
+
+    const selectedProcessMachines = selectedUnit === "Unit 1" ? processMachines : unit2ProcessMachines;
 
     if (!selectedDate || !selectedUnit) {
         info.textContent = "Select date and unit";
@@ -143,11 +140,9 @@ function renderDailyTable() {
         reportCount++;
 
         machinesOf(report).forEach(machine => {
-            const machineName = machine.machine;
-            const machineTotal = totals[machineName];
-            
+            const machineTotal = totals[machine.machine];
             if (!machineTotal || String(machine.status || "Production").toLowerCase() !== "production") return;
-            
+
             const shift = shifts.includes(report.shift) ? report.shift : null;
             if (!shift) return;
 
@@ -173,95 +168,104 @@ function renderDailyTable() {
 
     info.textContent = `${selectedDate} • ${selectedUnit}${selectedShift ? ` • ${selectedShift} Shift` : " • All Shifts"} • ${reportCount} report(s)`;
 
-    const rows = Object.entries(selectedProcessMachines).map(([process, machines], processIndex) => {
-        const processTotal = { length: 0, weight: 0 };
-        const shiftTotals = Object.fromEntries(shifts.map(shift => [shift, { length: 0, weight: 0 }]));
+    const rows = Object.entries(selectedProcessMachines)
+        // Doctoring's process length/weight summary is not meaningful; retain its coils metric below.
+        .filter(([process]) => process !== "Doctoring")
+        .map(([process, machines], processIndex) => {
+            const processTotal = { length: 0, weight: 0 };
+            const shiftTotals = Object.fromEntries(shifts.map(shift => [shift, { length: 0, weight: 0 }]));
 
-        machines.forEach(machine => {
-            shifts.forEach(shift => {
+            machines.forEach(machine => {
+                shifts.forEach(shift => {
+                    if (totals[machine]) {
+                        shiftTotals[shift].length += totals[machine][shift].length;
+                        shiftTotals[shift].weight += totals[machine][shift].weight;
+                    }
+                });
                 if (totals[machine]) {
-                    shiftTotals[shift].length += totals[machine][shift].length;
-                    shiftTotals[shift].weight += totals[machine][shift].weight;
+                    processTotal.length += totals[machine].all.length;
+                    processTotal.weight += totals[machine].all.weight;
                 }
             });
-            if (totals[machine]) {
-                processTotal.length += totals[machine].all.length;
-                processTotal.weight += totals[machine].all.weight;
-            }
+
+            const detailId = `process-machine-details-${processIndex}`;
+            const machineRows = machines.map(machine => {
+                const machineTotal = totals[machine];
+                return `
+                    <tr class="machine-detail-row" data-detail-id="${detailId}" hidden>
+                        <td class="machine-name">${machine}</td>
+                        ${shifts.map(shift => `
+                            <td>${format(machineTotal[shift].length)} m</td>
+                            <td>${format(machineTotal[shift].weight)} kg</td>
+                        `).join("")}
+                        <td class="total-column">${format(machineTotal.all.length)} m</td>
+                        <td class="total-column">${format(machineTotal.all.weight)} kg</td>
+                    </tr>
+                `;
+            }).join("");
+
+            return `
+                <tr class="process-total-row">
+                    <td>
+                        <button class="process-toggle" type="button" aria-expanded="false" aria-controls="${detailId}" aria-label="Show ${process} machine totals">
+                            <span class="process-toggle-icon" aria-hidden="true">▸</span>
+                        </button>
+                        ${process} Total
+                    </td>
+                    ${shifts.map(shift => `
+                        <td>${format(shiftTotals[shift].length)} m</td>
+                        <td>${format(shiftTotals[shift].weight)} kg</td>
+                    `).join("")}
+                    <td class="total-column">${format(processTotal.length)} m</td>
+                    <td class="total-column">${format(processTotal.weight)} kg</td>
+                </tr>
+                ${machineRows}
+            `;
+        }).join("");
+
+    const slittingMachines = selectedProcessMachines.Slitting || [];
+    const doctoringMachines = selectedProcessMachines.Doctoring || [];
+
+    const renderExtraMetricRow = (label, machines, metricKey, detailId, rowIndex) => {
+        const shiftSums = Object.fromEntries(shifts.map(shift => [shift, 0]));
+        let overallSum = 0;
+
+        machines.forEach(machine => {
+            if (!totals[machine]) return;
+            shifts.forEach(shift => { shiftSums[shift] += totals[machine][shift][metricKey]; });
+            overallSum += totals[machine].all[metricKey];
         });
 
-        const detailId = `process-machine-details-${processIndex}`;
         const machineRows = machines.map(machine => {
             const machineTotal = totals[machine];
             return `
-                <tr class="machine-detail-row" data-process-detail="${detailId}" hidden>
+                <tr class="machine-detail-row metric-machine-detail-row" data-detail-id="${detailId}" hidden>
                     <td class="machine-name">${machine}</td>
-                    ${shifts.map(shift => `
-                        <td>${format(machineTotal[shift].length)} m</td>
-                        <td>${format(machineTotal[shift].weight)} kg</td>
-                    `).join("")}
-                    <td class="total-column">${format(machineTotal.all.length)} m</td>
-                    <td class="total-column">${format(machineTotal.all.weight)} kg</td>
+                    ${shifts.map(shift => `<td colspan="2">${format(machineTotal[shift][metricKey])} Nos</td>`).join("")}
+                    <td colspan="2" class="total-column">${format(machineTotal.all[metricKey])} Nos</td>
                 </tr>
             `;
         }).join("");
 
         return `
-            <tr class="process-total-row">
+            <tr class="extra-metric-row">
                 <td>
-                    <button class="process-toggle" type="button" aria-expanded="false" aria-controls="${detailId}" aria-label="Show ${process} machine totals">
+                    <button class="process-toggle" type="button" aria-expanded="false" aria-controls="${detailId}" aria-label="Show machine-wise ${label.toLowerCase()}">
                         <span class="process-toggle-icon" aria-hidden="true">▸</span>
                     </button>
-                    ${process} Total
+                    <strong>${label}</strong>
                 </td>
-                ${shifts.map(shift => `
-                    <td>${format(shiftTotals[shift].length)} m</td>
-                    <td>${format(shiftTotals[shift].weight)} kg</td>
-                `).join("")}
-                <td class="total-column">${format(processTotal.length)} m</td>
-                <td class="total-column">${format(processTotal.weight)} kg</td>
+                ${shifts.map(shift => `<td colspan="2" style="text-align: center;">${format(shiftSums[shift])} Nos</td>`).join("")}
+                <td colspan="2" class="total-column" style="text-align: center;">${format(overallSum)} Nos</td>
             </tr>
             ${machineRows}
-        `;
-    }).join("");
-
-    const slittingMachines = selectedProcessMachines["Slitting"] || [];
-    const doctoringMachines = selectedProcessMachines["Doctoring"] || [];
-
-    const getMetricShiftTotals = (machinesList, metricKey) => {
-        const shiftSums = {};
-        let overallSum = 0;
-        shifts.forEach(shift => {
-            let sSum = 0;
-            machinesList.forEach(m => {
-                if (totals[m]) sSum += totals[m][shift][metricKey];
-            });
-            shiftSums[shift] = sSum;
-            overallSum += sSum;
-        });
-        return { shiftSums, overallSum };
-    };
-
-    const reelsData = getMetricShiftTotals(slittingMachines, "reels");
-    const holdReelsData = getMetricShiftTotals(slittingMachines, "hold_reels");
-    const coilsData = getMetricShiftTotals(doctoringMachines, "totalCoils");
-
-    const renderExtraMetricRow = (label, data) => {
-        return `
-            <tr class="extra-metric-row">
-                <td><strong>${label}</strong></td>
-                ${shifts.map(shift => `
-                    <td colspan="2" style="text-align: center;">${format(data.shiftSums[shift])} Nos</td>
-                `).join("")}
-                <td colspan="2" class="total-column" style="text-align: center;">${format(data.overallSum)} Nos</td>
-            </tr>
         `;
     };
 
     const extraRows = `
-        ${renderExtraMetricRow("Total Reels", reelsData)}
-        ${renderExtraMetricRow("Total Hold Reels", holdReelsData)}
-        ${renderExtraMetricRow("Total Doctoring Coils", coilsData)}
+        ${renderExtraMetricRow("Total Reels", slittingMachines, "reels", "metric-reels-details", 0)}
+        ${renderExtraMetricRow("Total Hold Reels", slittingMachines, "hold_reels", "metric-hold-reels-details", 1)}
+        ${renderExtraMetricRow("Total Doctoring Coils", doctoringMachines, "totalCoils", "metric-doctoring-coils-details", 2)}
     `;
 
     const shiftHeadings = shifts.map(shift => `<th class="shift-heading" colspan="2">${shift} Shift</th>`).join("");
@@ -301,17 +305,17 @@ function renderDailyTable() {
         button.addEventListener("click", () => {
             const isExpanded = button.getAttribute("aria-expanded") === "true";
             const detailId = button.getAttribute("aria-controls");
-            const detailRows = container.querySelectorAll(`[data-process-detail="${detailId}"]`);
-            detailRows.forEach(row => { row.hidden = isExpanded; });
+            container.querySelectorAll(`[data-detail-id="${detailId}"]`).forEach(row => {
+                row.hidden = isExpanded;
+            });
             button.setAttribute("aria-expanded", String(!isExpanded));
-            button.setAttribute("aria-label", `${isExpanded ? "Show" : "Hide"} ${button.parentElement.textContent.trim().replace(" Total", "")} machine totals`);
+            const label = button.getAttribute("aria-label").replace(/^(Show|Hide) /, "");
+            button.setAttribute("aria-label", `${isExpanded ? "Show" : "Hide"} ${label}`);
         });
     });
 
     const printBtn = document.getElementById("printDailySummaryBtn");
-    if (printBtn) {
-        printBtn.addEventListener("click", printDailySummary);
-    }
+    if (printBtn) printBtn.addEventListener("click", printDailySummary);
 }
 
 [dateInput, shiftInput, unitInput].forEach(element => {
