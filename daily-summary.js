@@ -23,7 +23,7 @@ const processMachines = {
     Printing: ["Printing 1", "Printing 2"],
     Lamination: ["Lamination 1", "Lamination 2"],
     "Extrusion Coating": ["Extrusion Coating 1"],
-    Slitting: ["Slitting 1", "Slitting 2", "Slitting 3", "Slitting 4"],
+    Slitting: ["Slitting 3", "Slitting 4"],
     Doctoring: ["Doctoring 1", "Doctoring 2"],
     Inspection: ["Inspection 1"]
 };
@@ -169,7 +169,6 @@ function renderDailyTable() {
     info.textContent = `${selectedDate} • ${selectedUnit}${selectedShift ? ` • ${selectedShift} Shift` : " • All Shifts"} • ${reportCount} report(s)`;
 
     const rows = Object.entries(selectedProcessMachines)
-        // Doctoring's process length/weight summary is not meaningful; retain its coils metric below.
         .filter(([process]) => process !== "Doctoring")
         .map(([process, machines], processIndex) => {
             const processTotal = { length: 0, weight: 0 };
@@ -226,7 +225,7 @@ function renderDailyTable() {
     const slittingMachines = selectedProcessMachines.Slitting || [];
     const doctoringMachines = selectedProcessMachines.Doctoring || [];
 
-    const renderExtraMetricRow = (label, machines, metricKey, detailId, rowIndex) => {
+    const renderExtraMetricRow = (label, machines, metricKey, detailId) => {
         const shiftSums = Object.fromEntries(shifts.map(shift => [shift, 0]));
         let overallSum = 0;
 
@@ -263,9 +262,9 @@ function renderDailyTable() {
     };
 
     const extraRows = `
-        ${renderExtraMetricRow("Total Reels", slittingMachines, "reels", "metric-reels-details", 0)}
-        ${renderExtraMetricRow("Total Hold Reels", slittingMachines, "hold_reels", "metric-hold-reels-details", 1)}
-        ${renderExtraMetricRow("Total Doctoring Coils", doctoringMachines, "totalCoils", "metric-doctoring-coils-details", 2)}
+        ${renderExtraMetricRow("Total Reels", slittingMachines, "reels", "metric-reels-details")}
+        ${renderExtraMetricRow("Total Hold Reels", slittingMachines, "hold_reels", "metric-hold-reels-details")}
+        ${renderExtraMetricRow("Total Doctoring Coils", doctoringMachines, "totalCoils", "metric-doctoring-coils-details")}
     `;
 
     const shiftHeadings = shifts.map(shift => `<th class="shift-heading" colspan="2">${shift} Shift</th>`).join("");
