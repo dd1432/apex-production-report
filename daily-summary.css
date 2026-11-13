@@ -79,6 +79,50 @@
     background: #dcefdc;
 }
 
+.daily-table .process-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin: 0 5px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.daily-table .process-toggle:hover,
+.daily-table .process-toggle:focus-visible {
+    background: #e9ecef;
+}
+
+.daily-table .process-toggle-icon {
+    display: inline-block;
+    transition: transform 0.15s ease;
+}
+
+.daily-table .process-toggle[aria-expanded="true"] .process-toggle-icon {
+    transform: rotate(90deg);
+}
+
+.daily-table .machine-detail-row[hidden] {
+    display: none;
+}
+
+.daily-table .machine-detail-row {
+    background: #f8fafc;
+}
+
+.daily-table .machine-detail-row .machine-name {
+    padding-left: 36px;
+    font-weight: 500;
+}
+
 @media (max-width: 600px) {
     .daily-header {
         align-items: flex-start;
