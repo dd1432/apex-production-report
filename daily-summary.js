@@ -173,7 +173,7 @@ function renderDailyTable() {
 
     info.textContent = `${selectedDate} • ${selectedUnit}${selectedShift ? ` • ${selectedShift} Shift` : " • All Shifts"} • ${reportCount} report(s)`;
 
-    const rows = Object.entries(selectedProcessMachines).map(([process, machines]) => {
+    const rows = Object.entries(selectedProcessMachines).map(([process, machines], processIndex) => {
         const processTotal = { length: 0, weight: 0 };
         const shiftTotals = Object.fromEntries(shifts.map(shift => [shift, { length: 0, weight: 0 }]));
 
@@ -190,9 +190,30 @@ function renderDailyTable() {
             }
         });
 
+        const detailId = `process-machine-details-${processIndex}`;
+        const machineRows = machines.map(machine => {
+            const machineTotal = totals[machine];
+            return `
+                <tr class="machine-detail-row" data-process-detail="${detailId}" hidden>
+                    <td class="machine-name">${machine}</td>
+                    ${shifts.map(shift => `
+                        <td>${format(machineTotal[shift].length)} m</td>
+                        <td>${format(machineTotal[shift].weight)} kg</td>
+                    `).join("")}
+                    <td class="total-column">${format(machineTotal.all.length)} m</td>
+                    <td class="total-column">${format(machineTotal.all.weight)} kg</td>
+                </tr>
+            `;
+        }).join("");
+
         return `
-            <tr>
-                <td>${process} Total</td>
+            <tr class="process-total-row">
+                <td>
+                    <button class="process-toggle" type="button" aria-expanded="false" aria-controls="${detailId}" aria-label="Show ${process} machine totals">
+                        <span class="process-toggle-icon" aria-hidden="true">▸</span>
+                    </button>
+                    ${process} Total
+                </td>
                 ${shifts.map(shift => `
                     <td>${format(shiftTotals[shift].length)} m</td>
                     <td>${format(shiftTotals[shift].weight)} kg</td>
@@ -200,6 +221,7 @@ function renderDailyTable() {
                 <td class="total-column">${format(processTotal.length)} m</td>
                 <td class="total-column">${format(processTotal.weight)} kg</td>
             </tr>
+            ${machineRows}
         `;
     }).join("");
 
@@ -274,6 +296,17 @@ function renderDailyTable() {
             </div>
         </div>
     `;
+
+    container.querySelectorAll(".process-toggle").forEach(button => {
+        button.addEventListener("click", () => {
+            const isExpanded = button.getAttribute("aria-expanded") === "true";
+            const detailId = button.getAttribute("aria-controls");
+            const detailRows = container.querySelectorAll(`[data-process-detail="${detailId}"]`);
+            detailRows.forEach(row => { row.hidden = isExpanded; });
+            button.setAttribute("aria-expanded", String(!isExpanded));
+            button.setAttribute("aria-label", `${isExpanded ? "Show" : "Hide"} ${button.parentElement.textContent.trim().replace(" Total", "")} machine totals`);
+        });
+    });
 
     const printBtn = document.getElementById("printDailySummaryBtn");
     if (printBtn) {
